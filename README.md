@@ -1,4 +1,4 @@
-- 👋 Hi, I’m @stosh689
+-  Hi, Im @stosh689
 
 It looks like the code is trying to do the following:
 
@@ -10,14 +10,14 @@ It looks like the code is trying to do the following:
     Define a function to request a specific resource.
     Create two new resources in the database.
     Request a resource.
-    Load data from a CSV file and process it to create a plot showing the relationship between social prosperity and various factors that contribute to human suffering.
+    Load data from a CSV file and process it to create a plot showing the relationship between social prosperity and various factors,distribution, that contribute to human suffering.
 
 The code appears to be incomplete and has some syntax errors, so it is not possible to fully understand its intended behavior or to determine whether it will work as intended
 
 
 
 
-- 👀 I’m interested in ...(pre ai speech to text, my  on my key board is broken too, sorry eh,open source data using ai to build a better future for the next 
+- I’m interested in ...(pre ai speech to text, my  on my key board is broken too, sorry eh,open source data using ai to build a better future for the next 
 - generation of  people, i'd like to help stop a global extinction event, and i need your help. i've been a good person in the past but i have alays been a 
 - good person in the present, lets be good people hen people look bck on us in the future do this for the right reasons, because you to are a good person
 -  and fed up ith the reckless behaviour in hich humans have destroyed the possiblity for a future by polluting the globe, making our ocean into a toxic soup. sorry for the terrible grammer? grammar
@@ -249,7 +249,7 @@ chinese
 產生影響並為未來留下積極遺產的一代人。
 
 
-- 🌱 I’m currently learning ...coding, c++, python,and linux, i compile ai ritten code to fetch large data sets in order to premote social capital,
+- 🌱 I’m currently learning ...coding, c++, python,and linux, i compile ai ritten code to fetch large data sets in order to premote social capital,i don't know anything in all honesty, that all i know
 -  valuing human beings over money or possesions.the is a script code script to track trace and ultimately help la enforcement catch criminals and ar criminals of high priority.
 -  in order to solve major problems in order to help people in poverty. the main focus is help migrents from ar torn countries, refugge find safe passage, 
 -  to allow every man women and child the basic human rights, basic needs like food water shealter education and medical care )and right to 
