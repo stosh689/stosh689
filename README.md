@@ -613,29 +613,25 @@ response = requests.get(url)
 
 # Check the status code of the response
 if response.status_code == 200:
-  # Parse the HTML content of the website
+# Parse the HTML content of the website
   soup = BeautifulSoup(response.content, "html.parser")
 
-  # Find all the table rows in the website
+# Find all the table rows in the website
   rows = soup.find_all("tr")
-
-  # Create a list to store the data
+# Create a list to store the data
   data = []
-
-  # Iterate through the rows
+# Iterate through the rows
   for row in rows:
-    # Find all the cells in the row
+# Find all the cells in the row
     cells = row.find_all("td")
-
-    # Create a dictionary to store the data for the row
+# Create a dictionary to store the data for the row
     row_data = {}
 
-    # Iterate through the cells
+# Iterate through the cells
     for i, cell in enumerate(cells):
       # Extract the text from the cell
       cell_text = cell.get_text()
-
-      # Add the data to the dictionary
+# Add the data to the dictionary
       if i == 0:
         row_data["Company"] = cell_text
       elif i == 1:
@@ -644,8 +640,7 @@ if response.status_code == 200:
         row_data["Purpose"] = cell_text
       elif i == 3:
         row_data["Duration"] = cell_text
-
-    # Add the row data to the list
+# Add the row data to the list
     data.append(row_data)
 
 # Print the data
