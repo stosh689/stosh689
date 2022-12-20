@@ -4081,6 +4081,10 @@ yearly_averages = data.groupby("year").mean()
 # Plot the data over time
 yearly_averages.plot(x="year", y="value")
 
+import sigmaplus
+import pandas as pd
+
+
 
 
 
