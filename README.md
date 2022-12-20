@@ -679,14 +679,14 @@ table = soup.find("table")
 
 # Iterate over the rows of the table
 for row in table.find_all("tr"):
-  # Extract the data from each cell
+# Extract the data from each cell
   cells = row.find_all("td")
   if cells:
     country = cells[0].text
     cases = cells[1].text
     deaths = cells[2].text
 
-    # Print the data
+# Print the data
     print(f"{country}: {cases} cases, {deaths} deaths")
 import requests
 from bs4 import BeautifulSoup
@@ -707,6 +707,29 @@ data = data_element.text
 # Print the data
 print(data)
 
+import requests
+from bs4 import BeautifulSoup
+
+# Send an HTTP request to the website
+url = "https://www.publichealthagency.gov/cases-deaths"
+response = requests.get(url)
+
+# Parse the HTML content
+soup = BeautifulSoup(response.content, "html.parser")
+
+# Find the table containing the data
+table = soup.find("table")
+
+# Iterate over the rows of the table
+for row in table.find_all("tr"):
+  # Extract the data from each cell
+  cells = row.find_all("td")
+  if cells:
+    country = cells[0].text
+    cases = cells[1].text
+    deaths = cells[2].text
+# Print the data
+    print(f"{country}: {cases} cases, {deaths} deaths")
 
 <!---
 stosh689/stosh689 is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
