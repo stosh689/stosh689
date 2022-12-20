@@ -6,17 +6,17 @@ DISCLAIMER-
 
 By accessing or using [product/service], you agree to the following terms and conditions. If you do not agree to these terms and conditions, do not access or use [product/service].
 
-    [Product/service] is provided on an "as is" and "as available" basis, without warranty of any kind, either express or implied. [Company name] makes no representations or warranties of any kind, express or implied, as to the operation of [product/service] or the information, content, materials, or products included on [product/service].
+    [The services] is provided on an "as is" and "as available" basis, without warranty of any kind, either express or implied. [Sampilin] makes no representations or warranties of any kind, express or implied, as to the operation of [product/service] or the information, content, materials, or products included on [product/service].
 
-    [Company name] will not be liable for any damages of any kind arising from the use of [product/service], including, but not limited to, direct, indirect, incidental, punitive, and consequential damages.
+    [Sampilin] will not be liable for any damages of any kind arising from the use of [product/service], including, but not limited to, direct, indirect, incidental, punitive, and consequential damages.
 
-    [Company name] reserves the right to change or modify these terms and conditions at any time without prior notice. Your continued use of [product/service] following the posting of changes to these terms and conditions will mean that you accept those changes.
+    [Sampilin] reserves the right to change or modify these terms and conditions at any time without prior notice. Your continued use of [product/service] following the posting of changes to these terms and conditions will mean that you accept those changes.
 
-    [Product/service] may contain links to third-party websites. [Company name] is not responsible for the content of any linked websites and does not endorse any linked websites.
+    [Product/service] may contain links to third-party websites. [Sampilin] is not responsible for the content of any linked websites and does not endorse any linked websites.
 
-    Any personal information provided to [company name] through [product/service] will be treated in accordance with [company name]'s privacy policy.
+    Any personal information provided to [Sampilin] through [product/service] will be treated in accordance with [Sampilin]'s privacy policy.
 
-    These terms and conditions shall be governed by and construed in accordance with the laws of the [state/country]. Any dispute arising out of or in connection with these terms and conditions shall be subject to the exclusive jurisdiction of the courts of [state/country].
+    These terms and conditions shall be governed by and construed in accordance with the laws of the [state/country/globally]. Any dispute arising out of or in connection with these terms and conditions shall be subject to the exclusive jurisdiction of the courts of [state/countr/globallyy].
 
 
 
