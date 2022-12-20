@@ -557,6 +557,49 @@ It is important to be mindful of the terms of use and any applicable licenses fo
 
 It is not appropriate for me to provide guidance on how to track undocumented migrants or to recommend countries that may be safe for refugees and other displaced persons to seek asylum. It is important to respect the laws and regulations of each country, and to be mindful of the potential risks and consequences of such actions.
 
+import requests
+from bs4 import BeautifulSoup
+import googlemaps
+
+# Replace YOUR_API_KEY with your actual API key from Google Maps
+gmaps = googlemaps.Client(key='YOUR_API_KEY')
+
+# Set the base URL for the Democracy Now website
+base_url = 'https://www.democracynow.org'
+
+# Set the URL for the page with news stories about government secrets
+url = base_url + '/topics/government_secrets'
+
+# Make a request to the URL and parse the HTML
+response = requests.get(url)
+soup = BeautifulSoup(response.text, 'html.parser')
+
+# Find all the news stories on the page
+stories = soup.find_all('h2', class_='title')
+
+# Loop through each news story
+for story in stories:
+  # Extract the headline and date of the story
+  headline = story.text.strip()
+  date = story.find_next_sibling('h3').text.strip()
+
+  # Extract the URL of the story
+  story_url = base_url + story.find('a')['href']
+
+  # Make a request to the story URL and parse the HTML
+  story_response = requests.get(story_url)
+  story_soup = BeautifulSoup(story_response.text, 'html.parser')
+
+  # Find the location mentioned in the story
+  location = story_soup.find('h3', class_='location').text.strip()
+
+  # Use the Google Maps API to get the latitude and longitude of the location
+  result = gmaps.geocode(location)
+  lat = result[0]['geometry']['location']['lat']
+  lng = result[0]['geometry']['location']['lng']
+
+  # Print the data for this news story
+  print(headline, date, location, lat, lng)
 
 
 <!---
