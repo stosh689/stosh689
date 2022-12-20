@@ -4068,6 +4068,20 @@ for url in urls:
         print(paragraph.text)
 
 
+import pandas as pd
+
+# This code is part of research and defense programs aimed at achieving long-term missions to save lives, both here on Earth and in space.
+
+# Load the data from the early 18th century
+data = pd.read_csv("18th_century_data.csv")
+
+# Calculate the average value for each year
+yearly_averages = data.groupby("year").mean()
+
+# Plot the data over time
+yearly_averages.plot(x="year", y="value")
+
+
 
 
 
