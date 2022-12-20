@@ -731,6 +731,11 @@ for row in table.find_all("tr"):
 # Print the data
     print(f"{country}: {cases} cases, {deaths} deaths")
 
+headers = {'User-Agent': 'MyScraper/1.0'}
+response = requests.get(url, headers=headers)
+
+
+
 <!---
 stosh689/stosh689 is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 You can click the Preview link to take a look at your changes.
