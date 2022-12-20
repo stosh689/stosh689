@@ -688,6 +688,24 @@ for row in table.find_all("tr"):
 
     # Print the data
     print(f"{country}: {cases} cases, {deaths} deaths")
+import requests
+from bs4 import BeautifulSoup
+
+# Send an HTTP request to the website
+url = "https://www.example.com"
+response = requests.get(url)
+
+# Parse the HTML content
+soup = BeautifulSoup(response.content, "html.parser")
+
+# Find the element containing the data you want to scrape
+data_element = soup.find("div", class_="data")
+
+# Extract the data from the element
+data = data_element.text
+
+# Print the data
+print(data)
 
 
 <!---
