@@ -3774,6 +3774,33 @@ for language in languages:
   print(f'Translation to {language}: {response.translations[0].translated_text}')
 
 
+import requests
+import json
+
+def translate_text(text, target_language):
+    api_key = '<YOUR_API_KEY>'
+    base_url = 'https://translation.googleapis.com/language/translate/v2'
+    payload = {
+        'q': text,
+        'target': target_language,
+        'format': 'text',
+        'key': api_key
+    }
+    response = requests.post(base_url, data=payload)
+    if response.status_code == 200:
+        json_response = json.loads(response.text)
+        return json_response['data']['translations'][0]['translatedText']
+    else:
+        return 'Error: Translation failed'
+
+# Translate the given text into 10 different languages
+text = 'It is important for organizations to have a clear and concise policy for reporting vulnerabilities in order to ensure that any potential security issues are promptly addressed and mitigated.'
+languages = ['ar', 'de', 'es', 'fr', 'it', 'ja', 'ko', 'pt', 'ru', 'zh-CN']
+translations = {}
+for language in languages:
+    translations[language] = translate_text(text, language)
+
+print(translations)
 
 
 
