@@ -4008,6 +4008,66 @@ if signals:
 else:
   print('No signals detected.')
 
+import requests
+from bs4 import BeautifulSoup
+
+url = "https://en.wikipedia.org/wiki/List_of_open-source_data_sources"
+
+response = requests.get(url)
+soup = BeautifulSoup(response.text, "html.parser")
+
+# Print the title of the webpage
+print(soup.title.string)
+
+# Find all of the links on the page
+links = soup.find_all("a")
+
+# Print the text and URL of each link
+for link in links:
+    print(link.text, link["href"])
+
+import requests
+from bs4 import BeautifulSoup
+
+url = "https://en.wikipedia.org/wiki/List_of_open-source_data_sources"
+
+response = requests.get(url)
+soup = BeautifulSoup(response.text, "html.parser")
+
+# Print the title of the webpage
+print(soup.title.string)
+
+# Find all of the links on the page
+links = soup.find_all("a")
+
+# Print the text and URL of each link
+for link in links:
+    print(link.text, link["href"])
+
+import requests
+from bs4 import BeautifulSoup
+
+# Define a list of URLs to search
+urls = [
+    "https://en.wikipedia.org/wiki/Search_for_extraterrestrial_intelligence",
+    "https://www.nasa.gov/topic/search-for-life",
+    "https://www.seti.org/search-extraterrestrial-life"
+]
+
+# Loop through each URL
+for url in urls:
+    # Download the webpage
+    response = requests.get(url)
+    # Parse the HTML content of the page
+    soup = BeautifulSoup(response.text, "html.parser")
+    # Find all of the paragraphs on the page
+    paragraphs = soup.find_all("p")
+    # Loop through each paragraph
+    for paragraph in paragraphs:
+        # Print the text of the paragraph
+        print(paragraph.text)
+
+
 
 
 
