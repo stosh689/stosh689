@@ -3603,6 +3603,38 @@ for index, row in df.iterrows():
     print(f"Possible instance of white collar crime in {row['country']}")
 
 
+# Import necessary modules
+import pandas as pd
+import statsmodels.api as sm
+
+# Load the data into a pandas DataFrame
+df = pd.read_csv("covid_data.csv")
+
+def analyze_data():
+  # Calculate the Pearson correlation coefficient between cases and deaths
+  corr = df["cases"].corr(df["deaths"])
+  print(f"Correlation between cases and deaths: {corr:.2f}")
+
+  # Fit a linear regression model to the data
+  y = df["deaths"]
+  X = df[["cases", "population"]]
+  model = sm.OLS(y, X).fit()
+
+  # Print the results
+  print(model.summary())
+
+def find_white_collar_crime():
+  # Find instances of potential white collar crime
+  for index, row in df.iterrows():
+    if row["deaths"] > 1000 and row["cases"] < 100000:
+      print(f"Possible instance of white collar crime in {row['country']}")
+
+def main():
+  analyze_data()
+  find_white_collar_crime()
+
+if __name__ == "__main__":
+  main()
 
 
 <!---
