@@ -1,6 +1,17 @@
 -  Hi, Im @stosh689
 
 
+from googletrans import Translator
+
+translator = Translator()
+
+languages = ['af', 'ar', 'bg', 'bn', 'ca', 'cs', 'cy', 'da', 'de', 'el', 'en', 'eo', 'es', 'et', 'fa', 'fi', 'fr', 'ga', 'gl', 'gu', 'hi', 'hr', 'ht', 'hu', 'id', 'is', 'it', 'iw', 'ja', 'ka', 'kn', 'ko', 'la', 'lt', 'lv', 'mk', 'ms', 'mt', 'nl', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'sq', 'sr', 'sv', 'sw', 'ta', 'te', 'th', 'tl', 'tr', 'uk', 'ur', 'vi', 'yi', 'zh-CN', 'zh-TW']
+
+for language in languages:
+    translation = translator.translate("sampilin", dest=language)
+    print(f"{language}: {translation.text}")
+
+
 
 DISCLAIMER-
 
@@ -14,7 +25,7 @@ By accessing or using [product/service], you agree to the following terms and co
 
     [Product/service] may contain links to third-party websites. [Sampilin] is not responsible for the content of any linked websites and does not endorse any linked websites.
 
-    Any personal information provided to [Sampilin] through [product/service] will be treated in accordance with [Sampilin]'s privacy policy.
+    Any personal information provided to [Sampilin] through [product/service] will be treated in accordance with [Sampilin] privacy policy.
 
     These terms and conditions shall be governed by and construed in accordance with the laws of the [state/country/globally]. Any dispute arising out of or in connection with these terms and conditions shall be subject to the exclusive jurisdiction of the courts of [state/countr/globallyy].
 
@@ -38,7 +49,9 @@ The code appears to be incomplete and has some syntax errors, so it is not possi
 
 
 
-- I’m interested in ...(pre ai speech to text, my  on my key board is broken too, sorry eh,open source data using ai to build a better future for the next 
+- Im interested in ...(pre ai speech to text, my  on my key board is broken too) 
+
+Open source data using ai to build a better future for the next 
 - generation of  people, i'd like to help stop a global extinction event, and i need your help. i've been a good person in the past but i have alays been a 
 - good person in the present, lets be good people hen people look bck on us in the future do this for the right reasons, because you to are a good person
 -  and fed up ith the reckless behaviour in hich humans have destroyed the possiblity for a future by polluting the globe, making our ocean into a toxic soup. sorry for the terrible grammer? grammar
@@ -52,14 +65,14 @@ demand change. These actions serve as a reminder that humans have no right to ru
 
 
 One way we can make a difference is by using open source data and AI to build a better future for the next generation. By harnessing the power of
-technology, we can identify and solve some of the world's hardest problems, from climate change to poverty and inequality.
+technology, we can identify and solve some of the worlds hardest problems, from climate change to poverty and inequality.
 
 To do this, we need the help of governments and the public. Governments can play a crucial role by providing access to open source data and 
 supporting initiatives that use AI for the greater good. At the same time, the public can also help by getting involved in organizations like 
 Extinction Rebellion and advocating for change in their own communities.
 
 Together, we can build a platform that addresses some of the most pressing challenges facing our world today. It will take time and effort, but if we work
-together and remain committed to building a better future, we can create a world that is sustainable and thriving for generations to come. Let's be the
+together and remain committed to building a better future, we can create a world that is sustainable and thriving for generations to come. Lets be the
 generation that makes a difference and leaves a positive legacy for the future.
 
 german:
