@@ -734,6 +734,43 @@ for row in table.find_all("tr"):
 headers = {'User-Agent': 'MyScraper/1.0'}
 response = requests.get(url, headers=headers)
 
+import requests
+from bs4 import BeautifulSoup
+
+# Send an HTTP request to the website
+url = "https://www.publichealthagency.gov/cases-deaths"
+headers = {'User-Agent': 'MyScraper/1.0'}
+response = requests.get(url, headers=headers)
+
+# Parse the HTML content
+soup = BeautifulSoup(response.content, "html.parser")
+
+# Find the table containing the data
+table = soup.find("table")
+
+# Create a list to store the data
+data = []
+
+# Iterate over the rows of the table
+for row in table.find_all("tr"):
+  # Extract the data from each cell
+  cells = row.find_all("td")
+  if cells:
+    country = cells[0].text
+    cases = cells[1].text
+    deaths = cells[2].text
+    # Store the data in a dictionary
+    datapoint = {'country': country, 'cases': cases, 'deaths': deaths}
+    data.append(datapoint)
+
+# Print the data
+for datapoint in data:
+  print(f"{datapoint['country']}: {datapoint['cases']} cases, {datapoint['deaths']} deaths")
+
+# Find instances of potential white collar crime
+for datapoint in data:
+  if int(datapoint['deaths']) > 1000 and int(datapoint['cases']) < 100000:
+    print(f"Possible instance of white collar crime in {datapoint['country']}")
 
 
 <!---
