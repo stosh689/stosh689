@@ -3815,7 +3815,91 @@ for language in languages:
 
 print(translations)
 
-.
+import csv
+
+# Set up an empty dictionary to store the data
+bird_data = {}
+
+# Open the CSV file with the data
+with open('bird_data.csv', 'r') as f:
+  # Use the CSV reader to read the file
+  reader = csv.reader(f)
+  # Skip the header row
+  next(reader)
+  # Loop through the rows in the file
+  for row in reader:
+    # Get the information from the row
+    species = row[0]
+    location = row[1]
+    time = row[2]
+    # Add the data to the dictionary
+    if species not in bird_data:
+      bird_data[species] = {}
+    if location not in bird_data[species]:
+      bird_data[species][location] = []
+    bird_data[species][location].append(time)
+
+# Loop through the species in the dictionary
+for species, locations in bird_data.items():
+  # Print the species name
+  print(species)
+  # Loop through the locations for this species
+  for location, times in locations.items():
+    # Print the location and the number of sightings
+    print(f'  {location}: {len(times)} sightings')
+
+
+
+import csv
+
+# Set up an empty dictionary to store the data
+species_data = {}
+
+# Open the CSV file with the data
+with open('species_data.csv', 'r') as f:
+  # Use the CSV reader to read the file
+  reader = csv.reader(f)
+  # Skip the header row
+  next(reader)
+  # Loop through the rows in the file
+  for row in reader:
+    # Get the information from the row
+    species = row[0]
+    location = row[1]
+    time = row[2]
+    habitat = row[3]
+    age = row[4]
+    gender = row[5]
+    group_size = row[6]
+    # Add the data to the dictionary
+    if species not in species_data:
+      species_data[species] = {}
+    if location not in species_data[species]:
+      species_data[species][location] = []
+    species_data[species][location].append({
+      'time': time,
+      'habitat': habitat,
+      'age': age,
+      'gender': gender,
+      'group_size': group_size
+    })
+
+# Loop through the species in the dictionary
+for species, locations in species_data.items():
+  # Print the species name
+  print(species)
+  # Loop through the locations for this species
+  for location, observations in locations.items():
+    # Print the location and the number of observations
+    print(f'  {location}: {len(observations)} observations')
+    # Loop through the observations for this location
+    for obs in observations:
+      # Print the observation details
+      print(f'    Time: {obs["time"]}')
+      print(f'    Habitat: {obs["habitat"]}')
+      print(f'    Age: {obs["age"]}')
+      print(f'    Gender: {obs["gender"]}')
+      print(f'    Group size: {obs["group_size"]}')
 
 
 <!---
