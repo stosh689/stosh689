@@ -1474,6 +1474,94 @@ if output_label == "2":
 
 
 
+
+
+{
+  "data": [
+    {
+      "id": "file-ccdDZrC3iZVNiQVeEA6Z66wf",
+      "object": "file",
+      "bytes": 175,
+      "created_at": 1613677385,
+      "filename": "train.jsonl",
+      "purpose": "search"
+    },
+    {
+      "id": "file-XjGxS3KTG0uNmNOK362iJua3",
+      "object": "file",
+      "bytes": 140,
+      "created_at": 1613779121,
+      "filename": "puppy.jsonl",
+      "purpose": "search"
+    }
+  ],
+  "object": "list"
+}
+curl https://api.openai.com/v1/files \
+  -H; "Authorization: Bearer YOUR_API_KEY" \
+  -F; purpose="fine-tune" \
+  -F; file='@mydata.jsonl'
+{
+  "id": "file-XjGxS3KTG0uNmNOK362iJua3",
+  "object": "file",
+  "bytes": 140,
+  "created_at": 1613779121,
+  "filename": "mydata.jsonl",
+  "purpose": "fine-tune"
+}
+# Import necessary modules
+import sqlite3
+
+# Define a class to represent a resource
+class Resource:
+  def __init__(self, name, quantity, location, condition):
+    self.name = name
+    self.quantity = quantity
+    self.location = location
+    self.condition = condition
+
+# Define a function to create a new resource in the database
+def create_resource(name, quantity, location, condition):
+  conn = sqlite3.connect('resources.db')
+  c = conn.cursor()
+  c.execute("INSERT INTO resources (name, quantity, location, condition) VALUES (?, ?, ?, ?)", (name, quantity, location, condition))
+  conn.commit()
+  conn.close()
+
+# Define a function to retrieve a list of available resources from the database
+def get_available_resources():
+  conn = sqlite3.connect('resources.db')
+  c = conn.cursor()
+  c.execute("SELECT * FROM resources WHERE quantity > 0")
+  resources = c.fetchall()
+  conn.close()
+  return resources
+
+# Define a function to update the quantity of a resource in the database
+def update_resource_quantity(name, quantity):
+  conn = sqlite3.connect('resources.db')
+  c = conn.cursor()
+  c.execute("UPDATE resources SET quantity = quantity - ? WHERE name = ?", (quantity, name))
+  conn.commit()
+  conn.close()
+
+# Define a function to request a specific resource
+def request_resource(name, quantity):
+  available_resources = get_available_resources()
+  for resource in available_resources:
+    if resource[1] == name and resource[2] >= quantity:
+      update_resource_quantity(name, quantity)
+      return True
+  return False
+
+# Create a new resource in the database
+create_resource('Food', 100, 'Warehouse A', 'Fresh')
+create_resource('Clothing', 50, 'Warehouse B', 'New')
+
+
+
+
+
 <!---
 stosh689/stosh689 is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 You can click the Preview link to take a look at your changes.
