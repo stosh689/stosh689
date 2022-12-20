@@ -3902,6 +3902,32 @@ for species, locations in species_data.items():
       print(f'    Group size: {obs["group_size"]}')
 
 
+import networkx as nx
+import matplotlib.pyplot as plt
+
+# Set up an empty graph
+G = nx.Graph()
+
+# Open the data file with the network information
+with open('bacteria_data.txt', 'r') as f:
+  # Loop through the lines in the file
+  for line in f:
+    # Split the line into two parts: the bacteria and the mycelium
+    bacteria, mycelium = line.strip().split(',')
+    # Add an edge between the two nodes
+    G.add_edge(bacteria, mycelium)
+
+# Draw the graph using the spring layout
+pos = nx.spring_layout(G)
+nx.draw(G, pos, with_labels=True)
+
+# Display the graph
+plt.show()
+
+
+
+
+
 <!---
 stosh689/stosh689 is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 You can click the Preview link to take a look at your changes.
