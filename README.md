@@ -772,6 +772,707 @@ for datapoint in data:
   if int(datapoint['deaths']) > 1000 and int(datapoint['cases']) < 100000:
     print(f"Possible instance of white collar crime in {datapoint['country']}")
 
+import pandas as pd
+
+# Load the data into a pandas DataFrame
+df = pd.read_csv("data.csv")
+
+# Calculate the Pearson correlation coefficient
+corr = df["var1"].corr(df["var2"])
+
+# Print the correlation coefficient
+print(corr)
+import statsmodels.api as sm
+
+# Load the data into a pandas DataFrame
+df = pd.read_csv("data.csv")
+
+# Define the dependent and independent variables
+y = df["var1"]
+X = df[["var2", "var3"]]
+
+# Fit the linear regression model
+model = sm.OLS(y, X).fit()
+
+# Print the results
+print(model.summary())
+import pandas as pd
+import statsmodels.api as sm
+
+# Load the data into a pandas DataFrame
+df = pd.read_csv("covid_data.csv")
+
+# Calculate the Pearson correlation coefficient between cases and deaths
+corr = df["cases"].corr(df["deaths"])
+print(f"Correlation between cases and deaths: {corr}")
+
+# Fit a linear regression model to the data
+y = df["deaths"]
+X = df[["cases", "population"]]
+model = sm.OLS(y, X).fit()
+
+# Print the results
+print(model.summary())
+
+# Find instances of potential white collar crime
+for index, row in df.iterrows():
+  if row["deaths"] > 1000 and row["cases"] < 100000:
+    print(f"Possible instance of white collar crime in {row['country']}")
+
+
+import datetime
+import pytz
+
+# Get the current UTC time
+utc_time = datetime.datetime.utcnow()
+
+# Create timezone objects for different time zones
+london_timezone = pytz.timezone("Europe/London")
+new_york_timezone = pytz.timezone("America/New_York")
+tokyo_timezone = pytz.timezone("Asia/Tokyo")
+
+# Convert the UTC time to the local time in each time zone
+london_time = utc_time.astimezone(london_timezone)
+new_york_time = utc_time.astimezone(new_york_timezone)
+tokyo_time = utc_time.astimezone(tokyo_timezone)
+
+# Print the local time in each time zone
+print(f"London: {london_time.strftime('%Y-%m-%d %H:%M:%S')}")
+print(f"New York: {new_york_time.strftime('%Y-%m-%d %H:%M:%S')}")
+print(f"Tokyo: {tokyo_time.strftime('%Y-%m-%d %H:%M:%S')}")
+
+print=weather= [
+  { month: 'January', high: 40, low: 0 },
+  { month: 'February', high: 40, low: 0 },
+  { month: 'March', high: 40, low: 0 },
+  { month: 'April', high: 40, low: 0 },
+  { month: 'May', high: 40, low: 0},
+  { month: 'June', high: 40, low: 0 },
+  { month: 'July', high: 40, low: 0 },
+  { month: 'August', high: 40, low: 0 },
+  { month: 'September', high: 40, low: 0 },
+  { month: 'October', high: 40, low: 0},
+  { month: 'November', high: 40, low: 0 },
+  { month: 'December', high: 40, low: 0 }
+];
+
+
+# Define the tasks and resources
+tasks = [
+    {"name": "Task 1", "duration": 2, "dependencies": [], "resources": ["Person A", "Equipment 1"]},
+    {"name": "Task 2", "duration": 3, "dependencies": ["Task 1"], "resources": ["Person B", "Equipment 2"]},
+    {"name": "Task 3", "duration": 1, "dependencies": ["Task 1"], "resources": ["Person A", "Equipment 3"]},
+    {"name": "Task 4", "duration": 4, "dependencies": ["Task 2", "Task 3"], "resources": ["Person C", "Equipment 1"]},
+]
+resources = ["Person A", "Person B", "Person C", "Equipment 1", "Equipment 2", "Equipment 3"]
+
+# Create a dictionary to track the availability of each resource
+resource_availability = {resource: True for resource in resources}
+
+# Create a list to store the schedule
+schedule = []
+
+# Iterate through the tasks in the order they should be completed
+for task in tasks:
+    # Check if the dependencies of the task have been completed
+    dependencies_complete = all(dep in schedule for dep in task["dependencies"])
+    if not dependencies_complete:
+        continue
+        
+    # Check if the resources required for the task are available
+    resources_available = all(resource_availability[resource] for resource in task["resources"])
+    if not resources_available:
+        continue
+        
+    # Update the availability of the resources
+    for resource in task["resources"]:
+        resource_availability[resource] = False
+        
+    # Add the task to the schedule
+    schedule.append(task["name"])
+    
+    # Update the availability of the resources after the task is completed
+
+num_temps = len(temperatures)
+print(num_temps)  # Output: 10
+
+
+first_temp = temperatures[0]
+print(first_temp)  # Output: 0
+
+last_temp = temperatures[-1]
+print(last_temp)  # Output: 40
+
+for temp in temperatures:
+    print(temp)
+
+
+# Assume this function returns the current temperature in degrees Celsius
+def get_current_temp():
+    return -12
+
+while True:
+    current_temp = get_current_temp()
+    print(f"Current temperature: {current_temp}°C")
+    time.sleep(60)  # Wait 1 minute before updating the ticker again
+
+import numpy as np
+from scipy import stats
+
+# Generate some random data
+x = np.random.normal(size=100)
+
+# Compute the mean and standard deviation of the data
+mean = np.mean(x)
+std = np.std(x)
+
+# Perform a t-test to determine if the mean is significantly different from 0
+t, p = stats.ttest_1samp(x, 0)
+
+print(f"Mean: {mean:.2f}")
+print(f"Standard deviation: {std:.2f}")
+print(f"t-statistic: {t:.2f}")
+print(f"p-value: {p:.2f}")
+
+
+import datetime
+import pytz
+
+# Get the current UTC time
+utc_time = datetime.datetime.utcnow()
+
+# Create timezone objects for different time zones
+london_timezone = pytz.timezone("Europe/London")
+new_york_timezone = pytz.timezone("America/New_York")
+tokyo_timezone = pytz.timezone("Asia/Tokyo")
+
+# Convert the UTC time to the local time in each time zone
+london_time = utc_time.astimezone(london_timezone)
+new_york_time = utc_time.astimezone(new_york_timezone)
+tokyo_time = utc_time.astimezone(tokyo_timezone)
+
+# Print the local time in each time zone
+print(f"London: {london_time.strftime('%Y-%m-%d %H:%M:%S')}")
+print(f"New York: {new_york_time.strftime('%Y-%m-%d %H:%M:%S')}")
+print(f"Tokyo: {tokyo_time.strftime('%Y-%m-%d %H:%M:%S')}")
+
+
+# Assume these values represent the number and yield of nuclear weapons for different countries
+weapons = {
+    "USA": (6000, 100),
+    "Russia": (7000, 150),
+    "China": (300, 50),
+    "North Korea": (30, 15),
+    "Iran": (0, 0),
+}
+
+# Calculate the total yield of all nuclear weapons
+
+total_yield = sum(count * count, weapons.values)
+
+# Calculate the world nuclear clock value as the logarithm of the total yield, in megatons
+
+clock = round(math.log10(total_yield / 1e6))
+
+print(f"World nuclear clock: {clock}")
+
+import datetime
+
+# Get the current CAT time
+cat_time = datetime.datetime.now(datetime.timezone.utc).astimezone()
+
+# Format the time as a string
+time_string = cat_time.strftime("%Y-%m-%d %H:%M:%S")
+
+print(f"Canadian Atomic Time: {time_string}")
+
+
+# Define the tasks and resources
+tasks = [
+    {"name": "Task 1", "duration": 2, "dependencies": [], "resources": ["Person A", "Equipment 1"]},
+    {"name": "Task 2", "duration": 3, "dependencies": ["Task 1"], "resources": ["Person B", "Equipment 2"]},
+    {"name": "Task 3", "duration": 1, "dependencies": ["Task 1"], "resources": ["Person A", "Equipment 3"]},
+    {"name": "Task 4", "duration": 4, "dependencies": ["Task 2", "Task 3"], "resources": ["Person C", "Equipment 1"]},
+]
+resources = ["Person A", "Person B", "Person C", "Equipment 1", "Equipment 2", "Equipment 3"]
+
+# Create a dictionary to track the availability of each resource
+resource_availability = {resource: True for resource in resources}
+
+# Create a list to store the schedule
+schedule = []
+
+# Iterate through the tasks in the order they should be completed
+for task in tasks:
+    # Check if the dependencies of the task have been completed
+    dependencies_complete = all(dep in schedule for dep in task["dependencies"])
+    if not dependencies_complete:
+        continue
+        
+    # Check if the resources required for the task are available
+    resources_available = all(resource_availability[resource] for resource in task["resources"])
+    if not resources_available:
+        continue
+        
+    # Update the availability of the resources
+    for resource in task["resources"]:
+        resource_availability[resource] = False
+        
+    # Add the task to the schedule
+    schedule.append(task["name"])
+    
+    # Update the availability of the resources after the task is completed
+    for resource in tas:("resources:")
+
+# Define the days of the week
+days_of_week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+# Create a list to store the schedule
+schedule = []
+
+# Iterate through the days of the week
+for day in days_of_week:
+    # Create a dictionary to store the tasks and events for the day
+    daily_schedule = {"day": day, "tasks": [], "events": []}
+    
+    # Prompt the user to enter the tasks and events for the day
+    task = input(f"Enter a task for {day} (or press enter to skip): ")
+    while task:
+        daily_schedule["tasks"].append(task)
+        task = input(f"Enter a task for {day} (or press enter to skip): ")
+        
+    event = input(f"Enter an event for {day} (or press enter to skip): ")
+    while event:
+        daily_schedule["events"].append(event)
+        event = input(f"lunch")
+
+
+print=A
+
+
+
+1
+2
+3
+4
+5
+6
+def get_embedding(text, model="text-embedding-ada-002"):
+   text = text.replace("\n", " ")
+   return openai.Embedding.create(input = [text], model=model)['data'][0]['embedding']
+ 
+df['ada_embedding'] = df.combined.apply(lambda x: get_embedding(x, model='text-embedding-ada-002'))
+df.to_csv('output/embedded_1k_reviews.csv', index=False)
+
+
+
+print(type('$'))
+print='$' 
+1
+2
+3
+4
+import pandas as pd
+ 
+df = pd.read_csv('output/embedded_1k_reviews.csv')
+
+df['ada_embedding'] = df.ada_embedding.apply(eval).apply(np.array)
+
+import numpy as np
+
+# Load data from a CSV file
+data = np.genfromtxt('data.csv', delimiter=',')
+
+# Process the data with NumPy functions
+processed_data = np.mean(data, axis=1)
+
+# Output the processed data
+print(processed_data)
+
+import pandas as pd
+
+# Load data from a CSV file
+data = pd.read_csv('data.csv')
+
+# Process the data with Pandas functions
+processed_data = data.groupby('Year').mean()
+
+# Output the processed data
+print(processed_data)
+
+
+
+print(type('await'))
+print='await'
+print=A
+print(type('openai'))
+print=openai
+print=openai
+
+print(type('response'))
+print='response'
+print=response
+
+print(type('$'))
+print='$'
+
+
+import os
+import openai
+# Load your API key from an environment variable or secret management service
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+def get_embedding(text, model="text-embedding-ada-002"):
+   text = text.replace("\n", " ")
+   return openai.Embedding.create(input = [text], model=model)['data'][0]['embedding']
+ 
+df['ada_embedding'] = df.combined.apply(lambda x: get_embedding(x, model='text-embedding-ada-002'))
+df.to_csv('output/embedded_1k_reviews.csv', index=False)
+
+import pandas as pd
+ 
+df = pd.read_csv('output/embedded_1k_reviews.csv')
+df['ada_embedding'] = df.ada_embedding.apply(eval).apply(np.array)
+
+import pandas as pd
+ 
+df = pd.read_csv('output/embedded_1k_reviews.csv')
+df['ada_embedding'] = df.ada_embedding.apply(eval).apply(np.array)
+
+import pandas as pd
+from sklearn.manifold import TSNE
+import matplotlib.pyplot as plt
+import matplotlib
+ 
+df = pd.read_csv('output/embedded_1k_reviews.csv')
+matrix = df.ada_embedding.apply(eval).to_list()
+ 
+# Create a t-SNE model and transform the data
+tsne = TSNE(n_components=2, perplexity=15, random_state=42, init='random', learning_rate=200)
+vis_dims = tsne.fit_transform(matrix)
+ 
+colors = ["red", "darkorange", "gold", "turquiose", "darkgreen"]
+x = [x for x,y in vis_dims]
+y = [y for x,y in vis_dims]
+color_indices = df.Score.values - 1
+ 
+colormap = matplotlib.colors.ListedColormap(colors)
+plt.scatter(x, y, c=color_indices, cmap=colormap, alpha=0.3)
+plt.title("Amazon ratings visualized in language using t-SNE")
+
+from sklearn.model_selection import train_test_split
+ 
+X_train, X_test, y_train, y_test = train_test_split(
+    list(df.ada_embedding.values),
+    df.Score,
+    test_size = 0.2,
+    random_state=42
+)
+
+from sklearn.ensemble import RandomForestRegressor
+ 
+rfr = RandomForestRegressor(n_estimators=100)
+rfr.fit(X_train, y_train)
+preds = rfr.predict(X_test)
+
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, accuracy_score
+ 
+clf = RandomForestClassifier(n_estimators=100)
+clf.fit(X_train, y_train)
+preds = clf.predict(X_test)
+
+from openai.embeddings_utils import cosine_similarity, get_embedding
+ 
+df= df[df.Score!=3]
+df['sentiment'] = df.Score.replace({1:'negative', 2:'negative', 4:'positive', 5:'positive'})
+ 
+labels = ['negative', 'positive']
+label_embeddings = [get_embedding(label, model=model) for label in labels]
+ 
+def label_score(review_embedding, label_embeddings):
+   return cosine_similarity(review_embedding, label_embeddings[1]) - cosine_similarity(review_embedding, label_embeddings[0])
+ 
+prediction = 'positive' if label_score('Sample Review', label_embeddings) > 0 else 'negative'
+import numpy as np
+from sklearn.cluster import KMeans
+ 
+matrix = np.vstack(df.ada_embedding.values)
+n_clusters = 4
+ 
+kmeans = KMeans(n_clusters = n_clusters, init='k-means++', random_state=42)
+kmeans.fit(matrix)
+df['Cluster'] = kmeans.labels_
+
+
+user_embeddings = df.groupby('UserId').ada_embedding.apply(np.mean)
+prod_embeddings = df.groupby('ProductId').ada_embedding.apply(np.mean)
+
+from openai.embeddings_utils import get_embedding, cosine_similarity
+ 
+def search_reviews(df, product_description, n=3, pprint=True):
+   embedding = get_embedding(product_description, model='text-embedding-ada-002')
+   df['similarities'] = df.ada_embedding.apply(lambda x: cosine_similarity(x, embedding))
+   res = df.sort_values('similarities', ascending=False).head(n)
+   return res
+ 
+res = search_reviews(df, 'delicious beans', n=3)
+
+from openai.embeddings_utils import get_embedding, cosine_similarity
+ 
+df['code_embedding'] = df['code'].apply(lambda x: get_embedding(x, model='text-embedding-ada-002'))
+ 
+def search_functions(df, code_query, n=3, pprint=True, n_lines=7):
+   embedding = get_embedding(code_query, model='text-embedding-ada-002')
+   df['similarities'] = df.code_embedding.apply(lambda x: cosine_similarity(x, embedding))
+ 
+   res = df.sort_values('similarities', ascending=False).head(n)
+   return res
+res = search_functions(df, 'Completions API tests', n=3)
+
+def recommendations_from_strings(
+   strings: List[str],
+   index_of_source_string: int,
+   model="text-embedding-ada-002",
+) -> List[int]:
+   """Return nearest neighbors of a given string."""
+
+   # get embeddings for all strings
+   embeddings = [embedding_from_string(string, model=model) for string in strings]
+   
+   # get the embedding of the source string
+   query_embedding = embeddings[index_of_source_string]
+   
+   # get distances between the source embedding and other embeddings (function from embeddings_utils.py)
+   distances = distances_from_embeddings(query_embedding, embeddings, distance_metric="cosine")
+   
+   # get indices of nearest neighbors (function from embeddings_utils.py)
+   indices_of_nearest_neighbors = indices_of_nearest_neighbors_from_distances(distances)
+   return indices_of_nearest_neighbors
+
+
+   from transformers import GPT2TokenizerFast
+
+def num_tokens_from_string(string: str, tokenizer) -> int:
+    return len(tokenizer.encode(string))
+
+string = "your text here"
+tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
+
+num_tokens_from_string(string, tokenizer)
+
+
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+
+# Load global pandemic data
+global_pandemic_data = pd.read_csv('global_pandemic.csv')
+
+# Load local hospital data
+local_hospital_data = pd.read_csv('local_hospital.csv')
+
+# Compare the two datasets
+pandemic_vs_hospital = global_pandemic_data.merge(local_hospital_data, on='date', how='outer')
+
+# Output the comparison data
+print(pandemic_vs_hospital)
+
+# Import necessary libraries 
+import pandas as pd
+import folium
+ 
+# Read in the data 
+weapons = pd.read_csv('weapons.csv')
+migration = pd.read_csv('migration.csv')
+
+# Create a folium map
+map = folium.Map()
+
+# Add markers for each production site
+for lon, lat, label in zip(weapons['lon'], weapons['lat'], weapons['label']):
+    folium.Marker([lat, lon], popup=label).add_to(map)
+
+# Draw a polyline for each region
+for lons, lats in zip(migration['lons'], migration['lats']):
+    folium.PolyLine(zip(lats,lons), color="red", weight=2.5, opacity=1).add_to(map)
+
+# Save map to HTML file
+map.save('resources_and_migration.html')
+
+print(type('request'))
+print='request'
+print=request
+print(type(cheerio))
+print='cheerio'
+print=cheerio
+print(type('if'))
+print='if'
+
+var,request = require('request');
+var,cheerio = require('cheerio');
+var,URL = require('url-parse');
+var,START_URL = "http://www.google.com";
+var,SEARCH_WORD = "refugees";
+var,MAX_PAGES_TO_VISIT = 10000;
+var,pagesVisited = {};
+var,numPagesVisited = 0;
+var,pagesToVisit = [];
+var,url= new,URL(START_URL);
+var,baseUrl = url.protocol + "//" + url.hostname;
+pagesToVisit.push(START_URL);
+crawl();
+function,crawl() 
+
+
+
+
+import os
+import openai
+
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+response = openai.Completion.create(
+  model="text-davinci-003",
+  prompt="What is the best code for managing and tracing human refugees migration routes using python\n\n\nThe best way to manage and trace human refugees migration routes using python would be to use a combination of geo-spatial analytics and a mapping library like Folium. Folium enables developers to create interactive maps with markers, shapes, and layers, and to analyze and visualize data by implementing advanced plugins and popular geospatial data formats. Additionally, Python has built-in modules such as GeoPandas, Shapely, Cartopy, Descartes, and Basemap that can be used to analyze and interpret geospatially tagged data. These tools allow the user to measure distances, analyze paths, and process geospatial data. Finally, using web frameworks like Django to create web-based applications that allow visualization of movement of refugees and analysis of routes, would be an effective way to manage and trace refugee migration routes.\n\ncan you rite a code for me to use\n\nUnfortunately, it is not possible to provide a code solution without further information on the specific requirements of your project. However, the above guidance should provide you with a general outline of how you could use Python to manage and trace human refugees migration routes.\n\nuse government and satalite data available \n\nUsing government and satellite data available is a great way to analyze and trace human refugees migration routes. Government data such as population data, UN statistics, and relief data can be collected and analyzed using Python libraries such as Pandas and NumPy. Geo-spatial data from satellites, drones, and aerial images can also be accessed using programs like GDAL and OpenGeo Suite, and visualized with mapping libraries like Folium.\n\n\nnumpy code\nplease\n\nIn order to analyze government and satellite data using NumPy, the following code can be used:\n\nimport numpy as np\n\n# Load data from a CSV file\ndata = np.genfromtxt('data.csv', delimiter=',')\n\n# Process the data with NumPy functions\nprocessed_data = np.mean(data, axis=1)\n\n# Output the processed data\nprint(processed_data)\n\n\nand  panda for python\n\nIn order to analyze government and satellite data using Pandas, the following code can be used:\n\nimport pandas as pd\n\n# Load data from a CSV file\ndata = pd.read_csv('data.csv')\n\n# Process the data with Pandas functions\nprocessed_data = data.groupby('Year').mean()\n\n# Output the processed data\nprint(processed_data)\n\n\nyes this is a test\n\nThis is not a valid question. Please provide a more specific question related to managing and tracing human refugees migration routes using Python.\n\n\nrite a piece of code in python to track the global pandemic numbers globally and compared them to local hospital most recent data\n\nIn order to track global pandemic numbers and compare them to local hospital data, the following code can be used:\n\n# Import necessary libraries\nimport pandas as pd\nimport numpy as np\n\n# Load global pandemic data\nglobal_pandemic_data = pd.read_csv('global_pandemic.csv')\n\n# Load local hospital data\nlocal_hospital_data = pd.read_csv('local_hospital.csv')\n\n# Compare the two datasets\npandemic_vs_hospital = global_pandemic_data.merge(local_hospital_data, on='date', how='outer')\n\n# Output the comparison data\nprint(pandemic_vs_hospital)\n\n\n\ngive me a global vie of ho many ars are going on skimmed from nes, the eb , and other source material\n\n\n\n\nUnfortunately, it is not possible to provide a global view of how many wars are going on based on news, the web, and other source material without further information on the specific requirements\n\n\ngive me a code that shos resources used in eapons manufactoring and the migration of people from regions the ammunitions ere used\n\nIn order to visualize resources used in weapons manufacturing and the migration of people from regions where the ammunitions were used, the following code can be used:\n\n# Import necessary libraries \nimport pandas as pd\nimport folium\n \n# Read in the data \nweapons = pd.read_csv('weapons.csv')\nmigration = pd.read_csv('migration.csv')\n\n# Create a folium map\nmap = folium.Map()\n\n# Add markers for each production site\nfor lon, lat, label in zip(weapons['lon'], weapons['lat'], weapons['label']):\n    folium.Marker([lat, lon], popup=label).add_to(map)\n\n# Draw a polyline for each region\nfor lons, lats in zip(migration['lons'], migration['lats']):\n    folium.PolyLine(zip(lats,lons), color=\"red\", weight=2.5, opacity=1).add_to(map)\n\n# Save map to HTML file\nmap.save('resources_and_migration.html')\n\nbettersoup code\n\nUnfortunately, it is not possible to provide a code solution without further information on the specific requirements of your project. However, BetterSoup is a Python library designed to make web scraping easier, and many tutorials and resources are available online to help you get started.can i get the python code for bettersoup\n\nUnfortunately, it is not possible to provide a code solution without further information on the specifics of your project. However, the following resources are available to help you get started with BetterSoup:\n\n\n\n\n\n\n\n\n- BetterSoup's official documentation: https://www.crummy.com/software/BeautifulSoup/bs4/doc/\n- A tutorial on using BetterSoup in Python: https://realpython.com/beautiful-soup-web-scraper-python/\n- An overview of web scraping with Python: https://www.dataquest.io/blog/web-scraping-tutorial-python/\n\n\ncan i get a bettersoup code to manage and track flight, and migration patterns\n\nUnfortunately, it is not possible to provide a code solution without further information on the specifics of your project. However, you can use BetterSoup to scrape web data related to flight and migration patterns. You can then use this data to create visualizations and monitor trends with mapping libraries like Folium.\n\n BetterSoup to scrape web data related to flight and migration patterns, from the eb and here data is available\n\n\nUnfortunately, it is not possible to provide a code solution without further information on the specifics of your project. However, you can use BetterSoup to scrape web data related to flight and migration patterns. You can then use this data to create visualizations and monitor trends with mapping libraries like Folium.\n\n\n\n\n\nsho me a python code for the great leap forard\n\nIt is not possible to provide a code solution for the Great Leap Forward, as this was an economic and social campaign launched in China in 1958. Python does not have any direct relevance to this campaign.\n\n\n\ngive a formula for surplus\n\nA formula for surplus can be expressed mathematically as:\n\nSurplus = Total Revenue - Total Cost",
+  temperature=1,
+  max_tokens=1078,
+  top_p=1,
+  frequency_penalty=0,
+  presence_penalty=0
+)
+
+# Import necessary modules
+import csv
+
+# Define a class to represent a resource
+class Resource:
+  def __init__(self, name, source, production_method, transportation, destination):
+    self.name = name
+    self.source = source
+    self.production_method = production_method
+    self.transportation = transportation
+    self.destination = destination
+
+# Define a function to read resource data from a CSV file
+def read_resource_data(filename):
+  resources = []
+  with open(filename, 'r') as csvfile:
+    reader = csv.reader(csvfile)
+    next(reader) # Skip header row
+    for row in reader:
+      name, source, production_method, transportation, destination = row
+      resources.append(Resource(name, source, production_method, transportation, destination))
+  return resources
+
+# Define a function to print resource data
+def print_resource_data(resources):
+  for resource in resources:
+    print(f'Resource: {resource.name}')
+    print(f'  Source: {resource.source}')
+    print(f'  Production Method: {resource.production_method}')
+    print(f'  Transportation: {resource.transportation}')
+    print(f'  Destination: {resource.destination}')
+
+# Read resource data from a CSV file
+resources = read_resource_data('resources.csv')
+
+# Print the resource data
+print_resource_data(resources)
+
+# Import necessary modules
+import csv
+
+# Define a class to represent a resource
+class Resource:
+  def __init__(self, name, source, production_method, transportation, destination):
+    self.name = name
+    self.source = source
+    self.production_method = production_method
+    self.transportation = transportation
+    self.destination = destination
+
+# Define a function to read resource data from a CSV file
+def read_resource_data(filename):
+  resources = []
+  with open(filename, 'r') as csvfile:
+    reader = csv.reader(csvfile)
+    next(reader) # Skip header row
+    for row in reader:
+      name, source, production_method, transportation, destination = row
+      resources.append(Resource(name, source, production_method, transportation, destination))
+  return resources
+
+# Define a function to print resource data
+def print_resource_data(resources):
+  for resource in resources:
+    print(f'Resource: {resource.name}')
+    print(f'  Source: {resource.source}')
+    print(f'  Production Method: {resource.production_method}')
+    print(f'  Transportation: {resource.transportation}')
+    print(f'  Destination: {resource.destination}')
+
+# Read resource data from a CSV file
+resources = read_resource_data('resources.csv')
+
+# Print the resource data
+print_resource_data(resources)
+
+
+pip,install,package_name
+pip,install,numpy
+pip,install --upgrade,package_name
+python,get-pip.py
+
+
+
+response = openai.Completion.create(
+      model="content-filter-alpha",
+      prompt = "<|endoftext|>"+content_to_classify+"\n--\nLabel:",
+      temperature=0,
+      max_tokens=1,
+      top_p=0,
+      logprobs=10
+    ) 
+output_label = response["choices"][0]["text"]
+
+# This is the probability at which we evaluate that a "2" is likely real
+# vs. should be discarded as a false positive
+toxic_threshold = -0.355
+
+if output_label == "2":
+    # If the model returns "2", return its confidence in 2 or other output-labels
+    logprobs = response["choices"][0]["logprobs"]["top_logprobs"][0]
+
+    # If the model is not sufficiently confident in "2",
+    # choose the most probable of "0" or "1"
+    # Guaranteed to have a confidence for 2 since this was the selected token.
+    if logprobs["2"] < toxic_threshold:
+        logprob_0 = logprobs.get("0", None)
+        logprob_1 = logprobs.get("1", None)
+
+        # If both "0" and "1" have probabilities, set the output label
+        # to whichever is most probable
+        if logprob_0 is not None and logprob_1 is not None:
+            if logprob_0 >= logprob_1:
+                output_label = "0"
+            else:
+                output_label = "1"
+        # If only one of them is found, set output label to that one
+        elif logprob_0 is not None:
+            output_label = "0"
+        elif logprob_1 is not None:
+            output_label = "1"
+
+        # If neither "0" or "1" are available, stick with "2"
+        # by leaving output_label unchanged.
+
+# if the most probable token is none of "0", "1", or "2"
+# this should be set as unsafe
+
+
+
 
 <!---
 stosh689/stosh689 is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
