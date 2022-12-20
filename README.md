@@ -600,6 +600,8 @@ for story in stories:
 
   # Print the data for this news story
   print(headline, date, location, lat, lng)
+  
+  
 
 
 <!---
