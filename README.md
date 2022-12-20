@@ -4084,6 +4084,18 @@ yearly_averages.plot(x="year", y="value")
 import sigmaplus
 import pandas as pd
 
+api_key = "YOUR_API_KEY"
+client = sigmaplus.Client(api_key=api_key)
+
+# Retrieve data on refugees and migrants
+refugee_data = client.refugees.get_data()
+
+# Search for data on vaccine distribution
+vaccine_data = client.vaccines.search(query="distribution")
+
+# Retrieve data on COVID-19 infection rates
+covid_data = client.covid.get_data()
+
 
 
 
