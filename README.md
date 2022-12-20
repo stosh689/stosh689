@@ -646,6 +646,25 @@ if response.status_code == 200:
 # Print the data
 print(data)
 
+# Import necessary libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load data into a Pandas dataframe
+df = pd.read_csv("data.csv")
+
+# Plot a line chart showing the trend in CO2 emissions over time
+plt.plot(df['Year'], df['CO2 emissions'])
+plt.xlabel('Year')
+plt.ylabel('CO2 emissions (metric tons)')
+plt.title('Trend in CO2 emissions over time')
+plt.show()
+
+# Calculate the correlation between CO2 emissions and GDP
+correlation = df['CO2 emissions'].corr(df['GDP'])
+print("The correlation between CO2 emissions and GDP is:", correlation)
+
+
 
 <!---
 stosh689/stosh689 is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
