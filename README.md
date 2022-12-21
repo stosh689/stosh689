@@ -4582,6 +4582,47 @@ plt.title('Production of Medical Isotopes by Country')
 
 (This revised code includes data from the World Health Organization, the National Cancer Institute, and the International Atomic Energy Agency. The code includes a bar plot showing the incidence of each type of cancer, a pie chart showing the 5-year relative survival rate for each type of cancer, and bar plots showing the cost and production of medical isotopes by country.)
 
+Exposure to certain toxic substances and carcinogens (substances that can cause cancer) can increase the risk of developing cancer. There is evidence to suggest that exposure to certain chemicals, pollutants, and other toxic substances can contribute to the development of certain types of cancer, such as lung cancer and bladder cancer.
+
+Here is a sample Python code that could be used to analyze data on the relationship between environmental toxicity and cancer risk:
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Read in the environmental toxicity data
+toxicity_data = pd.read_csv('environmental_toxicity_data.csv')
+
+# Calculate the incidence of cancer by level of environmental toxicity
+cancer_incidence = toxicity_data.groupby('toxicity_level')['cases'].sum()
+
+# Plot the incidence of cancer by level of environmental toxicity
+cancer_incidence.plot(kind='bar')
+plt.xlabel('Environmental Toxicity Level')
+plt.ylabel('Number of Cancer Cases')
+plt.title('Incidence of Cancer by Environmental Toxicity Level')
+
+# Calculate the proportion of cancer cases attributed to environmental toxicity
+attributed_cases = toxicity_data.groupby('toxicity_level')['attributed_cases'].sum()
+total_cases = toxicity_data['cases'].sum()
+attributed_proportion = attributed_cases / total_cases
+
+# Plot the proportion of cancer cases attributed to environmental toxicity
+attributed_proportion.plot(kind='pie')
+plt.title('Proportion of Cancer Cases Attributed to Environmental Toxicity')
+
+# Read in the carcinogen data
+carcinogen_data = pd.read_csv('carcinogen_data.csv')
+
+# Calculate the incidence of cancer by type of carcinogen exposure
+carcinogen_incidence = carcinogen_data.groupby('carcinogen')['cases'].sum()
+
+# Plot the incidence of cancer by type of carcinogen exposure
+carcinogen_incidence.plot(kind='bar')
+plt.x
+
+
+
+
 
 <!---
 stosh689/stosh689 is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
