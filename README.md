@@ -6157,7 +6157,58 @@ print("Mean predicted premium:", mean_predicted_premium)
 print("Standard deviation of predicted premiums:", std_predicted_premium)
 
 
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 
+# Load insurance data into a Pandas dataframe
+df = pd.read_csv("insurance_data.csv")
+
+# Group the data by country and calculate the total premium for each country
+grouped_by_country = df.groupby("country")["premium"].sum()
+print(grouped_by_country)
+
+# Use statistical models to predict future premiums
+from sklearn.linear_model import LinearRegression
+
+# Create a function that takes a dataframe and a list of predictor variables as input and returns the predicted premiums
+def predict_premiums(dataframe, predictor_vars):
+  X = dataframe[predictor_vars]
+  y = dataframe["premium"]
+  model = LinearRegression()
+  model.fit(X, y)
+  predictions = model.predict(X)
+  dataframe["predicted_premium"] = predictions
+  return predictions
+
+# Use the predict_premiums function to predict premiums based on age, policy type, and country
+predictions = predict_premiums(df, ["age", "policy_type", "country"])
+
+# Plot the predicted premiums against
+
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Load insurance data into a Pandas dataframe
+df = pd.read_csv("insurance_data.csv")
+
+# Define a function to calculate actuarial schematics
+def calculate_actuarial_schematics(data):
+    # Calculate the mean and standard deviation of premiums
+    mean_premium = np.mean(data["premium"])
+    std_premium = np.std(data["premium"])
+    
+    # Calculate the total loss ratio and average loss severity
+    total_loss_ratio = data["losses"].sum() / data["premiums"].sum()
+    avg_loss_severity = data["losses"].sum() / data["losses"].count()
+    
+    # Calculate the percentage of policies with a loss
+    loss_pct = data[data["losses"] > 0]["losses"].count() / data["losses"].count()
+    
+    # Return the results as a dictionary
+    results = {"mean_premium": mean
 
 
 <!---
