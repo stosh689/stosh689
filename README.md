@@ -6123,6 +6123,38 @@ plt.show()
 This is just a basic example of how Python can be used to process and analyze insurance data. There are many other types of analyses and visualizations that could be performed on the data, depending on the specific goals and requirements of the project. It is also possible to use other tools or libraries in addition to Pandas and Matplotlib to perform more advanced analyses or create more sophisticated visualizations.')
 
 
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Load insurance data into a Pandas dataframe
+df = pd.read_csv("insurance_data.csv")
+
+# Explore the data to identify trends and patterns
+print(df.describe())
+df.plot(kind="scatter", x="age", y="premium")
+plt.show()
+
+# Use statistical models to predict future premiums
+from sklearn.linear_model import LinearRegression
+X = df[["age"]]
+y = df["premium"]
+model = LinearRegression()
+model.fit(X, y)
+predictions = model.predict(X)
+df["predicted_premium"] = predictions
+
+# Plot the predicted premiums against the actual premiums
+plt.scatter(X, y)
+plt.plot(X, predictions, color="red")
+plt.show()
+
+# Calculate actuarial schematics using the predicted premiums
+mean_predicted_premium = np.mean(predictions)
+std_predicted_premium = np.std(predictions)
+print("Mean predicted premium:", mean_predicted_premium)
+print("Standard deviation of predicted premiums:", std_predicted_premium)
 
 
 
