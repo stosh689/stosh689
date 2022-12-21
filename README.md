@@ -4299,6 +4299,11 @@ In terms of children's hospitals, the incidence of childhood melanoma has been i
 
 There are many organizations and resources available to help people learn about skin cancer prevention and treatment, including the American Cancer Society, the Skin Cancer Foundation, and the World Health Organization.
 
+
+
+
+ Here is a revised version of the Python code that includes more granular analysis and visualization of the data:
+
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -4324,6 +4329,52 @@ plt.ylabel('Number of Cases')
 plt.title('Incidence of Skin Cancer by Skin Type')
 
 
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Read in the dataset
+data = pd.read_csv('skin_cancer_data.csv')
+
+# Calculate the incidence of skin cancer by age group and skin type
+age_skin_cases = data.groupby(['age_group', 'skin_type'])['cases'].sum().reset_index()
+
+# Pivot the data to create a matrix of age group vs. skin type
+age_skin_pivot = age_skin_cases.pivot(index='age_group', columns='skin_type', values='cases')
+
+# Plot the incidence of skin cancer by age group and skin type
+plt.imshow(age_skin_pivot, cmap='YlOrRd', interpolation='nearest')
+plt.xticks(range(len(age_skin_pivot.columns)), age_skin_pivot.columns)
+plt.yticks(range(len(age_skin_pivot.index)), age_skin_pivot.index)
+plt.xlabel('Skin Type')
+plt.ylabel('Age Group')
+plt.title('Incidence of Skin Cancer by Age Group and Skin Type')
+
+# Calculate the percentage of skin cancer cases by age group and skin type
+age_skin_totals = data.groupby(['age_group', 'skin_type'])['cases'].sum().groupby(level=0).apply(
+    lambda x: 100 * x / x.sum()
+).reset_index()
+
+# Pivot the data to create a matrix of age group vs. skin type
+age_skin_percent_pivot = age_skin_totals.pivot(index='age_group', columns='skin_type', values='cases')
+
+# Plot the percentage of skin cancer cases by age group and skin type
+plt.imshow(age_skin_percent_pivot, cmap='YlOrRd', interpolation='nearest')
+plt.xticks(range(len(age_skin_percent_pivot.columns)), age_skin_percent_pivot.columns)
+plt.yticks(range(len(age_skin_percent_pivot.index)), age_skin_percent_pivot.index)
+plt.xlabel('Skin Type')
+plt.ylabel('Age Group')
+plt.title('Percentage of Skin Cancer Cases by Age Group and Skin Type')
+
+# Calculate the incidence of skin cancer by location
+locations = data.groupby('location')['cases'].sum()
+
+# Plot the incidence of skin cancer by location
+locations.plot(kind='pie')
+plt.title('Incidence of Skin Cancer by Location')
+
+This revised code includes additional analysis and visualization of the data, including a heat map showing the incidence of skin cancer by age group and skin type, a pie chart showing the incidence of skin cancer by location, and a heat map showing the percentage of skin cancer cases by age group and skin type.
+
+I hope this revised code is more granular and meets your needs. Please let me know if you have any further questions or need more information.
 
 
 
