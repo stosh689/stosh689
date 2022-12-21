@@ -6071,6 +6071,38 @@ adversaries = ["nine countries believed to possess nuclear weapons",
 future_of_terrorism = "It is not clear from the provided transcript what the focus of the session will be
 
 
+# Key points
+key_points = ["combating weapons of mass destruction and terror threats",
+              "expansion of the arsenal of weapons capable of inflicting mass destruction and terror",
+              "deterring and protecting against these types of attacks",
+              "current and potential future threats",
+              "expertise and experience of panelists in dealing with nuclear, chemical, and biological threats",
+              "use of the D60 app for submitting questions during Q&A portion of session"]
+
+# Key words
+key_words = ["weapons of mass destruction", "terror threats", "chemical and biological warfare", 
+             "deterrence", "protection", "current threats", "future threats", 
+             "nuclear", "chemical", "biological", "D60 app", "Q&A", "panelists"]
+
+# Capabilities
+capabilities = ["remove weapons-grade uranium from Kazakhstan and Georgia", 
+                "destroy Libyan and Syrian chemical weapons arsenals",
+                "strengthen global health security"]
+
+# Adversaries
+adversaries = ["nine countries believed to possess nuclear weapons", 
+               "Russia", "China", "Pakistan", "India", "North Korea", "Iran"]
+
+# Future of terrorism
+future_of_terrorism = "It is not clear from the provided transcript what the focus of the session will be and what specific discussions or strategies related to the future of terrorism will be addressed."
+
+
+
+
+
+
+
+
 
 <!---
 stosh689/stosh689 is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
