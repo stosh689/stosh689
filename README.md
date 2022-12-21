@@ -4275,6 +4275,53 @@ Ganja Man (feat. Smoke DZA, B-Real & Alandon)
 LICENSES
 Foundation Media, LLC (on behalf of EightyHD); AMRA, UMPI, UMPG Publishing, ASCAP, Kobalt Music Publishing, AMRA BR, BMI - Broadcast Music Inc., Songtrust, and 4 Music Rights Societies
 
+<iframe width="1343" height="480" src="https://www.youtube.com/embed/iz5lJO0goOk" title="WEB SESH 420 with PETE DAVIDSON & CHRIS WEBBY" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+ "i ruined this chat!" alome isolated delusion coping drugs and alcohol abusing myself for not living up to the standards of my family, friends or society as a matter of fact, every step of the ay i tried and tried and tried and became recluse, rote absoule nonsense to anything but ai. i as scared lived in fear and i choose to alk in the light, cause i like a sun tan 
+
+ Sun exposure and skin cancer are closely linked. The ultraviolet (UV) radiation from the sun damages the DNA in skin cells, which can lead to skin cancer. The risk of developing skin cancer increases with the amount of time spent in the sun, especially during peak UV hours (typically from 10 a.m. to 4 p.m.). People with lighter skin, hair, and eyes are more likely to develop skin cancer, but anyone can get skin cancer, regardless of their skin color.
+
+Exposure to the sun over a lifetime can increase the risk of developing melanoma, the most deadly form of skin cancer. Melanoma is more likely to spread to other parts of the body and is more difficult to treat than other types of skin cancer.
+
+The rate of melanoma has been increasing over the past few decades, and it is now one of the most common cancers in young adults. People who have had severe sunburns, especially at a young age, are at an increased risk of developing melanoma.
+
+There are several things you can do to reduce your risk of developing skin cancer:
+
+    Seek shade when the sun is at its strongest.
+    Wear protective clothing, such as long-sleeved shirts and wide-brimmed hats.
+    Use sunscreen with a high SPF (sun protection factor) and reapply it frequently.
+    Wear sunglasses to protect your eyes from UV radiation.
+    Avoid using tanning beds, as they expose your skin to harmful UV radiation.
+
+In terms of global data, the World Health Organization estimates that about 2-3 million non-melanoma skin cancers and 132,000 melanoma skin cancers occur globally each year. Skin cancer is the most common cancer in many countries, and it is the fifth most common cancer worldwide.
+
+In terms of children's hospitals, the incidence of childhood melanoma has been increasing over the past few decades. According to the American Cancer Society, the 5-year survival rate for children with melanoma is about 83%. However, the survival rate can vary depending on the stage of the cancer at diagnosis and the treatment received.
+
+There are many organizations and resources available to help people learn about skin cancer prevention and treatment, including the American Cancer Society, the Skin Cancer Foundation, and the World Health Organization.
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Read in the dataset
+data = pd.read_csv('skin_cancer_data.csv')
+
+# Calculate the incidence of skin cancer by age group
+age_groups = data.groupby('age_group')['cases'].sum()
+
+# Plot the incidence of skin cancer by age group
+age_groups.plot(kind='bar')
+plt.xlabel('Age Group')
+plt.ylabel('Number of Cases')
+plt.title('Incidence of Skin Cancer by Age Group')
+
+# Calculate the incidence of skin cancer by skin type
+skin_types = data.groupby('skin_type')['cases'].sum()
+
+# Plot the incidence of skin cancer by skin type
+skin_types.plot(kind='bar')
+plt.xlabel('Skin Type')
+plt.ylabel('Number of Cases')
+plt.title('Incidence of Skin Cancer by Skin Type')
 
 
 
