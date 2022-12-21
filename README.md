@@ -4376,6 +4376,100 @@ This revised code includes additional analysis and visualization of the data, in
 
 I hope this revised code is more granular and meets your needs. Please let me know if you have any further questions or need more information.
 
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Read in the cancer incidence data
+incidence_data = pd.read_csv('cancer_incidence_data.csv')
+
+# Calculate the incidence of each type of cancer
+cancer_types = incidence_data.groupby('cancer_type')['cases'].sum()
+
+# Plot the incidence of each type of cancer
+cancer_types.plot(kind='bar')
+plt.xlabel('Cancer Type')
+plt.ylabel('Number of Cases')
+plt.title('Incidence of Cancer by Type')
+
+# Read in the cancer treatment data
+treatment_data = pd.read_csv('cancer_treatment_data.csv')
+
+# Calculate the proportion of patients receiving each type of treatment
+treatment_proportions = treatment_data.groupby('treatment_type')['patients'].sum() / treatment_data['patients'].sum()
+
+# Plot the proportion of patients receiving each type of treatment
+treatment_proportions.plot(kind='pie')
+plt.title('Proportion of Cancer Patients Receiving Each Type of Treatment')
+
+# Read in the medical isotope data
+isotope_data = pd.read_csv('medical_isotope_data.csv')
+
+# Calculate the total cost of medical isotopes in each country
+isotope_costs = isotope_data.groupby('country')['cost'].sum()
+
+# Plot the total cost of medical isotopes in each country
+isotope_costs.plot(kind='bar')
+plt.xlabel('Country')
+plt.ylabel('Total Cost of Medical Isotopes (USD)')
+plt.title('Cost of Medical Isotopes by Country')
+
+# Calculate the production of medical isotopes in each country
+isotope_production = isotope_data.groupby('country')['production'].sum()
+
+# Plot the production of medical isotopes in each country
+isotope_production.plot(kind='bar')
+plt.xlabel('Country')
+plt.ylabel('Production of Medical Isotopes (units)')
+plt.title('Production of Medical Isotopes by Country')
+
+ Here is a revised version of the Python code that includes global data on all types of cancer, as well as information on treatment, costs, and access to medical isotopes:
+
+ import pandas as pd
+import matplotlib.pyplot as plt
+
+# Read in the cancer incidence data
+incidence_data = pd.read_csv('cancer_incidence_data.csv')
+
+# Calculate the incidence of each type of cancer
+cancer_types = incidence_data.groupby('cancer_type')['cases'].sum()
+
+# Plot the incidence of each type of cancer
+cancer_types.plot(kind='bar')
+plt.xlabel('Cancer Type')
+plt.ylabel('Number of Cases')
+plt.title('Incidence of Cancer by Type')
+
+# Read in the cancer treatment data
+treatment_data = pd.read_csv('cancer_treatment_data.csv')
+
+# Calculate the proportion of patients receiving each type of treatment
+treatment_proportions = treatment_data.groupby('treatment_type')['patients'].sum() / treatment_data['patients'].sum()
+
+# Plot the proportion of patients receiving each type of treatment
+treatment_proportions.plot(kind='pie')
+plt.title('Proportion of Cancer Patients Receiving Each Type of Treatment')
+
+# Read in the medical isotope data
+isotope_data = pd.read_csv('medical_isotope_data.csv')
+
+# Calculate the total cost of medical isotopes in each country
+isotope_costs = isotope_data.groupby('country')['cost'].sum()
+
+# Plot the total cost of medical isotopes in each country
+isotope_costs.plot(kind='bar')
+plt.xlabel('Country')
+plt.ylabel('Total Cost of Medical Isotopes (USD)')
+plt.title('Cost of Medical Isotopes by Country')
+
+# Calculate the production of medical isotopes in each country
+isotope_production = isotope_data.groupby('country')['production'].sum()
+
+# Plot the production of medical isotopes in each country
+isotope_production.plot(kind='bar')
+plt.xlabel('Country')
+plt.ylabel('Production of Medical Isotopes (units)')
+plt.title('Production of Medical Isotopes by Country')
+
 
 
 
