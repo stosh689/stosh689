@@ -4671,6 +4671,1379 @@ DARPA’s 60th anniversary symposium, D60, took place Sept. 5-7, 2018, at Gaylor
 
 
 
+please welcome the director of DARPA defense Sciences office dr. Valerie browning welcome plenary session on
+0:11
+combating weapons of mass destruction in terror threats I'm Valerie browning I am
+0:17
+the director of DARPA Stu fence Sciences office and I'm going to be your moderator for this morning's session in
+0:22
+July of 1963 while addressing the American public about the importance of
+0:29
+the soon-to-be-signed nuclear test ban treaty President John F Kennedy said the following I asked you
+0:36
+to stop and think for a moment what it would mean to have nuclear weapons in so
+0:42
+many hands in countries large and small stable and unstable responsible and
+0:50
+irresponsible scattered throughout the world there would be no rest for anyone
+0:56
+then there would be only an increased chance of accidental war and the
+1:01
+increased necessity for the great powers to become involved involved in what
+1:06
+otherwise would be local conflicts in 2018 there are nine countries believed
+1:14
+to possess nuclear weapons and the arsenal of weapons capable of inflicting
+1:19
+mass destruction and terror has expanded to include chemical and biological warfare agents so over the past fifty
+1:27
+five years what have we learned about our ability to deter and protect
+1:34
+ourselves against these attacks how safe are we today and what new threats might be faced in the future and what will we
+1:41
+do about those threats those are some of the questions that we're going to be exploring in today's panel session with
+1:48
+our distinguished panel of subject matter experts the format for this
+1:54
+session is as follows we will have an introductory presentation by our keynote speaker and then we're going to hear
+2:00
+some discussion from each of our other panel members from bringing their own perspective and experience and insights
+2:08
+all of this will tee up in interactive question-and-answer dialogue that will fill the remainder of
+2:15
+the session we'd like you to submit your questions using the d60 app on your
+2:22
+smartphone your tablet or your laptop so without any further delay let me
+2:29
+introduce our panelists our first
+2:34
+panelist has dedicated his entire professional career to countering nuclear chemical and biological threats
+2:40
+and strengthening global health security his thirty years of government service
+2:45
+include five and a half years as President Obama's Assistant Secretary of Defense for nuclear chemical and
+2:52
+biological defense programs he served as a driving force behind the nunn-lugar
+2:57
+Cooperative Threat Reduction which among other things led to the removal of weapons-grade uranium from Kazakhstan
+3:03
+and Georgia and the destruction of Libyan and Syrian chemical weapons Arsenal's he currently serves on the
+3:10
+board of the Arms Control Association as well as the James Martin center for nonproliferation studies international
+3:17
+advisory council please welcome to the stage the Honorable Andrew weather [Applause]
+3:31
+our second panelist is a former director of the los alamos now Los Alamos
+3:36
+National Laboratory and he current sir currently serves as a professor emeritus for research in the department of
+3:42
+management science and engineering at Stanford as well as senior fellow emeritus at the Freeman spogli Institute
+3:48
+for International Studies and the Center for International Security and Cooperation at Stanford University he is
+3:56
+recognized throughout the world as an expert in nuclear weapons policy plutonium research and global nuclear
+4:03
+risk reduction with Russia China Pakistan India North Korea and Iran his
+4:10
+many accomplishments have been acknowledged in numerous awards including the Presidential Enrico Fermi
+4:16
+award the National Academy of Engineering Arthur M Bouc award and the 2018 American Association of engineering
+4:23
+societies national engineering award please welcome dr. Siegfried Hecker
+4:29
+[Applause]
+4:36
+our third panelist is an award-winning world-renowned journalist author
+4:42
+documentary producer and terrorism expert he's authored five books three of
+4:47
+which have been on the New York Times bestseller list and four of which have been named among the non-fiction books
+4:52
+of the Year by The Washington Post he currently serves as the vice vice president for global studies and fellow
+4:59
+and the director of the international security program and the future of war program at the new America in Washington
+5:05
+DC you've seen him on TV as CNN's national security analyst and he also
+5:11
+serves as a fellow at Fordham University senator on national security please welcome mr. Bergin mr. Peter Bergen
+5:18
+[Applause]
+5:23
+and finally I would like to introduce our keynote and fourth panelist he
+5:30
+currently serves as a DARPA DSO program manager with interest involving development of new technologies for
+5:36
+countering weapons of mass destruction he also has served as a staff physicist at Lawrence Livermore National
+5:41
+Laboratory where he developed advanced accelerator and plasma based radiation sources for national security
+5:47
+applications including the detection of illicit materials please welcome dr. Vincent a
+6:00
+Thank You Valarie today wrap the technological change has given us
+6:05
+powerful tools for scientific exploration and engineering that continues to improve the lives of
+6:11
+billions of people these tools are fundamentally democratic
+6:17
+capabilities that were once reserved for nation states are now available to even individuals across the world in
+6:26
+makerspaces university labs and startups innovators can communicate in real-time
+6:32
+access libraries worth of information instantly rapidly evaluate their
+6:38
+prototypes via sophisticated computer simulations and 3d printing techniques in a bio world emerging and exciting
+6:47
+techniques allow us to edit and modify genomes precisely and this is just a
+6:54
+sampling of some of the advances of the last decades that have enabled an era of unprecedented development and innovation
+7:02
+we've all been able do more faster and with less and this has been an
+7:08
+undeniably good thing but the last decades have also shown us the dark side
+7:15
+of the democratization of these advanced tools and platforms even an
+7:21
+improvisation like North Korea has been able to stand up a nuclear capability at
+7:26
+a fraction of the cost of card during the Cold War and against the will of the international community terror groups
+7:35
+like Isis have now leveraged commercially available drones for attacks and of deployed chemical weapons
+7:41
+and as technology makes the proliferation development and use of
+7:48
+weapons of mass destruction or WMDs easier we've also seen an upsurge in
+7:54
+terror activities and the growth of non-state actors bent on destruction so
+8:02
+this is also a time where our adversaries can do more faster and with
+8:08
+less these trends set the stage for
+8:14
+discussion today we have a diverse group of actors ranging from anxious countries
+8:19
+to rogue nations to terror groups powerful tools and capabilities for
+8:25
+rapid design and manufacture and a global diffusion of knowledge and expertise you add all these things up
+8:33
+together and the potential for proliferation diffusion and the use of
+8:39
+weapons of mass destruction can seem almost inevitable so what can we do to
+8:47
+counter these threats and minimize the possibility of WMD use what can we both
+8:52
+do - best deter and prevent the proliferation since their whereabouts
+8:57
+and interdict their development these
+9:03
+are actually familiar problems ever since its inception DARPA has been
+9:10
+developing transformative technologies to counter and deter the use of weapons of mass destruction and to defend our
+9:16
+homeland in the 1960s darknes project Bayla established the world's first
+9:23
+worldwide nuclear test ban treaty monitoring system this include both space space and seismic space nuclear
+9:30
+detonation detectors and this network of sensors made the first test ban treaty
+9:36
+possible by establishing a mechanism for its enforcement and verification and
+9:41
+this ultimately helped deter and prevent the proliferation of nuclear weapons decades ago at the same time these
+9:50
+sensors made wonderful scientific discoveries the satellite saw the first cosmic gamma-ray bursts from supernovas
+9:57
+and neutron stars helping scientists to map the universe and the seismic sensors helped confirm the theory of plate
+10:04
+tectonics revolutionising the field of seismology this legacy of science and
+10:12
+national security continues to inspire us today as we face our versions of the same challenge our mission is the same
+10:20
+but the landscape has shift did you big Buddhist technologies have lowered the barrier for the development
+10:27
+of WMDs added new attack mode fire potentially novel chemical and biological threats and increased the
+10:35
+number of adversaries who might develop and use these weapons from the tactical to the strategic level so how do we
+10:42
+counter the increasingly distributed nature of this threat today at DARPA we
+10:49
+think the challenges today can be summed up in two words scalability and adaptability the technologies we built
+10:57
+to deter sense and interdict WMDs must not only be transformative at the device
+11:03
+level but must also be scalable in order to enable why spatial and temporal coverage of that distributed and
+11:10
+multifaceted nature of today's range of threats the system was also leveraged
+11:17
+emerging technology trends and platforms so that is rapidly adaptable and reconfigurable to successfully counter
+11:24
+that wider variety and of attack scenarios that we face today so what
+11:32
+might these technologies look like what is the system that allows the sense of wide range of WMD activity look like
+11:39
+today what is the bailer of today these are
+11:47
+questions were starting to answer at DARPA through both the Sigma program and the new Sigma plus initiative we started
+11:54
+the Sigma program in 2014 to provide practical and scalable continuous
+11:59
+detection capability for radiological and nuclear threats at the city scale
+12:07
+Sigma successfully developed low-cost high capability sensors with a real-time IT backbone that could Network ingest
+12:14
+and analyze data from up to 10,000 mobile sensors in real time allowing for
+12:20
+full city scale coverage at the same time we've also successfully produced
+12:25
+more than 10,000 fully automated sexual scopic mobile sensors such as these and
+12:32
+we feel tested the system as a hold in most Valerius we gave those pocket-sized
+12:41
+detectors to first responders to wear and wien place larger ones in vehicle
+12:47
+fleets such as the DC fire and EMS ambulance leads and we deploy static
+12:53
+detectors at key choke points so up here
+12:59
+is a snapshot of the city scale coverage we had of the road network in DC from
+13:05
+one of our multiple field trials the Sigma system is now transitioning to
+13:10
+several state and local partners as well as our allied partners and we're really excited and proud of the work that we've
+13:16
+done there so signal is focused on the rad nuke problem and now we're going
+13:22
+after the rest of the threats to do this we have created a unique new DARPA initiative that spans multiple offices
+13:29
+and technology domains over the next
+13:35
+five years the new Sigma plus initiative will build on Sigma's successful strategy of distributed network and
+13:41
+scalable mobile sensing to develop and demonstrate a real-time persistent early
+13:48
+detection system for that full spectrum of chemical biological radiological nuclear and explosive threats we'll do
+13:58
+this not only by building on the physical sensor networks developed under Sigma but by also leveraging advanced
+14:04
+advances in data fusion automated intelligence analytics and adversary
+14:10
+modeling in order to form a fully holistic system for real-time sensing
+14:17
+just imagine being able to sense and find safe houses and the list of labs in
+14:23
+mega cities that are making chemical warfare agents or explosives and be able to stop them before those materials are
+14:29
+weaponized imagine if we were able to sense weeks earlier that a pandemic natural or
+14:36
+man-made is in progress allowing us to get medicines and vaccines over to the
+14:41
+right places rapidly in short this is
+14:46
+our vision for today's Baylor for countering that full bactrim of WMD threats I'm very excited
+14:55
+that Sigma and Sigma plus are building on darphus legacy of large-scale sensing
+15:00
+for countering WMDs and to help defend our homeland this is just one of several efforts at DARPA that is going to help
+15:08
+us the turf counter and mitigate these threats and to do so in ways that are truly scalable and adaptive so DARPA
+15:17
+works to tackle the toughest problems in national security and I think few are harder or more important than this one
+15:23
+it's clear that WMDs remain a persistent threat and it remains so over the next
+15:29
+several decades and while some have taken the advantage of the democratization of these advanced tools
+15:35
+and platforms to proliferate WMDs it is DARPA s-- mission to that and scale
+15:41
+those same advances to counter the threat and I think in order for us to be able to successfully do this
+15:47
+I think there's questions that DARPA and the community must address so some of
+15:53
+the important ones include for example understanding what are the lessons learned from the last 60 years of calaf
+15:59
+relation and how do we apply them to this new diffuse threat landscape wilded
+16:06
+increasing yeast and accessibility of technology encourage new groups and which groups to pursue these weapons are
+16:16
+there any new types of WMDs that we haven't even thought about ultimately
+16:22
+what is the future of combating this threat so for the next hour or so
+16:30
+our distinguished panel will give us their insight into some of these questions first we'll hear from mr. Andy
+16:37
+Weber who share his experiences lessons learned and his thoughts about that emerging landscape will then hear from
+16:45
+dr. sook Hecker who discusses perspective on nuclear and Radiological terrorism and assessing adversary
+16:51
+nuclear weapons capabilities and then we'll also hear from mr. Peter Bergen
+16:56
+who share his insights about WMDs and non-state actors as well as the future
+17:01
+of terrorism thank you for your attention today and I
+17:06
+look forward from hearing from all of you
+17:18
+Thank You Vincent Mallory DARPA DARPA Lum nigh friends
+17:27
+supporters today I'm going to talk about countering weapons of mass destruction terrorism and by this I mean nuclear
+17:36
+chemical or biological attacks carried out by small groups or even individuals
+17:43
+strategic attacks and I believe for the
+17:52
+reasons Vincent laid out that this is other than the risk of a full-out
+17:58
+nuclear weapons exchange between states this is the greatest global and national
+18:05
+security risk of the 21st century and
+18:11
+for me it's it's not hypothetical as a
+18:20
+young foreign service officer serving in
+18:26
+Almaty Kazakhstan I was approached by my automobile mechanic Slava and he asked
+18:33
+me if I wanted to buy some uranium and this led over a period of months to the
+18:40
+discovery in a factory in northeastern Kazakhstan near the border with Russia
+18:46
+Mongolia and China a cache of 600 kilograms of highly enriched uranium 90%
+18:56
+u-235 protected by a good padlock
+19:04
+and I held some of this uranium in my hand and together with the government of
+19:10
+Kazakhstan which renounced nuclear weapons and other weapons of mass destruction that it had inherited we did
+19:18
+a secret operation called Project sapphire and shipped this cache of hgu
+19:24
+back to the United States to Oak Ridge Tennessee where it was blended down into
+19:31
+power reactors and because only a big industrial state can produce plutonium
+19:37
+and hgu the bomb material that you need for a nuclear weapon we've done a lot in
+19:42
+the last 25 years to make it harder for terrorists to access these materials the
+19:50
+number of countries that have bomb quantities of these materials has been cut more than half from over 50 to
+19:58
+around 20 today there's a lot more we can do but I believe the threat of
+20:03
+nuclear terrorism while the consequences are grave I think we've made significant
+20:09
+progress turning to bio this is also
+20:19
+very real to me in June of 1995 I visited the world's largest anthrax Factory in a place
+20:26
+called step Nagoya Kazakhstan a secret city that was never on a map it's just known by a post-office box and this is
+20:34
+one of 10 four-story high 20,000 leader fermenters in a biosafety level four
+20:43
+high containment fermentation hall that was capable of producing 300 metric tons
+20:52
+of anthrax agent that is an existential scale of anthrax when you think about
+21:00
+what less than a gram did to the United States Senate office buildings in the
+21:07
+fall of 2001 I also visited with Larry Lynn the laboratory in Siberia
+21:15
+January of 1998 that developed smallpox as a weapon the vector laboratory so the
+21:23
+Soviet Union had done a lot of work on biological weapons and they consider them on a par with nuclear weapons I'm
+21:32
+also very concerned about chemical weapons although we've had a lot of success thanks to the Chemical Weapons
+21:39
+Convention and the Nobel Prize winning organization for the prohibition of
+21:44
+chemical weapons here I'm with the director-general of meta zoom to
+21:50
+overseeing the destruction of the last of Qaddafi's chemical weapons 517
+21:56
+artillery rounds filled with mustard that could have been used as improvised
+22:02
+chemical weapon terrorist devices in Syria under the threat of nuclear under the
+22:10
+threat of military force we were able without firing a shot to remove and
+22:16
+destroy 1,300 tons of VX sarin and
+22:22
+chemical agent materials that can no longer be used by the Assad regime
+22:29
+against its own people or its neighbors while they do continue small-scale
+22:35
+attacks they've reconstituted some capability the strategic threat has been
+22:40
+safely removed
+22:47
+we used to talk about five rogue states with WMD programs and we've made a lot
+22:54
+of progress in the last 30 years we're really down to one major one and that's North Korea and we hear a lot about
+23:01
+their nuclear weapons and missile programs which have gone very far advanced beyond our expectations much
+23:08
+faster than we expected but that's because they brag about them they release videos of their celebrations of
+23:15
+missile launches they show us they're possibly thermonuclear weapon but
+23:22
+they're biological weapons program is very advanced and we rarely if ever hear about it because they don't talk about
+23:28
+it they don't brag about it but I'm deeply concerned about North Korea's
+23:35
+advanced biological weapons program that has applied some of the new technologies
+23:42
+that we've heard about in the last few days in this 21st century of biology
+23:51
+also North Korea mounted what I would call a state-sponsored WMD attack in
+23:58
+kuala lumpur when kim jong-un
+24:04
+assassinated his brother with a covert operation using the chemical weapon VX
+24:09
+at the airport in kuala lumpur Russia
+24:17
+similarly in Salsbury launched a WMD
+24:22
+terrorist attack we now know through an amazing investigation that it was two
+24:31
+GRU troops who delivered that attack they intended to kill one person with
+24:36
+Novacek chemical weapons but that capability for state-sponsored WMD
+24:42
+attacks think about what they could do if they had a different intent that same
+24:48
+capability small groups of one or two people maybe in 50 parts of the world at
+24:54
+once or in succession could kill in each attack hundreds
+25:01
+thousands tens of thousands of people and that's why I think this is an
+25:06
+existential risk because well we have traditional groups like Isis al Qaeda
+25:12
+Lashkar that have not made great progress in developing weapons of mass
+25:18
+destruction although I think over time it's becoming more accessible and easier when you have a state behind it it
+25:26
+changes the game I want to talk about fentanyl's because this changes the
+25:34
+capability gap that the traditional terrorist groups have had people don't
+25:41
+often remember that in 2002 Russian Special Forces pumped fentanyl into a
+25:48
+theater that had been taken hostage by a group of Chechen terrorists they killed
+25:54
+all the hostage takers and over a hundred of the hostages that was fentanyl the same fentanyl that
+26:02
+you can now buy as part of the heroin trade produced in in laboratories mostly
+26:08
+in China ordered through mail-order weapons of mass destruction for sale on
+26:15
+an established market that changes the capability challenge for terrorist groups they can buy it and this is the
+26:22
+first time in my lifetime that I'm aware of weapons of mass destruction that are
+26:27
+available on an established market and that causes me grave concern I don't
+26:34
+have my head around what we need to do to prevent that but smart people like
+26:39
+you need to attack this problem because it's potentially a strategic risk to our
+26:44
+security
+26:51
+this is a public health laboratory in downtown Kiev Ukraine with a young
+26:59
+junior senator from Illinois in 2005 and from that kitchen refrigerator I'm
+27:05
+holding a vial of bacillus anthracis the causative agent of anthrax so the
+27:12
+potential for biological terrorism is real unlike plutonium and HEU these
+27:17
+materials are widely available and frankly I don't understand why
+27:22
+terrorists have not yet succeeded in launching a large-scale biological
+27:28
+weapons attack so I have a challenge for each of you in this room as thought
+27:34
+leaders as scientists as soldiers think about the day after a massive strategic
+27:44
+attack using nuclear chemical or biological weapons what is it but for a
+27:49
+lack of imagination that we could have done to have prevented that attack
+27:56
+because we must not let the worst weapons of the 20th century darkened the
+28:04
+21st thank you [Applause]
+28:19
+good morning ladies and gentlemen Valerie Vincent thank you very much and
+28:25
+a particular congratulations to Dartmouth for 60 years of service to the
+28:31
+nation proud past and from what I saw yesterday in the tour that I was able to receive obviously an exciting future to
+28:40
+come so I'm gonna stick to the nuclear situation because that's been my beat
+28:46
+since I joined Los Alamos as a summer student fifty-three years ago and
+28:52
+Vincent has set the stage very nicely in terms of taking a look at how the
+28:57
+technological trends might actually change these challenges and so what I
+29:04
+thought I would do in this short time is to divide the nuclear world that we're
+29:10
+going to talk about into proliferation and terrorism and I'm gonna use the
+29:16
+following framework of saying that we need to understand the motivation in
+29:21
+both cases and we need to understand the capabilities so in the capabilities in
+29:28
+the nuclear arena you need three things you need the bomb fuel and as you've
+29:34
+already heard that would be highly enriched uranium or plutonium you need
+29:39
+to be able to weaponize and that means design build and test the weapon and
+29:46
+then you need to be able to deliver it so I use that framework to take a look
+29:51
+at these two categories in the proliferation arena I'm talking about
+29:57
+proliferation of nuclear weapons to States the motivation as we study
+30:03
+history and as I already pointed out you know there are less than 10 countries in the world that have nuclear weapons
+30:10
+today although over the years you know perhaps as many as 30 have actually
+30:16
+attempted or explored to develop nuclear weapons but they're less than ten today
+30:22
+the motivation as we look at history is primarily to deter some adversary what
+30:28
+the deter if you think about that you need to have a nuclear arsenal you know one bomb doesn't do it you need to have
+30:35
+a nuclear arsenal and for that nuclear arsenal you would need the bomb fuel you
+30:41
+would need on the order of let's say hundreds of kilograms of highly enriched uranium and or plutonium to weaponize
+30:49
+you need to have a science and technology base and to deliver in if
+30:55
+you're going to deter you really need to have missiles so you need to have a rocket or a missile program and as we
+31:03
+look back you know particularly over the last couple of decades the most problematic cases have been actually
+31:10
+South Africa which developed a very small arsenal gave it up India and
+31:15
+Pakistan which still represent sort of the most dangerous place today in the
+31:21
+nuclear world and then North Korea those are ones that had developed and have
+31:27
+developed nuclear weapons of course their number of others in Iran particularly falls on top of that list
+31:32
+that have developed the option to build the bomb if we look at North Korea
+31:38
+closely and I've done that ever since 2004 when I first went to North Korea
+31:45
+so North Korea does have a nuclear arsenal we don't know exactly how many but on the order of quite a few hundreds
+31:52
+of kilograms of bomb fuel maybe thirty or so nuclear weapons they've developed
+31:59
+those weapons over the last 50 plus years it's been a very deliberate
+32:04
+determined program to build that capability of what they call a deterrent
+32:11
+a diplomacy has over the years as one studies it carefully and we at Stanford
+32:17
+have done a comprehensive history of the North Korean nuclear program and the interplay of Technology and policy and
+32:26
+as we study that history we find the diplomacy has often
+32:31
+been able to slow down the process or actually reverse it in some cases but
+32:36
+never the stop of that process and of course we are another one of those cusps today as to where the diplomacy can
+32:44
+actually bring us back now as I look at this from the targa darpa perspective from a technological perspective and I
+32:51
+look back and say if we would have had other technological means or capabilities would that have changed a
+32:57
+North Korea situation and my answer is no I don't think so in other words this
+33:03
+wasn't an inability for us to detect what they were doing because quite frankly they've done this in plain sight
+33:11
+you know of the international community under international sanctions and by
+33:17
+plain sight I mean they've actually allowed me to go into their nuclear complex I've been there seven times I've
+33:23
+held their plutonium in my hands I've seen their centrifuges you know so they
+33:28
+actually wanted the world to know that look we have this capability so this was not a technological failure it was a
+33:36
+political failure a failure of will a failure actually of the international
+33:41
+community on the US part I would say the main failure combining it and looking at
+33:48
+the technological side versus political side is not doing a proper risk analysis
+33:54
+and not having the technological people be able to inform the political people
+33:59
+what are their risk if we do such-and-such and so as a result North
+34:05
+Korea has been able to do a lot with very little the around story is somewhat
+34:11
+different but similarly again it was not a technological issues how will these things change in the future I don't
+34:18
+think these will change dramatically although the technology challenge will
+34:25
+be as it is today in Iraq in Iran and might become in North Korea and this is
+34:30
+a place where DARPA could help a lot is in verification so if indeed a country
+34:36
+is going to be denuclearize in the end how what does that mean what do we need
+34:42
+so let me turn then to the issue of new their terrorism that's a very very
+34:47
+different issue it's an entirely different problem in this case if you look at the motivation of terrorists is
+34:53
+to do harm had to do as much with as little as possible and so in the case of
+34:58
+nuclear terrorism one bomb will do it and so therefore yeah you have to make
+35:04
+sure that for the bomb few a few tens of kilograms of material for weaponization
+35:10
+you don't need a science and technology base you need a few good technicians and for the delivery
+35:16
+you don't need missiles you no boat a van or a plane will do the materials are
+35:23
+very difficult today to make and this is one of the places again technologically where there is going to be a difference
+35:28
+are there going to be easier ways to make the bomb fuel but as Andy just
+35:34
+pointed out you don't need to make it you can steal it and particularly that was a problem with the dissolution of
+35:41
+the Soviet Union I've been to Russia fifty five times over the last 26 years
+35:46
+mostly to work actually with the Russians to make sure that they are nuclear materials don't get away and
+35:53
+Andy and I worked together in a place called Semipalatinsk which today is in Kazakhstan where they had more plutonium
+35:59
+essentially buried around that old test site then North Korea has ever made in
+36:05
+the 30-some years they've had the reactor operating so in this case detection is critical and so we need to
+36:13
+be able to detect we need to be able to monitor fissile materials we need to be able to help countries to protect their
+36:20
+and safeguard their fissile materials and this is where the signal program at
+36:25
+DARPA is really any enormous advance to go in doing something that's a step
+36:32
+function change in our ability to monitor let me just quickly then turn to
+36:38
+the next part of nuclear terrorism that is radiological terrorism so here we're talking about a dirty bomb and a dirty
+36:45
+bomb means just spreading radioactive materials around that's not a weapon of
+36:51
+mass destruction it's a weapon as it's been called of mass disruption and here in essence
+36:58
+you're able to instill fear economic damage so how do we look then at the
+37:05
+issue of a dirty bomb well the bomb fuel is ubiquitous it's it's every word these
+37:11
+are medical isotopes these are industrialized they're radioactive isotopes so we're not talking about
+37:17
+highly enriched uranium it would be a poor dirty bomb fuel so to speak we're talking about things like cobalt 60
+37:24
+cesium 137 iridium 192 or americium these things are everywhere there are
+37:30
+lots of them they're not so well protected so the bomb fuel is there the weaponization
+37:36
+unfortunately it's simple it's just explosives and they're radiological material delivery a draught particularly
+37:42
+today a drone will do so in this case again something like the signal problem
+37:48
+detection is absolutely important and here also the interplay of Technology
+37:55
+and and the social sciences is important what is the motivation you know one of
+38:00
+the greatest puzzles today is why hasn't the dirty bomb been exploded somewhere and so one of the things that I'd like
+38:07
+to see us do and that's why the place is where DARPA could help out I like to put it how do we avoid the second
+38:13
+radiological attack the first one on 4th it's going to happen someplace sometime
+38:18
+because the bomb field is their weapon ization is easy and the delivery is easy
+38:25
+how to avoid the second one the way we avoid the second one is we have to be
+38:30
+prepared and again that preparation is both technological and sociological
+38:36
+these are the challenges that I see for the future and I think there are great
+38:42
+problems for DARPA to attack thank you ladies and gentlemen [Applause]
+38:55
+Thank You Valerie and I've innocent for inviting me to speak and congratulations to darpur
+39:02
+annual 60th anniversary I'm very honored to be here I'm going to make six points in my presentation the first one is the
+39:11
+history of terrorist groups experimenting and deploying weapons of mass destruction is a history of failure
+39:17
+the second point is groups like al-qaeda and Isis have no compunction about deploying WMD they believe they have a
+39:25
+religious right to do so the third point which dr. Tang reference is a sort of a
+39:31
+Moore's Law and violence biology which suggests that there will be more access to biological weapons over time and
+39:37
+these groups will try to deploy these kinds of weapons the next point is
+39:42
+groups like Isis tend to adopt emerging technologies we saw this most recently
+39:47
+in Syria in Iraq where Isis was deploying crude armed drones repeatedly
+39:52
+so despite this record of failure of to deploy CBRN I think in the future these
+39:58
+groups will certainly unfortunately be successful which relates to the next
+40:03
+point which is these groups have recruited scientists because my concern is not necessarily a terrorist becoming
+40:09
+a microbiologist but a microbiologist adopting an extremist ideology so think
+40:14
+about Bruce Ivins who you know killed five people and caused a billion worth a billion dollars worth of damage to the
+40:21
+American economy shortly after 9/11 Ivan's motivations were idiosyncratic to
+40:26
+say the least but imagine a microbiologist in Indonesia or Pakistan or pick your country who adopts Taliban
+40:34
+like views this is really I think a serious potential problem and the final
+40:39
+point is that jihadi terrorist groups are not the only groups that we need to be concerned about in this country far-right extremists have experimented
+40:46
+with crude chemical weapons and and radio and some of the dirty bomb type weapons that was described just
+40:55
+previously so let me start with the record of failure that al-qaeda has had
+41:01
+notwithstanding their strong desire to acquire these weapons you know in 1999 bin Laden said acquiring nuclear and
+41:08
+chemical weapons is a religious duty in 2003 and in bin Laden by the way it's not a religious figure you know
+41:16
+obviously is an important terrorist figure but for these groups actually need a senior cleric to kind of give
+41:22
+their blessing to this idea in 2003 a Saudi a leading Saudi cleric issued a
+41:28
+treatise essentially saying that the development and use of nuclear weapons and and weapons of mass destruction was
+41:36
+a religiously sanctioned so these groups certainly believed that they have the right to use these weapons and in the
+41:43
+pre 9/11 era bin Laden was meeting with leading Pakistani nuclear scientists in
+41:50
+Afghanistan to talk about developing nuclear weapons they also acquired
+41:56
+uranium from the former former Soviet Union now al Qaeda of course they're not
+42:03
+you know they're not sophisticated nuclear scientists and the uranium and the radioactive materials that they were
+42:08
+acquiring were likely radioactive waste waste from hospitals and in fact when
+42:14
+the Taliban fell in in Kandahar which was the de facto capital of the Taliban
+42:19
+US personnel recovered uranium-238 in a storage facility in Kandahar but it
+42:26
+wasn't highly enriched uranium but certainly they were interested in acquiring these weapons they certainly
+42:31
+they were interested in meeting with nuclear scientists who could help them and they also within al-qaeda there have
+42:38
+been people with advanced degrees scientific degrees of Libyan example a
+42:43
+woman called dr. Aafia Siddiqui she had a graduate degree in biology
+42:49
+from an American University and then she had a PhD in neuroscience from Brandt
+42:54
+Brandeis and when she was arrested in in Afghanistan in 2008 she was carrying
+43:00
+documents related to chemical biological radiological attacks and and also it
+43:07
+seemed that she was planning to perhaps carry out an attack in New York City and she's and she is an American
+43:12
+citizen so I think that over time these
+43:17
+groups will attempt to recruit scientists because they've done that in the past they you know they were never
+43:24
+able to they were very interested in anthrax so they were never able to weaponize anthrax al Qaeda in Iraq
+43:32
+certainly deployed chemical weapons on repeated occasions using chlorine in the
+43:38
+bombs that they deployed and we saw Isis doing the same thing now if you have a chlorine bomb blew up in this room the
+43:46
+most of people who would be dead would be because of the effects of the blast not the chlorine so these were an
+43:51
+optically effective but it certainly shows that they have no qualms about using these weapons they've used them
+43:58
+before interestingly Isis when it took Mosul which is the second largest city
+44:03
+in Iraq they captured Mosul University where there was a fair amount of
+44:10
+cobalt-60 deployed in in the lab at Mosul University Isis didn't seem to be aware of this fact luckily because
+44:17
+cobalt-60 would be quite useful in a radiological weapon so there's a certain
+44:23
+you know there's certainly interest in these weapons they certainly believe that they have a religious sanction to
+44:29
+use these weapons they've tried to deploy these weapons in the past they've recruited scientists and so I think the
+44:35
+the the concern is is is warranted that
+44:41
+said would moving forward to kind of the picture today since 9/11 in the United
+44:47
+States there have been 450 terrorism cases jihadi terrorism cases in not one
+44:53
+of those cases has the the accused terrorists tried to develop or deploy CBRN weapons and in fact since 2014 in
+45:04
+the West in general of the 91 attacks conducted by jihadists in the wife since 2014 not one involved a chemical
+45:11
+biological radiological or nuclear weapon Europol notes in in his 2018
+45:17
+report as in previously as no terrorist attacks using chemical biological radiological nuclear substances recorded in the EU in
+45:24
+2017 so you know it turns out the
+45:29
+terrorists prefer to use the tried and tested methods of the past which are vehicle roundings you know truck bombs
+45:35
+etc they are adapting the the I think
+45:40
+the use of armed drones in beginning in 2014 by Hezbollah deployed an armed drone in Syria against an al-qaeda
+45:47
+training camp you've seen Isis use these drones repeatedly I indicates that they
+45:54
+are willing to experiment but for the moment despite the fact they have they
+46:00
+think they have the religious sanction to use these kinds of weapons we've seen
+46:05
+scant evidence amount of them deploying such weapons recent cases which I think
+46:12
+are you know troubling but not necessarily existential in June a woman
+46:18
+was arrested in the United States she was a legal resident of the United States she had instructional materials
+46:25
+regarding how to manufacture ricin now ricin is not really a typical
+46:30
+Western weapon of mass destruction it's more of an assassination tool but the fact is we have also saw in June in
+46:37
+Germany the German authorities arrested a Chinese a man who'd allegedly successfully created ricin and was
+46:44
+potting use at an attack in in Germany so certainly we've seen these groups
+46:50
+experiment with with these kinds of weapons not very successfully and
+46:56
+finally in the United States when we've seen anti-government extremists possess
+47:03
+pro-q precursor chemicals for hydrogen cyanide gas and others also
+47:09
+experimenting with ricin and one final thought which is we we think about
+47:17
+terrorists acquiring nuclear weapons of mass destruction as a potential issue I'm also concerned about the idea that
+47:24
+terrorists might actually trigger a real nuclear war between the the a nuclear-armed states of Pakistan and
+47:29
+India and here's how this has had that would happen if Pakistan banded
+47:35
+another kind of Mumbai style attack in India where 200 people or more were killed the Indian government would certainly
+47:41
+respond in the in the previous case they didn't respond at all but in but in there would be tremendous political
+47:47
+pressure on the Modi government to respond to a large-scale terrorist attack that emanated from Pakistan what
+47:53
+would that response looked like he would look like a incursion into Pakistan Kashmir taking out the terrorist
+48:00
+training camps of groups like lashkar-e-taiba the Pakistan's which the
+48:05
+Pakistanis who have tactical nuclear weapons might well be concerned they've lost three and a half Wars to India in
+48:11
+the last 60 plus years they have a rather immature nuclear weapons doctrine
+48:18
+they may well deploy these weapons if they felt that they were going to lose the conventional war to India so it's
+48:24
+not only the concern about terrorists acquiring you for weapons it is also the the possibility of terrorists sparking a nuclear
+48:31
+conflagration thank you
+48:41
+thank you hater and all of our speakers for sharing your unique experiences and
+48:48
+perspectives on the global threat landscape and the challenges that we
+48:54
+face today in terms of trying to keep the US and our allies safe as well as
+49:00
+some of the challenges we might face in the future me now we're going to open the session to questions I haven't
+49:08
+received any yet so I will so this is a
+49:23
+question for all of our panelists should the focus be on mitigating WMD
+49:29
+development and use or targeting the people who fund make deploy or use them
+49:38
+so we have to do all that we have to and we've been successful in Peter there are
+49:44
+two theories of why the traditional terrorist groups like Isis and al-qaeda
+49:50
+haven't succeeded in launching a mass WMD attack one is stupid terrorists you
+49:59
+know they just haven't had the technical capability and I don't want to rely on that for our security and the other is
+50:07
+the incredible counterterrorism work that the United States military and law
+50:14
+enforcement and our allies have led for the last over 15 years where we've taken
+50:22
+out terrorist groups and leaders but that said we have to do everything
+50:29
+possible to prevent and to be prepared for when that attack happens because
+50:35
+there's a lot we can do to be prepared and it needs to move from a sort of
+50:41
+boutique effort within the Department of Defense to a sustained resource national
+50:49
+effort to be better prepared to prevent to find
+50:55
+and the Sigma Plus program is critical in that regard but we're not doing
+51:03
+enough given the scale of the threat Thank You anybody else I would just
+51:10
+comment quickly that uh I mean I think just from the variety of views you got today I mean the problem is so broad
+51:17
+right so I completely agreed and even the son said we got to take that full picture and we're gonna try to attack
+51:22
+every part of it right and so we've got to do it all well let me just pipe in
+51:30
+from my standpoint in the nuclear arena for the nuclear terrorist for the bomb
+51:38
+the mushroom cloud prevention is really important and and the critical link in
+51:46
+the chain are the fissile materials and as I said today at least we don't think
+51:52
+terrorist organizations can make the fissile materials they need a reactor to make plutonium and at least the most
+52:00
+direct way today for highly enriched uranium the enrichment is centrifuges
+52:06
+and that's not so easy again that may change somewhat the reactor if stuff
+52:11
+won't change much enrichment may however the issue that both Andy and I brought
+52:17
+up and that is the the amount of nuclear materials that out there fissile
+52:22
+materials when the Soviet Union dissolved we don't know exactly how much they had actually they don't either know
+52:30
+exactly how much they had but it was well over a million kilograms okay if
+52:36
+you think about that it takes let's say five or six or so kilograms of plutonium
+52:42
+to make a bomb it takes a few tens of kilograms of highly enriched uranium and
+52:47
+they had a million plus by the way we were no slouches you know we had 750
+52:52
+thousand kilograms or so also so then the issue that becomes the protection
+52:58
+and safeguarding so you have to put the focus on that and those are the sort of things that
+53:03
+Andy and I have worked on and the US government has worked on and you have to do that by the way in cooperation with
+53:10
+those governments that have fissile material that's why you have to put the focus and the radiological terrorism as
+53:17
+I tried to point out there are the materials are everywhere it's gonna happen at some point it's it's straight
+53:23
+maybe Peter can tell us why it hasn't happened yet I mean it really is quite strange for the most part my opinion is
+53:29
+so far the terrorists have wanted to use those things but they're the prevention
+53:35
+of course is important but the most important part is the response we have
+53:40
+to be prepared and the way we respond to the first radiological dirty bomb
+53:45
+incident is going to set the pattern as to whether we're gonna have a cascade of
+53:51
+these or not and I think that's where the issue is yeah I don't know why I mean it hasn't happened I mean one thing
+54:00
+we have to be careful of Ayman al-zawahri who's now the head of al-qaeda in 1999 wrote a note internally
+54:05
+within al-qaeda's saying our enemies are so concerned about this issue of weapons
+54:11
+of mass destruction that we should start a program in this area and they devoted
+54:16
+four thousand dollars to what they called the yogurt program which of their code name and they began experimenting
+54:22
+with you know cyanide gas killing there's a famous image that was on CNN of a dog being gassed probably with
+54:28
+cyanide gassed and they've set up a program run by a guy called Abu kebab great sort of pseudonym who who was in
+54:37
+charge of their chemical weapons program so you know they're thinking about it why they haven't done it I mean it's
+54:43
+hard to I just don't know thank you so
+54:49
+this is an interesting question and directed to sig and Vincent primarily but you'll please feel free to address
+54:55
+it Andy and Peter if if you have some thoughts where does the EMP threat fit
+55:02
+with it the CBRNE program or does it so
+55:08
+that that's a that's a good question so I think I think that that's certainly the EMP
+55:15
+the potential for EMP threats there does does warrant attention and analysis I
+55:22
+would say in terms of in in terms of some of the discussions within the
+55:28
+government I think there are folks looking at it but currently you know that that particular deployment scenario
+55:35
+other than the starting points of it at least a segment single class program are
+55:41
+not covering directly that those types of deployments but I think it is something worth looking at and thinking
+55:49
+about anybody else
+55:55
+let's see Andy or anyone in addition to
+56:00
+efforts to prevent attacks should we should we be focusing more effort on
+56:09
+developing our resiliency in the event of an attack absolutely and there are
+56:15
+different aspects of this there's public education there's exercising training
+56:21
+but the biggest opportunity we have and and DSO and BTO are doing incredible
+56:28
+work that was launched by Larry Lin and his team in the 1990s and that work at
+56:35
+the time was visionary it was futuristic but now the science has caught up the
+56:42
+field of synthetic biology is mature we can make biological weapons obsolete
+56:48
+oh and by the way doing the same things we can take pandemics off the table and
+56:54
+we heard about that from BTO so in the bio area a national level sustained
+57:02
+program applying the revolution in biology can make infectious disease and
+57:08
+biological weapons obsolete we can't do that with nuclear weapons but we have a
+57:14
+tremendous opportunity and that's why I'm so excited to see these new tools
+57:19
+being applied for bio defense my view is resiliency is
+57:26
+answer to response that's precisely what we should be aiming for unfortunately
+57:32
+our country is almost going in the other direction you know whatever the
+57:37
+terrorist attack is the yellow tape goes up and you know those areas are roped
+57:42
+off almost forever I ran a number of counterterrorism workshops and
+57:48
+conferences with the Russians in the early 2000s and at one of those
+57:54
+conferences we actually invited a policeman from New York City who had
+58:00
+been over in Israel for the prior four years to work with the Israelis to learn
+58:07
+from the Israelis as to how do they respond and what he described was the
+58:13
+Israelis have resiliency and you know how true it is I'm not sure but what he
+58:18
+described is that when there is a terrorist attack at a restaurant at some place the idea was from the Israeli
+58:25
+government within four hours that place is back up and what that demonstrates to
+58:31
+the terrorists you can't bring us down even by fear in the way we respond that's what we have to be doing we
+58:38
+started an effort National Academy of Engineering here in the u.s. also in
+58:44
+those mid-2000s and and the effort was aimed precisely on how do we get cities
+58:51
+prepared to respond and to be resilient and so we took an effort on chemical
+58:57
+biological and Radiological around the country - it was like 10 different
+59:02
+cities I participated in one of those in Las Vegas and it brought together first
+59:09
+responders who were absolutely crucial in that and then government officials
+59:14
+both local state and federal government and then some scientific experts and we
+59:21
+went through scenarios to try to build that we had this great program went on
+59:27
+for a while and then it died and I don't think we're doing enough to build up
+59:32
+this country's resilience to any of those Peter and everything on resiliency no really I mean
+59:39
+resilience is a political issue and politicians can signal the sky is
+59:45
+falling or you know this too shall pass and that's why a political decision and
+59:50
+so you know and then also you know the media has a role here good bad or
+59:55
+indifferent which we can signal the sky is falling or we can say this too shall pass
+1:00:01
+of course because the let's say there is a radiological bomb and attack in
+1:00:07
+Washington it will be a very big news story for and and so that you cannot
+1:00:13
+control but you can kind of say you can as a as a political leader say you know
+1:00:18
+this is bad and difficult but you know be aware that a radiological bomb attack
+1:00:24
+is not a nuclear weapon I mean which is not news to anybody in this room but would be something you'd have to say as
+1:00:29
+a as a political matter and make it clear to the American public that you know this is a you know it's a big deal
+1:00:36
+but it is not existential and so hopefully you know when when and if this happens because I think we all agree it
+1:00:42
+will happen in a European city at some point the political leadership says the right things and and they need a Ziggler
+1:00:50
+saying then you you you don't you don't make those decisions the day it happens you need to have thought it out before
+1:00:56
+it happens actually I should have been I forgot we did include the news media also in this because it's it's
+1:01:02
+absolutely crucial and a combination that into play is important for example
+1:01:07
+in one of the exercises was indeed a radiological bomb going off in a
+1:01:13
+shopping mall in in Minneapolis and then you pulled together first responders
+1:01:19
+news media technical experts so I was the technical expert so the first thing the technical expert goes and today they
+1:01:25
+can go to to Vincent and his gang I want to know what's what's the radiological
+1:01:31
+material you know I want to know what it is because that's going to determine how you protect yourself and they're the way
+1:01:37
+that it was played out they actually said it was petone iam and then I said well thank God it was only plutonium
+1:01:44
+okay the reason for that is because plutonium by itself if you disperse it
+1:01:50
+you know you have to do with plutonium you don't want to breathe it and you don't want to eat it you know and if you can protect
+1:01:56
+yourself from that it doesn't do you any harm on the other hand it gets cesium-137 you know because it's alpha
+1:02:03
+radiation and you folks know that but if cesium one 137 or cobalt 60 it's got
+1:02:09
+gamma-irradiated it penetrates alpha radiation doesn't penetrate you have to protect yourself differently and so the
+1:02:15
+this is where your your Sigma concept can come in to actually inform the
+1:02:20
+responders in a way that's useful let me cite one success I mean I believe in the
+1:02:26
+concept of deterrence through preparedness and smallpox the United
+1:02:32
+States has a stockpile of 350 million doses of smallpox vaccine so a terrorist
+1:02:39
+that requires a smallpox weapon is not going to use it against the United States they might use it against the
+1:02:46
+other parts of the world that don't have vaccine stockpile but we are deterring and by vaccinating our forces deployed
+1:02:53
+in South Korea and that region we are deterring North Korea from using
+1:03:00
+smallpox against us in a wartime scenario so there is a lot we can do
+1:03:05
+through preparedness that helps prevent weapons of mass destruction attacks this
+1:03:14
+question is for anyone do we need to prepare for adversaries challenging US
+1:03:19
+agriculture in ways that may be difficult to defeat and/or attribute and
+1:03:26
+how so in 1997 I visited Tashkent Uzbekistan
+1:03:31
+and we had programs to employ scientists that were involved in WMD programs and
+1:03:37
+the Uzbek Academy of Sciences gathered all the Institute directors and I said
+1:03:42
+do any of you think you might qualify to participate in these programs and one by
+1:03:50
+one they sit up and one gentleman stood up and said I'm dr. Abdul Kareem off I'm
+1:03:56
+director of the Institute of plant genetics our Institute developed plant pathogens as weapons to destroy
+1:04:04
+the United States crops against wheat corn and rice so the Soviet Union had a
+1:04:13
+a large program to develop biological
+1:04:18
+weapons for anti crop and also for anti livestock and I visited the networks of
+1:04:24
+Institute's for their anti crop program centered at glitzen o near Moscow and
+1:04:29
+for their anti livestock program at okra and Vladimir and so this is a very easy
+1:04:37
+economic attack that could happen and there's a lot we can do to prepare
+1:04:42
+having a stockpile of vaccine against foot and mouth disease or rinderpest these are things we can do to mitigate
+1:04:49
+that threat but we need agriculture is 20% of our economy so we need to take
+1:04:55
+this very seriously anybody else those points I I think this
+1:05:01
+is where you know definitely the dark book can contribute from a technological point of view right how do we enable
+1:05:08
+that scalable why area sensing so that we are just have situational awareness of you know potential pathogens in the
+1:05:14
+background what's normal what's abnormal and it's a huge challenge but I mean
+1:05:19
+that's what we mean by scalable sensing so this is directed to to all of you you
+1:05:26
+are scaring the heck out of me what what
+1:05:31
+can ordinary citizens do to better understand this existential threat they
+1:05:39
+do you must have scared him I don't think I did well I mean you know the
+1:05:47
+counter-argument is is is these groups they have a you know they they they
+1:05:53
+would love to deploy a mass casualty weapon in the United States they just
+1:05:58
+don't really have the capacity but I think as we've all sort of said I mean Moore's law in biology suggests that
+1:06:04
+they will I mean I have a really a question for my panelists here which I mean gene-editing
+1:06:10
+seems to have a lot of promise but it you know the railways had a lot of promised as well but the railways made
+1:06:16
+the American Civil War the most did lethal war so far but because you know
+1:06:23
+lots of people got delivered to the battlefield in through well cars in a way that wasn't been the case in the
+1:06:29
+past so with every technological advances both good and bad so gene-editing seems to be one of those
+1:06:34
+promising and technologies we have i I can't imagine that there won't be people who will use it for ill and so the
+1:06:40
+question is you know what does that look like in terms of the scary scenario I think the most important thing everybody
+1:06:48
+can do is awareness you know that if you see something say something Bruce Ivins who launched those anthrax attacks in
+1:06:54
+the United States it took the FBI eight years to determine that he had launched
+1:07:01
+those attacks his his colleagues were they thought he was quirky but they were
+1:07:08
+reluctant to say anything about him so just having that awareness and Ed you
+1:07:15
+from the FBI WMD director talked about how they talked to young synthetic
+1:07:20
+biologists at the I Jim meetings in Boston the jamberries to let them know
+1:07:26
+that there is a potential security risk to synthetic biology so they're aware
+1:07:31
+and if they see something they'll do something about it and not just look the other way and that's how we actually
+1:07:38
+prevent regular terrorist attacks - Valerie my own view is in the nuclear
+1:07:45
+arena I actually feel reasonably comfortable that we can look at the future and sort of lay out
+1:07:50
+what the challenges are today my view is chemical biological and not weapons of
+1:07:57
+mass destruction yet I personally think chemical will probably never become
+1:08:02
+really a weapon of mass destruction but biological can and precisely the
+1:08:08
+question that Peter asked if you look sort of into that future there's nothing but unknowns and
+1:08:14
+challenges and as we heard yesterday in the 60 years of DARPA that's sort of what DARPA does is look at the future
+1:08:22
+and look at the impossible and that's an area I think it's absolutely crucial for
+1:08:27
+this country to think a step or two ahead and I just can't see it it you
+1:08:33
+know makes me comfortable that I do the nuclear stuff very good I wanted to pick
+1:08:39
+up something Andy said I mean yep the eyes looked a lot of terrorism cases since 9/11 and the people who know the
+1:08:44
+most about a potential attack all peers followed by family members followed by
+1:08:49
+authority figures like clerics and teachers the people who know the lease are strangers the people who live most likely to drop a dime are strangers
+1:08:56
+though there's all these false positives and the people who are least likely to drop a dime appears so that I think
+1:09:02
+there's a kind of important lesson here about Bruce Ivins as peers maybe you
+1:09:09
+should have talked out there so the discussion of synthetic biology is
+1:09:14
+actually a good segue to the next question with CRISPR technology DNA and RNA could
+1:09:21
+be weaponized how could diplomacy and policy help to
+1:09:26
+counter this development into weapons well it's so new we have no norms and
+1:09:32
+the government's can try but also the leaders in this industry need to establish norms and think about it you
+1:09:41
+know would we be in the cyber situation we are today if 30 40 50 years ago when
+1:09:47
+ARPA was creating the internet if they had really given thought to the security
+1:09:53
+risks and downside of our dependency on this so we have an opportunity to establish norms for
+1:10:01
+responsible use of these new technologies well you know I find it
+1:10:06
+sort of curious from a standard of diplomacy or I guess what what one could
+1:10:13
+call arms control you know biologic and chemical weapons are outlawed nuclear weapons actually
+1:10:20
+are not outlawed of course there's a treaty now that's sort of hanging there but those things are outlawed and yet
+1:10:25
+the effectiveness of any real diplomacy and in the direction of chemical and biological to me is mostly non-existent
+1:10:32
+there are the conventions but I don't think we figured out yet you know how do
+1:10:37
+we face this common threat how do we organize ourselves in the nuclear arena
+1:10:42
+it was reasonably straightforward even you know Soviet Union and the United States being our enemies they
+1:10:48
+nevertheless they realized you know what in essence finally Reagan and Gorbachev
+1:10:54
+said you know nuclear war cannot be won so their nuclear war must not be fought we haven't set up that sort of a
+1:11:00
+protocol yet in in the biological or chemical arena and so it's sort of this no person's land out there and I'm not
+1:11:08
+sure how one takes care of that again that's a huge challenge you just touch on something which is just I mean just
+1:11:15
+just it's the exact point I mean in the in the nuclear world that it's completely binary right it's very easy
+1:11:22
+to say you know you know you cannot pursuit this because if this happens it's over right right in the biology
+1:11:28
+world I mean with these advances there are so many positive things that can happen that as well as negative so just
+1:11:34
+fully defining that landscape I think I mean it's something that we are doing and helping with but a that's and then
+1:11:41
+setting up a political framework for that it's a non-trivial but important I think sig has redefined DARPA hard
+1:11:49
+nuclear is easy work on bio because we
+1:11:54
+need a lot of thought and in progress but this is a this is one we can win if
+1:12:01
+we if we make it a priority well we're down to the under two minutes
+1:12:06
+I don't know if we have time for this last question but we'll try and squeeze maybe a few thoughts in Vincent talked
+1:12:12
+about the democratization of Technology and the accelerating pace of technology development so if you look to the future
+1:12:18
+where might maybe be surprised about technology enabling new threats and
+1:12:24
+where might we take some comfort in technology helping us to address those threats you have 15 seconds each well I
+1:12:33
+mean you fail this Masson it's the failed assassination attempt on Maduro and Venezuela I think points to the
+1:12:38
+future where all public figures and public events are going to be have to be thinking about armed drones and I think
+1:12:44
+about Isis the ISIS PlayBook I'm the next iteration of Isis is going to basically take that playbook will they
+1:12:50
+use virtual reality for training camps I mean it's a it's not implausible yes so
+1:12:58
+maybe you in in the nuclear arena is is mostly one of will there be an easier
+1:13:05
+way to get fissile materials in some fashion can't camera and harvest those in some way with technologies that at
+1:13:13
+this point are not that effective and so since the mushroom cloud has to be avoided by not having fissile materials
+1:13:20
+that and then the protection that is really key bioweapons are just
+1:13:25
+infectious disease so we can eliminate that threat and and the work of national
+1:13:31
+heroes like DARPA Matt Hepburn are leading the way but we it needs to to
+1:13:38
+then transition to the mainstream
+1:13:44
+I think you know as I've said we we just
+1:13:49
+have to be vigilant and at times sometimes this problem it can be hard to
+1:13:54
+do that right because it's not a daily thing but we really just got to be vigilant for system we've got to attack
+1:14:00
+that from the chain right securing materials I think sort of a capability for ycl sensing but also that
+1:14:06
+preparation right so that people understand you know what are real threats and won't we be more psychological threats right that
+1:14:12
+resiliency I think we just got to keep at it and figure out a way to how to do this and you know at the same time
+1:14:19
+maintaining our path Lord keep at it that's right this has really been fascinating thank you to all of you
+1:14:25
+please join me in thanking all [Applause]
 
 
 <!---
