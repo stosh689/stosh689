@@ -4621,6 +4621,30 @@ carcinogen_incidence.plot(kind='bar')
 plt.x
 
 
+ 4,010 views  Sep 24, 2018
+Since its inception, DARPA has developed transformative technologies to mitigate national security threats including those posed by weapons of mass destruction (WMD). Even though the likelihood of a state-based nuclear exchange remains low, the threat from non-state use of weapons of mass destruction has been rising. This is largely due to the expanding availability of technology and the globalization of data and information. A wide array of actors, from lone wolves to rogue states, now can scour the internet and social media to find details about the materials, tools, and know-how they might need to realize their WMD ambitions. Developing effective countermeasures depends on the abilities to detect, track, and interdict illicit weapons production, secure precursor materials around the globe, and understand the dynamics of adversary intent and the data-space they work in. 
+
+In this session from DARPA’s 60th anniversary symposium, D60, Dr. Valerie Browning, director of the agency’s Defense Sciences Office (DSO); keynote speaker Dr. Vincent Tang, program manager for DSO; and a panel of notable experts explore the challenges and opportunities for combatting WMD use and preventing proliferation in the emerging global landscape. 
+
+Moderator 
+Dr. Valerie Browning – DARPA, DSO 
+
+Keynote 
+Dr. Vincent Tang – DARPA, DSO 
+
+Panelists 
+Mr. Peter Bergen – Journalist 
+Dr. Siegfried Hecker – Center for International Security and Cooperation, Stanford University 
+The Honorable Andrew “Andy” Weber – Former Assistant Secretary of Defense for Nuclear, Chemical, and Biological Defense Programs
+
+DARPA’s 60th anniversary symposium, D60, took place Sept. 5-7, 2018, at Gaylord National Harbor, Oxon Hill, Maryland.
+
+https://youtu.be/he15Hbc3PZ0
+
+
+<iframe width="1343" height="480" src="https://www.youtube.com/embed/he15Hbc3PZ0" title="Combating Emerging Weapons of Mass Destruction and Terror Threats" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+
 
 
 
