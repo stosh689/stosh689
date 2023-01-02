@@ -6402,6 +6402,26 @@ for p in paragraphs:
 print(text)
 
 This is just a basic example of how you could use Python to scrape and clean data from a website. You can use similar techniques to scrape and clean data from other sources, such as databases or APIs.
+import requests
+import bs4
+import pandas as pd
+
+# Collect data on consumer reviews for a particular product from an online marketplace
+product_id = '12345'
+url = f'https://www.example.com/products/{product_id}/reviews'
+html = requests.get(url).text
+soup = bs4.BeautifulSoup(html, 'html.parser')
+review_elements = soup.find_all('div', class_='review')
+reviews = []
+for review_element in review_elements:
+    rating = review_element.find('span', class_='rating').text
+    review_text = review_element.find('p', class_='review-text').text
+    reviews.append({'rating': rating, 'review_text': review_text})
+
+# Organize the data into a Pandas data frame and perform statistical analysis
+df = pd.DataFrame(reviews)
+mean_rating = df['rating'].mean()
+print(f'Average rating: {mean_rating:.2f}')
 
 <!---
 stosh689/stosh689 is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
