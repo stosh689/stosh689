@@ -6423,6 +6423,376 @@ df = pd.DataFrame(reviews)
 mean_rating = df['rating'].mean()
 print(f'Average rating: {mean_rating:.2f}')
 
+
+
+
+
+
+
+This business model generates a product by taking in four input parameters: product type, 
+target market, production costs, and price. The function creates a dictionary object 
+representing the product, with keys for each of these attributes, and returns the product.
+
+To scale up global production, the company could focus on increasing efficiency in the production process, 
+finding new suppliers for raw materials, or expanding into new markets. To focus on profit growth, the company 
+could look for ways to reduce costs or increase 
+the price of the product. Finally, the company could generate revenue from its operations by selling the product 
+to customers at a price higher than the production costs.
+
+
+def generate_product(product_type, target_market, production_costs, price):
+  product = {"type": product_type, "target_market": target_market, "production_costs": production_costs, "price": price}
+  return product
+
+
+# Word search puzzle
+puzzle = [    ['S', 'C', 'R', 'A', 'B', 'E', 'L'],
+    ['A', 'W', 'G', 'L', 'E', 'S', 'A'],
+    ['D', 'R', 'O', 'W', 'Y', 'L', 'L'],
+    ['H', 'Y', 'R', 'D', 'E', 'R', 'E'],
+    ['E', 'A', 'S', 'T', 'E', 'R', 'E'],
+    ['L', 'Y', 'N', 'G', 'A', 'L', 'E'],
+    ['G', 'E', 'O', 'F', 'F', 'R', 'E'],
+    ['C', 'L', 'A', 'I', 'M', 'E', 'D'],
+    ['E', 'M', 'B', 'L', 'A', 'Z', 'O'],
+    ['T', 'W', 'Y', 'F', 'O', 'R', 'D'],
+    ['L', 'O', 'U', 'E', 'R', 'E', 'D'],
+    ['R', 'A', 'C', 'E', 'M', 'O', 'U'],
+    ['D', 'E', 'S', 'O', 'L', 'A', 'T'],
+    ['Y', 'L', 'T', 'N', 'E', 'I', 'L'],
+    ['H', 'E', 'R', 'M', 'I', 'T', 'A'],
+    ['E', 'L', 'O', 'N', 'G', 'A', 'T'],
+    ['I', 'R', 'E', 'N', 'E', 'C', 'O'],
+    ['G', 'O', 'L', 'F', 'L', 'E', 'A'],
+    ['A', 'L', 'L', 'E', 'Y', 'N', 'O'],
+    ['D', 'E', 'E', 'R', 'H', 'A', 'W'],
+    ['E', 'A', 'G', 'L', 'E', 'E', 'Y'],
+    ['E', 'L', 'V', 'I', 'S', 'H', 'E']
+]
+
+# Words to search for
+words = [    "Scrabble",    "Wagles",    "Drowyll",    "Hyder",    "Easter",    "Lynngale",    "Geoffrey",    "Claimed",    "Emblazo",    "Twyford",    "Louered",    "Racemou",    "Desolat",    "Yltneil",    "Hermita",    "Elongat",    "Ireneco",    "Golflea",    "Alleyno",    "Deerhaw",    "Eagleey",    "Elvish"]
+
+# Function to search for a word in the puzzle
+def search(puzzle, word):
+    # Search for the word in each row
+    for i in range(len
+
+
+
+
+import random
+
+# List of words from different languages
+words = [
+    "Hola",  # Spanish
+    "Bonjour",  # French
+    "Hallo",  # German
+    "Ciao",  # Italian
+    "Merhaba",  # Turkish
+    "Привет",  # Russian
+    "こんにちは",  # Japanese
+    "你好",  # Chinese
+    "안녕하세요",  # Korean
+    "Olá",  # Portuguese
+    "Hallå",  # Swedish
+    "Hej",  # Danish
+    "Hei",  # Norwegian
+    "Halló",  # Icelandic
+    "שָׁלוֹם",  # Hebrew
+    "नमस्ते",  # Hindi
+    "صباح الخير",  # Arabic
+    "สวัสดี",  # Thai
+    "หวัดดี",  # Lao
+    "សួស្តី",  # Khmer
+    "မင်္ဂလာပါ",  # Burmese
+]
+
+# Choose a random set of words
+chosen_words = random.sample(words, 25)
+
+# Create a grid to hold the puzzle
+grid = []
+for i in range(15):
+    grid.append([''] * 15)
+
+# Add the words to the grid
+for word in chosen_words:
+    # Choose a random direction for the word
+    direction = random.choice(['horizontal', 'vertical', 'diagonal'])
+
+    # Choose a random starting position for the word
+    if direction == 'horizontal':
+        x = random.randint(0, 15 - len(word))
+        y = random.randint(0, 14)
+    elif direction == 'vertical':
+        x = random.randint(0, 14)
+        y = random.randint(0, 15 - len(word))
+    elif direction == 'diagonal':
+        x = random.randint(0, 15 - len(word))
+        y = random.randint(0, 15 - len(word))
+
+    # Add the word to the grid
+    for i in range(len(word)):
+        grid[y][x] = word[i]
+        if direction == 'horizontal':
+            x += 1
+        elif direction == 'vertical':
+            y += 1
+        elif direction == 'diagonal':
+            x += 1
+            y += 1
+
+# Fill in the empty spaces with random letters
+for i in range(15):
+    for j in range(15):
+        if grid[i][j] == '':
+            grid[i][j] = random.choice(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', '
+
+
+
+
+import random
+
+# List of words from different languages
+words = [
+    "Hola",  # Spanish
+    "Bonjour",  # French
+    "Hallo",  # German
+    "Ciao",  # Italian
+    "Merhaba",  # Turkish
+    "Привет",  # Russian
+    "こんにちは",  # Japanese
+    "你好",  # Chinese
+    "안녕하세요",  # Korean
+    "Olá",  # Portuguese
+    "Hallå",  # Swedish
+    "Hej",  # Danish
+    "Hei",  # Norwegian
+    "Halló",  # Icelandic
+    "שָׁלוֹם",  # Hebrew
+    "नमस्ते",  # Hindi
+    "صباح الخير",  # Arabic
+    "สวัสดี",  # Thai
+    "หวั
+
+import random
+
+# List of words from different languages
+words = [
+    "Hola",  # Spanish
+    "Bonjour",  # French
+    "Hallo",  # German
+    "Ciao",  # Italian
+    "Merhaba",  # Turkish
+    "Привет",  # Russian
+    "こんにちは",  # Japanese
+    "你好",  # Chinese
+    "안녕하세요",  # Korean
+    "Olá",  # Portuguese
+    "Hallå",  # Swedish
+    "Hej",  # Danish
+    "Hei",  # Norwegian
+    "Halló",  # Icelandic
+    "שָׁלוֹם",  # Hebrew
+    "नमस्ते",  # Hindi
+    "صباح الخير",  # Arabic
+    "สวัสดี",  # Thai
+    "หวัดดี",  # Lao
+    "សួស្តី",  # Khmer
+    "မင်္ဂလာပါ",  # Burmese
+]
+
+# Choose a random set of words
+chosen_words = random.sample(words, 25)
+
+# Create a grid to hold the puzzle
+grid = []
+for i in range(15):
+    grid.append([''] * 15)
+
+# Add the words to the grid
+for word in chosen_words:
+    # Choose a random direction for the word
+    direction = random.choice(['horizontal', 'vertical', 'diagonal'])
+
+    # Choose a random starting position for the word
+    if direction == 'horizontal':
+        x = random.randint(0, 15 - len(word))
+        y = random.randint(0, 14)
+    elif direction == 'vertical':
+        x = random.randint(0, 14)
+        y = random.randint(0, 15 - len(word))
+    elif direction == 'diagonal':
+        x = random.randint(0, 15 - len(word))
+        y = random.randint(0, 15 - len(word))
+
+    # Add the word to the grid
+    for i in range(len(word)):
+        grid[y][x] = word[i]
+        if direction == 'horizontal':
+            x += 1
+        elif direction == 'vertical':
+            y += 1
+        elif direction == 'diagonal':
+            x += 1
+            y += 1
+
+# Fill in the empty spaces with random letters
+for i in range(15):
+    for j in range(15):
+        if grid[i][j] == '':
+            grid[i][j] = random.choice(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R
+
+
+
+
+import random
+
+# List of words from different languages
+words = [
+    "Hola",  # Spanish
+    "Bonjour",  # French
+    "Hallo",  # German
+    "Ciao",  # Italian
+    "Merhaba",  # Turkish
+    "Привет",  # Russian
+    "こんにちは",  # Japanese
+    "你好",  # Chinese
+    "안녕하세요",  # Korean
+    "Olá",  # Portuguese
+    "Hallå",  # Swedish
+    "Hej",  # Danish
+    "Hei",  # Norwegian
+    "Halló",  # Icelandic
+    "שָׁלוֹם",  # Hebrew
+    "नमस्ते",  # Hindi
+    "صباح الخير",  # Arabic
+    "สวัสดี",  # Thai
+    "หวัดดี",  # Lao
+    "សួស្តី",  # Khmer
+    "မင်္ဂလာပါ",  # Burmese
+]
+
+# Choose a random set of words
+chosen_words = random.sample(words, 25)
+
+# Create a grid to hold the puzzle
+grid = []
+for i in range(15):
+    grid.append([''] * 15)
+
+# Add the words to the grid
+for word in chosen_words:
+    # Choose a random direction for the word
+    direction = random.choice(['horizontal', 'vertical', 'diagonal'])
+
+    # Choose a random starting position for the word
+    if direction == 'horizontal':
+        x = random.randint(0, 15 - len(word))
+        y = random.randint(0, 14)
+    elif direction == 'vertical':
+        x = random.randint(0, 14)
+        y = random.randint(0, 15 - len(word))
+    elif direction == 'diagonal':
+        x = random.randint(0, 15 - len(word))
+        y = random.randint(0, 15 - len(word))
+
+    # Add the word to the grid
+    for i in range(len(word)):
+        grid[y][x] = word[i]
+        if direction == 'horizontal':
+            x += 1
+        elif direction == 'vertical':
+            y += 1
+        elif direction == 'diagonal':
+            x += 1
+            y += 1
+
+# Fill in the empty spaces with random letters
+for i in range(15):
+    for j in range(15):
+        if grid[i][j] == '':
+            grid[i][j] = random.choice(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', '
+
+
+# Word search puzzle
+puzzle = [    ['S', 'C', 'R', 'A', 'B', 'E', 'L'],
+    ['A', 'W', 'G', 'L', 'E', 'S', 'A'],
+    ['D', 'R', 'O', 'W', 'Y', 'L', 'L'],
+    ['H', 'Y', 'R', 'D', 'E', 'R', 'E'],
+    ['E', 'A', 'S', 'T', 'E', 'R', 'E'],
+    ['L', 'Y', 'N', 'G', 'A', 'L', 'E'],
+    ['G', 'E', 'O', 'F', 'F', 'R', 'E'],
+    ['C', 'L', 'A', 'I', 'M', 'E', 'D'],
+    ['E', 'M', 'B', 'L', 'A', 'Z', 'O'],
+    ['T', 'W', 'Y', 'F', 'O', 'R', 'D'],
+    ['L', 'O', 'U', 'E', 'R', 'E', 'D'],
+    ['R', 'A', 'C', 'E', 'M', 'O', 'U'],
+    ['D', 'E', 'S', 'O', 'L', 'A', 'T'],
+    ['Y', 'L', 'T', 'N', 'E', 'I', 'L'],
+    ['H', 'E', 'R', 'M', 'I', 'T', 'A'],
+    ['E', 'L', 'O', 'N', 'G', 'A', 'T'],
+    ['I', 'R', 'E', 'N', 'E', 'C', 'O'],
+    ['G', 'O', 'L', 'F', 'L', 'E', 'A'],
+    ['A', 'L', 'L', 'E', 'Y', 'N', 'O'],
+    ['D', 'E', 'E', 'R', 'H', 'A', 'W'],
+    ['E', 'A', 'G', 'L', 'E', 'E', 'Y'],
+    ['E', 'L', 'V', 'I', 'S', 'H', 'E']
+]
+
+# Words to search for
+words = [    "Scrabble",    "Wagles",    "Drowyll",    "Hyder",    "Easter",    "Lynngale",    "Geoffrey",    "Claimed",    "Emblazo",    "Twyford",    "Louered",    "Racemou",    "Desolat",    "Yltneil",    "Hermita",    "Elongat",    "Ireneco",    "Golflea",    "Alleyno",    "Deerhaw",    "Eagleey",    "Elvish"]
+
+# Function to search for a word in the puzzle
+def search(puzzle, word):
+    # Search for the word in each row
+    for i in range(len
+
+S C R A B E L
+A W G L E S A
+D R O W Y L L
+H Y R D E R E
+E A S T E R E
+L Y N G A L E
+G E O F F R E
+C L A I M E D
+E M B L A Z O
+T W Y F O R D
+L O U E R E D
+R A C E M O U
+D E S O L A T
+Y L T N E I L
+H E R M I T A
+E L O N G A T
+I R E N E C O
+G O L F L E A
+A L L E Y N O
+D E E R H A W
+E A G L E E Y
+E L V I S H E
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <!---
 stosh689/stosh689 is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 You can click the Preview link to take a look at your changes.
