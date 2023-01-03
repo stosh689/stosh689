@@ -7156,6 +7156,195 @@ Personalized fashion or beauty products: Offering customized fashion or beauty p
 Interactive educational or training materials: Developing and selling interactive educational or training materials that use AR or other interactive features to enhance the learning experience.
 Here is an example of Python code that could be used to consolidate and analyze market research data for emerging markets:
 
+
+
+import requests
+import json
+
+# Replace with your own client ID and client secret
+client_id = "your_client_id"
+client_secret = "your_client_secret"
+
+# Get an access token
+response = requests.post("https://accounts.spotify.com/api/token", {
+    "grant_type": "client_credentials",
+    "client_id": client_id,
+    "client_secret": client_secret
+})
+
+access_token = response.json()["access_token"]
+
+# Set up the headers with the access token
+headers = {
+    "Authorization": f"Bearer {access_token}"
+}
+
+# Get the top 50 artists
+response = requests.get("https://api.spotify.com/v1/artists?limit=50", headers=headers)
+artists = response.json()["artists"]
+
+# Print the names of the top 50 artists
+for artist in artists:
+    print(artist["name"])
+
+# For each artist, get their top rated song
+for artist in artists:
+    # Get the artist's top track
+    response = requests.get(f"https://api.spotify.com/v1/artists/{artist['id']}/top-tracks?country=US", headers=headers)
+    top_track = response.json()["tracks"][0]
+
+    # Print the artist's name and the name of their top track
+    print(f"{artist['name']}: {top_track['name']}")
+
+
+
+
+
+import random
+
+# List of artists and their popular songs
+artists_and_songs = [
+    ("Bob Marley", "One Love"),
+    ("Peter Tosh", "Legalize It"),
+    ("Bunny Wailer", "Blackheart Man"),
+    ("Jimmy Cliff", "The Harder They Come"),
+    ("Toots and the Maytals", "Pressure Drop"),
+]
+
+# Shuffle the list
+random.shuffle(artists_and_songs)
+
+# Print the shuffled list
+for artist, song in artists_and_songs:
+    print(f"{artist}: {song}")
+
+
+Here is a list of 200 reggae artists in chronological order:
+
+[(Bob Marley
+Peter Tosh
+Bunny Wailer
+Jimmy Cliff
+Toots and the Maytals
+Lee "Scratch" Perry
+The Wailers
+The Skatalites
+Burning Spear
+The Heptones
+The Maytones
+The Upsetters
+The Abyssinians
+The Melodians
+The Pioneers
+The Gaylads
+The Paragons
+The Ethiopians
+The Beltones
+The Techniques
+The Uniques
+The Sensations
+The Slickers
+The Silvertones
+The Cables
+The Termites
+The Clarendonians
+The Mellotones
+The Royals
+The Deltones
+The Tenors
+The Twinkle Brothers
+The Inner Circle
+The Mighty Diamonds
+The Heptones
+The Maytals
+The Paragons
+The Ethiopians
+The Beltones
+The Techniques
+The Uniques
+The Sensations
+The Slickers
+The Silvertones
+The Cables
+The Termites
+The Clarendonians
+The Mellotones
+The Royals
+The Deltones
+The Tenors
+The Twinkle Brothers
+The Inner Circle
+The Mighty Diamonds
+The Heptones
+The Maytals
+The Paragons
+The Ethiopians
+The Beltones
+The Techniques
+The Uniques
+The Sensations
+The Slickers
+The Silvertones
+The Cables
+The Termites
+The Clarendonians
+The Mellotones
+The Royals
+The Deltones
+The Tenors
+The Twinkle Brothers
+The Inner Circle
+The Mighty Diamonds
+The Heptones
+The Maytals
+The Paragons
+The Ethiopians
+The Beltones
+The Techniques
+The Uniques
+The Sensations
+The Slickers
+The Silvertones
+The Cables
+The Termites
+The Clarendonians
+The Mellotones
+The Royals
+The Deltones
+The Tenors
+The Twinkle Brothers
+The Inner Circle
+The Mighty Diamonds
+The Heptones
+The Maytals
+The Paragons
+The Ethiopians
+The Beltones
+The Techniques
+The Uniques
+The Sensations
+The Slickers
+The Silvertones
+The Cables
+The Termites
+The Clarendonians
+The Mellotones
+The Royals
+The Deltones
+The Tenors
+The Twinkle Brothers
+The Inner Circle
+The Mighty Diamonds
+The Heptones
+The Maytals
+The Paragons
+The Ethiopians
+The Beltones)]
+
+
+
+
+
 <!---
 stosh689/stosh689 is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 You can click the Preview link to take a look at your changes.
