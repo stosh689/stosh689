@@ -8214,4 +8214,82 @@ first_names = ['Aaliyah', 'Aaron', 'Abbey', 'Abbie', 'Abby', 'Abdul', 'Abe', 'Ab
 
 
 
+import requests
+from bs4 import BeautifulSoup
+
+# Make a request to the website
+response = requests.get("https://www.example.com/books")
+
+# Parse the HTML content
+soup = BeautifulSoup(response.content, 'html.parser')
+
+# Find all the book elements on the page
+books = soup.find_all('div', class_='book')
+
+# Create an empty list to store the books
+all_books = []
+
+# Iterate through the book elements
+for book in books:
+    title = book.find('h2').text
+    author = book.find('p', class_='author').text
+    language = book.find('p', class_='language').text
+
+    # Create a dictionary to store the book's information
+    book_data = {
+        'title': title,
+        'author': author,
+        'language': language
+    }
+
+    # Add the book's information to the list
+    all_books.append(book_data)
+
+print(all_books)
+
+
+
+# Importing necessary libraries
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+
+# Make a request to the website
+response = requests.get("https://www.example.com/organization-data")
+
+# Parse the HTML content
+soup = BeautifulSoup(response.content, 'html.parser')
+
+# Find all the data elements on the page
+data = soup.find_all('div', class_='data')
+
+# Create an empty list to store the data
+all_data = []
+
+# Iterate through the data elements
+for d in data:
+    year = d.find('p', class_='year').text
+    employee_count = d.find('p', class_='employee_count').text
+    engagement_score = d.find('p', class_='engagement_score').text
+
+    # Create a dictionary to store the data
+    data_point = {
+        'year': year,
+        'employee_count': employee_count,
+        'engagement_score': engagement_score
+    }
+
+    # Add the data point to the list
+    all_data.append(data_point)
+
+# Convert the list of dictionaries to a pandas dataframe
+df = pd.DataFrame(all_data)
+
+# Analyze and visualize the data using pandas and matplotlib
+df.groupby('year')['employee_count'].mean().plot()
+
+
+
+
+
 
