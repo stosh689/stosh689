@@ -8680,3 +8680,12 @@ all_comedy_clubs_df = all_comedy_clubs_df.drop_duplicates()
 # Save the data to a file
 all_comedy_clubs_df.to_csv("all_comedy_clubs.csv")
 
+
+This code creates an empty DataFrame, then appends the data from each source (yelp, google, foursquare, OSM) to the DataFrame using the append() method. It then uses the drop_duplicates() method to remove any duplicate rows, and finally, it saves the data to a CSV file using the to_csv() method.
+
+It is important to note that this is a basic example, and in real-world scenarios, you will need to do more data cleaning and preprocessing to make sure that the data is in a format that can be used for analysis. Also, it is important to ensure that the data is being collected in a legal and ethical manner and that you have the rights to use it.
+
+
+
+
+
