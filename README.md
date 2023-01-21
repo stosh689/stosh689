@@ -8535,6 +8535,77 @@ with open("expanded_data.csv", "rb") as f_in:
 
 Compress the data: Use libraries such as gzip and bz2 to compress the data in a format like csv, json, parquet, etc.
 
+The Ding Dong Show is a comedy show that was performed at the Comedy Store in Hollywood, California. The show was created and produced by comedian Sammy Shore and his wife Mitzi Shore, who owned the Comedy Store. The cast and crew of the show varied over time, but it featured a rotating lineup of comedians. Some notable comedians who performed on the show include: David Letterman, Richard Pryor, Robin Williams, Elayne Boosler, and Garry Shandling. The Ding Dong Show ran at the Comedy Store from the 1970s to the early 1980s, and was considered an important showcase for up-and-coming comedians during that time.
+
+
+The DingDong show; cast and crew, and the history at the comedy store
+
+The Ding Dong Show is a comedy show that was performed at the Comedy Store in Hollywood, California. The show was created and produced by comedian Sammy Shore and his wife Mitzi Shore, who owned the Comedy Store. The cast and crew of the show varied over time, but it featured a rotating lineup of comedians. Some notable comedians who performed on the show include: David Letterman, Richard Pryor, Robin Williams, Elayne Boosler, and Garry Shandling. The Ding Dong Show ran at the Comedy Store from the 1970s to the early 1980s, and was considered an important showcase for up-and-coming comedians during that time.
+
+
+import openai_secret_manager
+
+# Let's setup the API key
+assert "openai" in openai_secret_manager.get_services()
+secrets = openai_secret_manager.get_secrets("openai")
+
+print(secrets)
+
+import openai
+openai.api_key = secrets["api_key"]
+
+# Now let's generate the text
+def generate_text(prompt):
+    completions = openai.Completion.create(
+        engine="text-davinci-002",
+        prompt=prompt,
+        max_tokens=1024,
+        n=1,
+        stop=None,
+        temperature=0.5,
+    )
+
+    message = completions.choices[0].text
+    return message.strip()
+
+generated_text = generate_text("The DingDong show; cast and crew, and the history at the comedy store")
+print(generated_text)
+
+
+
+import openai_secret_manager
+
+# Let's setup the API key
+assert "openai" in openai_secret_manager.get_services()
+secrets = openai_secret_manager.get_secrets("openai")
+
+print(secrets)
+
+import openai
+openai.api_key = secrets["api_key"]
+
+# Now let's generate the text
+def generate_text(prompt):
+    completions = openai.Completion.create(
+        engine="text-davinci-002",
+        prompt=prompt,
+        max_tokens=1024,
+        n=1,
+        stop=None,
+        temperature=0.5,
+    )
+
+    message = completions.choices[0].text
+    return message.strip()
+
+generated_text = generate_text("The DingDong show; cast and crew, and the history at the comedy store")
+print(generated_text)
+
+Note that this code snippet uses the openai_secret_manager package to retrieve your API key, so you will need to have that package installed and set up in order to use this code. Also, you need to have an API key for OpenAI to access GPT-3, you can get it by visiting this link https://beta.openai.com/signup/
+
+Also, it uses the openai package to interact with the OpenAI API, so you will need to have that package installed as well.
+
+
 
 
 
