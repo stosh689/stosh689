@@ -8504,6 +8504,39 @@ shutil.unpack_archive('example.zip', 'path/to/directory')
 
 
 
+import pandas as pd
+
+# Load the data into a Pandas DataFrame
+df = pd.read_csv("weather_coffee_data.csv")
+
+# Expand the data by adding new columns
+df['precipitation_mm'] = df['precipitation'] * 25.4
+df['wind_speed_kmh'] = df['wind_speed'] * 1.609
+
+# Save the expanded data to a new file
+df.to_csv("expanded_data.csv", index=False)
+
+
+# Group the data by coffee producing regions
+grouped_data = df.groupby('region').mean()
+
+# Save the granulated data to a new file
+grouped_data.to_csv("granulated_data.csv", index=True)
+
+
+
+import gzip
+
+# Open the expanded data file
+with open("expanded_data.csv", "rb") as f_in:
+    # Compress the data and save it to a new file
+    with gzip.open("compressed_data
+
+
+Compress the data: Use libraries such as gzip and bz2 to compress the data in a format like csv, json, parquet, etc.
+
+
+
 
 
 
