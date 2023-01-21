@@ -8288,8 +8288,59 @@ df = pd.DataFrame(all_data)
 # Analyze and visualize the data using pandas and matplotlib
 df.groupby('year')['employee_count'].mean().plot()
 
+import requests
+from bs4 import BeautifulSoup
+
+# Make a request to the website
+response = requests.get("https://www.example.com/books")
+
+# Parse the HTML content
+soup = BeautifulSoup(response.content, 'html.parser')
+
+# Find all the book elements on the page
+books = soup.find_all('div', class_='book')
+
+# Create an empty list to store the books
+all_books = []
+
+# Iterate through the book elements
+for book in books:
+    title = book.find('h2').text
+    author = book.find('p', class_='author').text
+    language = book.find('p', class_='language').text
+
+    # Create a dictionary to store the book's information
+    book_data = {
+        'title': title,
+        'author': author,
+        'language': language
+    }
+
+    # Add the book's information to the list
+    all_books.append(book_data)
+
+print(all_books)
 
 
+while True:
+    # Ask the user for feedback on how they treated others
+    feedback = input("Please enter feedback on how you treated others with kindness and respect: ")
+
+    # Analyze the feedback to identify areas for improvement
+    if "listened actively" not in feedback:
+        print("Make an effort to give others your full attention when they are speaking to you.")
+    if "showed empathy" not in feedback:
+        print("Try to put yourself in other people's shoes and understand their feelings.")
+    if "was not considerate" in feedback:
+        print("Think about the impact of your words and actions on others and be mindful of their needs and feelings.")
+    if "did not show gratitude" in feedback:
+        print("Express appreciation for the contributions and efforts of others, and acknowledge their hard work and achievements.")
+    # Add more if statements to check for other areas of improvement
+
+    # Ask the user if they want to continue
+    continue_feedback = input("Do you want to continue receiving feedback? (yes/no) ")
+    if continue_feedback.lower() == "no":
+        break
 
 
 
