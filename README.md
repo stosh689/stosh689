@@ -8621,6 +8621,46 @@ To relate the above information with the Ding Dong Show and the Comedy Store, yo
 code into python, expand and compile, with phone directories, internet data, and traffic, emerging markets, highest population desity per capita
 
 
+import pandas as pd
+import requests
+import openai_secret_manager
+
+# Let's setup the API key
+assert "openai" in openai_secret_manager.get_services()
+secrets = openai_secret_manager.get_secrets("openai")
+
+openai.api_key = secrets["api_key"]
+
+# Yelp dataset
+yelp_url = "https://raw.githubusercontent.com/Yelp/dataset-examples/main/yelp_academic_dataset_business.json"
+yelp_df = pd.read_json(yelp_url, lines=True)
+yelp_comedy_clubs = yelp_df[yelp_df['categories'].str.contains("Comedy Club", na=False)]
+
+# Google Places API
+google_places_key = secrets["google_places_key"]
+google_places_url = f"https://maps.googleapis.com/maps/api/place/textsearch/json?query=comedy+club&key={google_places_key}"
+google_places_response = requests.get(google_places_url)
+google_places_data = google_places_response.json()
+google_places_comedy_clubs = google_places_data["results"]
+
+# Foursquare API
+foursquare_client_id = secrets["foursquare_client_id"]
+foursquare_client_secret = secrets["foursquare_client_secret"]
+foursquare_url = f"https://api.foursquare.com/v2/venues/search?client_id={foursquare_client_id}&client_secret={foursquare_client_secret}&query=comedy+club&v=20221201"
+foursquare_response = requests.get(foursquare_url)
+foursquare_data = foursquare_response.json()
+foursquare_comedy_clubs = foursquare_data["response"]["venues"]
+
+# Open Street Map
+osm_url = "https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];node[\"amenity\"=\"comedy_club\"](around:10000,51.5291609,-0.1099732);out;"
+osm_response = requests.get(osm_url)
+osm_data = osm_response.json()
+osm_comedy_clubs = osm_data["elements"]
+
+# Compiling all the data
+all_comedy_clubs = yelp_comedy_clubs.append(google_places_comedy_clubs, ignore_index=True)
+all_comedy_clubs = all_comedy_clubs.append(foursquare_comedy_clubs, ignore_index=True)
+all_comedy_clubs = all_comedy_clubs.append(osm_comedy
 
 
 
