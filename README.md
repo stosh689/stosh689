@@ -8663,4 +8663,20 @@ all_comedy_clubs = all_comedy_clubs.append(foursquare_comedy_clubs, ignore_index
 all_comedy_clubs = all_comedy_clubs.append(osm_comedy
 
 
+import pandas as pd
+
+# Create an empty DataFrame to store the data
+all_comedy_clubs_df = pd.DataFrame()
+
+# Append the data from each source to the DataFrame
+all_comedy_clubs_df = all_comedy_clubs_df.append(yelp_comedy_clubs, ignore_index=True)
+all_comedy_clubs_df = all_comedy_clubs_df.append(google_places_comedy_clubs, ignore_index=True)
+all_comedy_clubs_df = all_comedy_clubs_df.append(foursquare_comedy_clubs, ignore_index=True)
+all_comedy_clubs_df = all_comedy_clubs_df.append(osm_comedy_clubs, ignore_index=True)
+
+# Clean and preprocess the data as needed
+all_comedy_clubs_df = all_comedy_clubs_df.drop_duplicates()
+
+# Save the data to a file
+all_comedy_clubs_df.to_csv("all_comedy_clubs.csv")
 
