@@ -8202,3 +8202,16 @@ var playlists = [
 stosh689/stosh689 is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 You can click the Preview link to take a look at your changes.
 --->
+
+
+import pandas as pd
+
+# Create a dataframe to store first and last names
+names_df = pd.DataFrame(columns=['first_name', 'last_name'])
+
+# Add first names to the dataframe
+first_names = ['Aaliyah', 'Aaron', 'Abbey', 'Abbie', 'Abby', 'Abdul', 'Abe', 'Abel', 'Abigail', 'Abraham', 'Abram', 'Ada', 'Adah', 'Adalberto', 'Adaline', 'Adam', 'Adan', 'Addie', 'Adela', 'Adelaida', 'Adelaide', 'Adele', 'Adelia', 'Adelina', 'Adeline', 'Adell', 'Adella', 'Adelle', 'Adena', 'Adina', 'Adolfo', 'Adolph', 'Adria', 'Adrian', 'Adriana', 'Adriane', 'Adrianna', 'Adrianne', 'Adrien', 'Adriene', 'Adrienne', 'Afton', 'Agatha', 'Agnes', 'Agnus', 'Agripina', 'Agueda', 'Agustin', 'Agustina', 'Ahmad', 'Ahmed', 'Ai', 'Aida', 'Aide', 'Aiko', 'Aileen', 'Ailene', 'Aimee', 'Aisha', 'Aja', 'Akiko', 'Akilah', 'Al', 'Alaina', 'Alaine', 'Alan', 'Alana', 'Alane', 'Alanna', 'Alayna', 'Alba', 'Albert', 'Alberta', 'Albertha', 'Albertina', 'Albertine', 'Alberto', 'Albina', 'Alda', 'Alden', 'Aldo', 'Alease', 'Alec', 'Alecia', 'Aleen', 'Aleida', 'Aleisha', 'Alejandra', 'Alejandrina', 'Alejandro', 'Alena', 'Alene', 'Alesha', 'Aleshia', 'Alesia', 'Alessandra', 'Aleta', 'Aletha', 'Alethea', 'Alethia', 'Alex', 'Alexa', 'Alexander', 'Alexandra', 'Alexandria', 'Alexia', 'Alexis', 'Alfonso', 'Alfonzo', 'Alfred', 'Alfreda', 'Alfredia', 'Alfredo', 'Ali', 'Alia', 'Alica', 'Alice', 'Alicia', 'Alida', 'Alina', 'Aline', 'Alisa', 'Alise', 'Alisha', 'Alishia', 'Alisia', 'Alison', 'Alissa', 'Alita', 'Alix', 'Aliza', 'Alla', 'Allan', 'Alleen', 'Allegra', 'Allen', 'Allena', 'Allene', 'Allie', 'Alline', 'Allison', 'Allyn', 'Allyson', 'Alma', 'Almeda', 'Almeta', 'Alona', 'Alonso', 'Alonzo', 'Alpha', 'Alphonse', 'Alphonso', 'Alta', 'Altagrac
+
+
+
+
