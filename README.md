@@ -8733,5 +8733,25 @@ def sustainable_routine():
 sustainable_routine()
 
 
+This is a simple example of how you can use Python to create a routine for sustainable eating and exercise. You can adjust the timing and messages according to your personal preference. However, please keep in mind that this code is only a skeleton, there are some missing parts that need to be filled in.
+
+This code uses the datetime module to get the current day and time and then uses if-elif statements to check the current day and time and print reminders accordingly. It also uses a while loop to repeat the process every day, and keep track of the days you have eaten sustainably and exercised.
+
+Keep in mind that this script will run indefinitely. If you need to stop the script you will have to use a command like ctrl+c
+
+I hope this helps you build your routine!
+
+Eating a sustainable and balanced diet, and incorporating regular physical activity into your daily routine can help you maintain good health and well-being. Additionally, it is important to prioritize safety when engaging in physical activity by warming up properly, using proper form and equipment, and listening to your body.
+
+It is also important to include activities that bring joy and playfulness in your routine. Whether it be dancing, playing sports, going for a hike, or any other activity that makes you happy, incorporating activities that you enjoy can improve your overall well-being and make it more likely that you will stick to your routine.
+
+It's also important to maintain a good work-life balance and make time for activities that you enjoy and find relaxing, such as reading, spending time with friends and family, or pursuing hobbies. Remember to listen to your body and adjust your routine accordingly.
+stosh_61@hotmail.com
+sorry about the spelling errors
+
+No need to apologize, everyone makes mistakes. I am here to assist you with any questions or concerns you may have. If you have any more questions feel free to ask.
+
+
+
 
 
