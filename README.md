@@ -8685,6 +8685,52 @@ This code creates an empty DataFrame, then appends the data from each source (ye
 
 It is important to note that this is a basic example, and in real-world scenarios, you will need to do more data cleaning and preprocessing to make sure that the data is in a format that can be used for analysis. Also, it is important to ensure that the data is being collected in a legal and ethical manner and that you have the rights to use it.
 
+import datetime
+
+def sustainable_routine():
+    # Set up variables for tracking progress
+    days_eaten_sustainably = 0
+    days_exercised = 0
+
+    while True:
+        # Get current day and time
+        now = datetime.datetime.now()
+        current_day = now.strftime("%A")
+        current_time = now.strftime("%H:%M")
+
+        # Check if it's a weekday (Monday-Friday)
+        if current_day in ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]:
+            # Check if it's before 12pm
+            if current_time < "12:00":
+                # Print reminder to eat a sustainable breakfast
+                print("Don't forget to eat a sustainable breakfast today!")
+
+            # Check if it's after 12pm
+            elif current_time >= "12:00":
+                # Print reminder to eat a sustainable lunch
+                print("Don't forget to eat a sustainable lunch today!")
+
+            # Check if it's after 6pm
+            if current_time >= "18:00":
+                # Print reminder to eat a sustainable dinner
+                print("Don't forget to eat a sustainable dinner today!")
+                days_eaten_sustainably +=1
+
+        # Check if it's the weekend (Saturday or Sunday)
+        elif current_day in ["Saturday", "Sunday"]:
+            # Print reminder to eat sustainably all day
+            print("Remember to eat sustainably all day today!")
+
+        # Check if it's before 9am or after 5pm
+        if current_time < "09:00" or current_time >= "17:00":
+            # Print reminder to exercise
+            print("Don't forget to exercise today!")
+            days_exercised +=1
+
+        # Wait for a day
+        time.sleep(86400)
+
+sustainable_routine()
 
 
 
