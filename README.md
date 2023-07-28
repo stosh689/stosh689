@@ -9612,4 +9612,76 @@ def main():
 
 if __name__ == "__main__":
     main()
+import yfinance as yf
+import pandas as pd
+import requests
+import threading
+
+def fetch_data_yahoo(ticker):
+    try:
+        data = yf.download(ticker, start='2021-01-01', end='2023-01-01')
+        return data
+    except Exception as e:
+        print(f"Failed to fetch data from Yahoo Finance for {ticker}. Error: {e}")
+        return None
+
+def fetch_data_alpha_vantage(api_key, ticker):
+    try:
+        url = f"https://www.alphavantage.co/query"
+        params = {
+            "function": "TIME_SERIES_DAILY_ADJUSTED",
+            "symbol": ticker,
+            "apikey": api_key,
+            "outputsize": "full"
+        }
+        response = requests.get(url, params=params)
+        data = response.json()
+
+        if "Time Series (Daily)" in data:
+            alpha_vantage_data = pd.DataFrame(data["Time Series (Daily)"]).T
+            alpha_vantage_data.index = pd.to_datetime(alpha_vantage_data.index)
+            alpha_vantage_data.sort_index(inplace=True)
+            return alpha_vantage_data
+        else:
+            print(f"Failed to fetch data from Alpha Vantage for {ticker}.")
+            return None
+    except Exception as e:
+        print(f"Failed to fetch data from Alpha Vantage for {ticker}. Error: {e}")
+        return None
+
+def fetch_data_threaded(api_key, ticker):
+    yahoo_data, alpha_vantage_data = None, None
+    yahoo_thread = threading.Thread(target=lambda: fetch_data_yahoo(ticker))
+    alpha_vantage_thread = threading.Thread(target=lambda: fetch_data_alpha_vantage(api_key, ticker))
+
+    yahoo_thread.start()
+    alpha_vantage_thread.start()
+
+    yahoo_thread.join()
+    alpha_vantage_thread.join()
+
+    if yahoo_thread.is_alive():
+        yahoo_thread._stop()
+    if alpha_vantage_thread.is_alive():
+        alpha_vantage_thread._stop()
+
+    return yahoo_data, alpha_vantage_data
+
+def main():
+    ticker = 'AAPL'  # Replace with the stock symbol you want to fetch data for
+    api_key = 'YOUR_ALPHA_VANTAGE_API_KEY'  # Replace with your Alpha Vantage API key
+
+    yahoo_data, alpha_vantage_data = fetch_data_threaded(api_key, ticker)
+
+    if yahoo_data is not None and alpha_vantage_data is not None:
+        print("Data fetched from Yahoo Finance:")
+        print(yahoo_data.head())
+        print("\nData fetched from Alpha Vantage:")
+        print(alpha_vantage_data.head())
+    else:
+        print("Data fetching failed. Please check your API keys and internet connection.")
+
+if __name__ == "__main__":
+    main()
+
 
