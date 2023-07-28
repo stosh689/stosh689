@@ -9541,4 +9541,75 @@ def main():
 
 if __name__ == "__main__":
     main()
+import yfinance as yf
+from alpha_vantage.timeseries import TimeSeries
+
+def fetch_data_yahoo(ticker):
+    try:
+        data = yf.download(ticker, start='2021-01-01', end='2023-01-01')
+        return data
+    except Exception as e:
+        print(f"Failed to fetch data from Yahoo Finance for {ticker}. Error: {e}")
+        return None
+
+def fetch_data_alpha_vantage(api_key, ticker):
+    try:
+        ts = TimeSeries(key=api_key, output_format='pandas')
+        data, _ = ts.get_daily_adjusted(symbol=ticker, outputsize='full')
+        return data
+    except Exception as e:
+        print(f"Failed to fetch data from Alpha Vantage for {ticker}. Error: {e}")
+        return None
+
+def main():
+    ticker = 'AAPL'  # Replace with the stock symbol you want to fetch data for
+    yahoo_data = fetch_data_yahoo(ticker)
+    alpha_vantage_data = fetch_data_alpha_vantage('YOUR_ALPHA_VANTAGE_API_KEY', ticker)
+
+    if yahoo_data is not None and alpha_vantage_data is not None:
+        print("Data fetched from Yahoo Finance:")
+        print(yahoo_data.head())
+        print("\nData fetched from Alpha Vantage:")
+        print(alpha_vantage_data.head())
+    else:
+        print("Data fetching failed. Please check your API keys and internet connection.")
+
+if __name__ == "__main__":
+    main()
+
+import yfinance as yf
+from alpha_vantage.timeseries import TimeSeries
+
+def fetch_data_yahoo(ticker):
+    try:
+        data = yf.download(ticker, start='2021-01-01', end='2023-01-01')
+        return data
+    except Exception as e:
+        print(f"Failed to fetch data from Yahoo Finance for {ticker}. Error: {e}")
+        return None
+
+def fetch_data_alpha_vantage(api_key, ticker):
+    try:
+        ts = TimeSeries(key=api_key, output_format='pandas')
+        data, _ = ts.get_daily_adjusted(symbol=ticker, outputsize='full')
+        return data
+    except Exception as e:
+        print(f"Failed to fetch data from Alpha Vantage for {ticker}. Error: {e}")
+        return None
+
+def main():
+    ticker = 'AAPL'  # Replace with the stock symbol you want to fetch data for
+    yahoo_data = fetch_data_yahoo(ticker)
+    alpha_vantage_data = fetch_data_alpha_vantage('YOUR_ALPHA_VANTAGE_API_KEY', ticker)
+
+    if yahoo_data is not None and alpha_vantage_data is not None:
+        print("Data fetched from Yahoo Finance:")
+        print(yahoo_data.head())
+        print("\nData fetched from Alpha Vantage:")
+        print(alpha_vantage_data.head())
+    else:
+        print("Data fetching failed. Please check your API keys and internet connection.")
+
+if __name__ == "__main__":
+    main()
 
