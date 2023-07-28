@@ -9439,7 +9439,72 @@ if __name__ == "__main__":
         time.sleep(5)
 
         # Clear the terminal for easier viewing (might not work in all environments)
-        print("\033[H\033[J")
+        print("\033[H\033[J")# Sample customer data (you can replace this with your actual customer data)
+customers = [
+    {"name": "John Doe", "email": "john@example.com", "purchased_amount": 500},
+    {"name": "Jane Smith", "email": "jane@example.com", "purchased_amount": 1000},
+    {"name": "Bob Johnson", "email": "bob@example.com", "purchased_amount": 800},
+    # Add more customers here
+]
+
+# Function to send personalized marketing emails
+def send_marketing_email(customer_name, email, discount_amount):
+    # Your email sending logic here (using a library like smtplib)
+    print(f"Sending an email to {customer_name} at {email} with a ${discount_amount} discount!")
+
+# Main marketing strategy based on 4P's marketing mix
+def marketing_strategy():
+    for customer in customers:
+        name = customer["name"]
+        email = customer["email"]
+        purchased_amount = customer["purchased_amount"]
+
+        # Product: Determine the discount based on the customer's purchase history
+        if purchased_amount >= 1000:
+            discount_amount = 100  # Offer $100 discount for customers who spent $1000 or more
+        elif purchased_amount >= 500:
+            discount_amount = 50  # Offer $50 discount for customers who spent between $500 and $999
+        else:
+            discount_amount = 0  # No discount for customers who spent less than $500
+
+        # Promotion: Send personalized marketing email to customers
+        send_marketing_email(name, email, discount_amount)
+
+# Execute the marketing strategy
+marketing_strategy# Sample customer data (you can replace this with your actual customer data)
+customers = [
+    {"name": "John Doe", "email": "john@example.com", "purchased_amount": 500},
+    {"name": "Jane Smith", "email": "jane@example.com", "purchased_amount": 1000},
+    {"name": "Bob Johnson", "email": "bob@example.com", "purchased_amount": 800},
+    # Add more customers here
+]
+
+# Function to send personalized marketing emails
+def send_marketing_email(customer_name, email, discount_amount):
+    # Your email sending logic here (using a library like smtplib)
+    print(f"Sending an email to {customer_name} at {email} with a ${discount_amount} discount!")
+
+# Main marketing strategy based on 4P's marketing mix
+def marketing_strategy():
+    for customer in customers:
+        name = customer["name"]
+        email = customer["email"]
+        purchased_amount = customer["purchased_amount"]
+
+        # Product: Determine the discount based on the customer's purchase history
+        if purchased_amount >= 1000:
+            discount_amount = 100  # Offer $100 discount for customers who spent $1000 or more
+        elif purchased_amount >= 500:
+            discount_amount = 50  # Offer $50 discount for customers who spent between $500 and $999
+        else:
+            discount_amount = 0  # No discount for customers who spent less than $500
+
+        # Promotion: Send personalized marketing email to customers
+        send_marketing_email(name, email, discount_amount)
+
+# Execute the marketing strategy
+marketing_strategy()
+
 
 
 
