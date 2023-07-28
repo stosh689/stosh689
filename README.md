@@ -9684,4 +9684,36 @@ def main():
 if __name__ == "__main__":
     main()
 
+def is_valid_data(data_point):
+    # Define your rules to check if a data point is valid
+    # For example, you can check for empty strings or specific keywords that indicate unclear data
+    invalid_keywords = ["error", "invalid", "null", "undefined"]
+    if data_point.strip().lower() in invalid_keywords:
+        return False
+    return True
 
+def clean_data(data):
+    cleaned_data = [data_point for data_point in data if is_valid_data(data_point)]
+    return cleaned_data
+
+def main():
+    # Sample data (replace with your actual data)
+    data = [
+        "Valid data 1",
+        "Invalid data",
+        "",
+        "Valid data 2",
+        "Error occurred",
+        "Null value",
+    ]
+
+    print("Original data:")
+    print(data)
+
+    cleaned_data = clean_data(data)
+
+    print("\nCleaned data:")
+    print(cleaned_data)
+
+if __name__ == "__main__":
+    main()
