@@ -9019,7 +9019,6 @@ In Python, granulation can be achieved using various techniques such as data pre
     Dimensionality reduction: This technique aims to reduce the number of variables or features in the data by combining or selecting only the most important ones.
 
 These are just a few examples of how granulation can be achieved in Python. The specific technique or techniques used will depend on the nature of the data and the goals of the analysis.
-stosh_61@hotmail.com
 using above information and the open internet rite a python code that ould beter track data 
 
 import pandas as pd
@@ -9113,7 +9112,157 @@ else:
 
 we are using the pandas library to create a dataframe to store the data, adding some sample data to the dataframe. We are then doing data validation before adding any new data points. If the data validation fails, the script will print a message indicating that the validation has failed. If the validation passes, the script will filter the data based on a threshold of 6 for the Positive Aspect, then it will group the data by the "Data Point" column and calculate the average positive and negative aspect for each group. Finally, it will visualize the data by creating a bar chart of average positive and negative aspect by data point, and export the data to a CSV file.
 
-It's important to note that this is just one example of how you could combine all of the above functionality and techniques into a single Python script, and there are many other ways to approach this depending on the specific requirements of your project.
+It's important to note that this is just one example of how you could combine all of the above functionality and techniques into a single Python script, and there are many other ways to approach this depending on the specific requirements of your import pandas as pd
+import numpy as np
+import time
+
+# Simulated product data
+products_data = {
+    "ProductID": [f"P{i:03d}" for i in range(1, 11)],
+    "ProductName": [f"Product {i}" for i in range(1, 11)],
+    "DemandRatePerDay": np.random.randint(1, 11, 10),
+    "CurrentInventory": np.random.randint(30, 100, 10),
+}
+
+products_df = pd.DataFrame(products_data)
+
+# Function to calculate available inventory after demand
+def calculate_available_inventory(df):
+    df["TotalDemandPerDay"] = df["DemandRatePerDay"] * 3
+    df["AvailableInventory"] = df["CurrentInventory"] - df["TotalDemandPerDay"]
+    df.loc[df["AvailableInventory"] <= 0, "Status"] = "Stockout"
+    df.loc[(df["AvailableInventory"] > 0) & (df["AvailableInventory"] <= 10), "Status"] = "Low Inventory"
+    return df
+
+# Simulate supplier, manufacturer, distributor, and retailer data
+def simulate_entities(entity_name, num_entities):
+    entity_data = {
+        f"{entity_name}ID": [f"{entity_name[0].upper()}{i:03d}" for i in range(1, num_entities + 1)],
+        f"{entity_name}Name": [f"{entity_name} {i}" for i in range(1, num_entities + 1)],
+    }
+    return pd.DataFrame(entity_data)
+
+num_suppliers = 3
+num_manufacturers = 3
+num_distributors = 3
+num_retailers = 3
+
+suppliers_df = simulate_entities("Supplier", num_suppliers)
+manufacturers_df = simulate_entities("Manufacturer", num_manufacturers)
+distributors_df = simulate_entities("Distributor", num_distributors)
+retailers_df = simulate_entities("Retailer", num_retailers)
+
+# Merge the data into a single DataFrame representing the supply chain
+supply_chain_df = products_df.merge(suppliers_df, how="cross").merge(manufacturers_df, how="cross") \
+    .merge(distributors_df, how="cross").merge(retailers_df, how="cross")
+
+# Function to optimize supply routes and update inventory
+def optimize_supply_routes(df):
+    # Simulate optimization algorithm to reroute supplies to support demand in target areas
+    # For this example, we randomly select entities to reroute supplies
+    for _ in range(np.random.randint(1, len(df) + 1)):
+        random_index = np.random.randint(len(df))
+        df.loc[random_index, "CurrentInventory"] += df.loc[random_index, "DemandRatePerDay"]
+    return df
+
+# Function to forecast demand and update demand rates
+def forecast_demand(df):
+    # Simulate demand forecasting by randomly updating demand rates
+    df["DemandRatePerDay"] = np.random.randint(1, 11, len(df))
+    return df
+
+if __name__ == "__main__":
+    while True:
+        print("Supply Chain Data:")
+        print(supply_chain_df)
+
+        supply_chain_df = forecast_demand(supply_chain_df)
+        supply_chain_df = calculate_available_inventory(supply_chain_df)
+
+        print("Optimizing Supply Routes...")
+        supply_chain_df = optimize_supply_routes(supply_chain_df)
+
+        print("Alerts:")
+        alerts_df = supply_chain_df[supply_chain_df["Status"].notnull()]
+        if not alerts_df.empty:
+            print(alerts_df)
+
+        time.sleep(5)  # Simulate the passage of time (adjust as needed)import pandas as pd
+import numpy as np
+import time
+import networkx as nx
+import matplotlib.pyplot as plt
+from statsmodels.tsa.arima.model import ARIMA
+
+# Simulated product data
+products_data = {
+    "ProductID": [f"P{i:03d}" for i in range(1, 11)],
+    "ProductName": [f"Product {i}" for i in range(1, 11)],
+    "DemandRatePerDay": np.random.randint(1, 11, 10),
+    "CurrentInventory": np.random.randint(30, 100, 10),
+}
+
+products_df = pd.DataFrame(products_data)
+
+# Function to optimize supply routes using Dijkstra's algorithm
+def optimize_supply_routes(df):
+    # Create a graph for supply chain entities and their connections
+    G = nx.Graph()
+    for entity_type in ["Supplier", "Manufacturer", "Distributor", "Retailer"]:
+        for i, entity in enumerate(df[f"{entity_type}ID"]):
+            G.add_node(entity, entity_type=entity_type)
+            if i > 0:
+                G.add_edge(df[f"{entity_type}ID"].iloc[i - 1], entity, weight=np.random.randint(1, 11))
+
+    # Use Dijkstra's algorithm to find the shortest paths
+    shortest_paths = dict(nx.single_source_dijkstra(G, source="S001"))
+
+    # Simulate rerouting supplies based on the shortest paths
+    for _, row in df.iterrows():
+        entity_type = row["EntityType"]
+        entity_id = row[f"{entity_type}ID"]
+        if entity_id in shortest_paths:
+            shortest_path = shortest_paths[entity_id]
+            df.loc[df[f"{entity_type}ID"] == entity_id, "CurrentInventory"] += np.random.choice(shortest_path.values())
+    return df
+
+# Function to forecast demand using ARIMA
+def forecast_demand(df):
+    for _, row in df.iterrows():
+        entity_type = row["EntityType"]
+        entity_id = row[f"{entity_type}ID"]
+        # Simulate historical demand data (replace with actual data)
+        historical_demand = np.random.randint(1, 11, 30)
+        try:
+            # Fit ARIMA model and forecast future demand
+            model = ARIMA(historical_demand, order=(1, 0, 1))
+            model_fit = model.fit()
+            future_demand = model_fit.forecast(steps=1)[0]
+            df.loc[df[f"{entity_type}ID"] == entity_id, "DemandRatePerDay"] = future_demand
+        except:
+            # In case of an error (e.g., insufficient data for ARIMA), use a default value
+            df.loc[df[f"{entity_type}ID"] == entity_id, "DemandRatePerDay"] = 5
+    return df
+
+if __name__ == "__main__":
+    supply_chain_df = products_df.copy()
+
+    while True:
+        print("Supply Chain Data:")
+        print(supply_chain_df)
+
+        supply_chain_df = forecast_demand(supply_chain_df)
+        supply_chain_df = optimize_supply_routes(supply_chain_df)
+
+        print("Alerts:")
+        alerts_df = supply_chain_df[(supply_chain_df["CurrentInventory"] <= 0) | (supply_chain_df["CurrentInventory"] <= supply_chain_df["DemandRatePerDay"])]
+        if not alerts_df.empty:
+            print(alerts_df)
+
+        # Simulate the passage of time (adjust as needed)
+        time.sleep(5)
+
+        # Clear the terminal for easier viewing (might not work in all environments)
 
 
 
