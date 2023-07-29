@@ -9716,4 +9716,139 @@ def main():
     print(cleaned_data)
 
 if __name__ == "__main__":
-    main()
+    main()code
+# Using pandas library to create a budget and track expenses
+
+import pandas as pd
+
+def create_budget(income, expenses):
+    budget = pd.DataFrame({"Category": expenses.keys(), "Amount": expenses.values()})
+    budget.loc[-1] = ["Income", income]
+    budget = budget.sort_index().reset_index(drop=True)
+    return budget
+
+def calculate_savings(income, expenses):
+    total_expenses = sum(expenses.values())
+    savings = income - total_expenses
+    return savings
+
+# Sample usage:
+income = 2000
+expenses = {"Rent": 800, "Utilities": 150, "Groceries": 250, "Transportation": 100}
+budget = create_budget(income, expenses)
+savings = calculate_savings(income, expenses)
+print("Budget:")
+print(budget)
+print("Savings:", savings)# Using a list of job opportunities with their respective salaries to find higher-paying jobs
+
+def find_higher_paying_job(jobs_list, current_salary):
+    higher_paying_jobs = [job for job, salary in jobs_list if salary > current_salary]
+    return higher_paying_jobs
+
+# Sample usage:
+jobs_list = [("Job A", 2500), ("Job B", 2200), ("Job C", 2800), ("Job D", 2000)]
+current_salary = 2000
+higher_paying_jobs = find_higher_paying_job(jobs_list, current_salary)
+print("Higher-paying job opportunities:", higher_paying_jobs)# Using a list of skills to indicate skills you can develop to increase your marketability
+
+def develop_marketable_skills(current_skills, desired_skills):
+    skills_to_develop = [skill for skill in desired_skills if skill not in current_skills]
+    return skills_to_develop
+
+# Sample usage:
+current_skills = ["Python", "Data Analysis"]
+desired_skills = ["Python", "Data Analysis", "Machine Learning", "Web Development"]
+skills_to_develop = develop_marketable_skills(current_skills, desired_skills)
+print("Skills to develop:", skills_to_develop)# Using a list of gig economy tasks to find side jobs or gig opportunities
+
+def find_gig_opportunities(gig_tasks, free_time):
+    potential_gigs = [gig for gig, hours_required in gig_tasks if hours_required <= free_time]
+    return potential_gigs
+
+# Sample usage:
+gig_tasks = [("Freelance Writing", 10), ("Graphic Design", 15), ("Food Delivery", 5)]
+free_time = 8
+potential_gigs = find_gig_opportunities(gig_tasks, free_time)
+print("Potential gig opportunities:", potential_gigs)# Using a simple investment calculator to calculate potential investment returns
+
+def calculate_investment_returns(principal, interest_rate, years):
+    investment = principal * (1 + interest_rate) ** years
+    return investment
+
+# Sample usage:
+principal_amount = 5000
+annual_interest_rate = 0.08
+investment_years = 5
+investment_value = calculate_investment_returns(principal_amount, annual_interest_rate, investment_years)
+print("Investment value after 5 years:", investment_value)# Using a list of small business ideas to explore potential business opportunities
+
+def explore_business_opportunities(business_ideas, expertise):
+    potential_businesses = [business for business, required_expertise in business_ideas if required_expertise in expertise]
+    return potential_businesses
+
+# Sample usage:
+business_ideas = [("Handmade Crafts", "Art and Crafts"), ("Tutoring Services", "Teaching"), ("Pet Sitting", "Animal Care")]
+expertise = "Art and Crafts"
+potential_businesses = explore_business_opportunities(business_ideas, expertise)
+print("Potential small business opportunities:", potential_businesses)# Using a list of survey companies to participate in online surveys
+
+def participate_in_surveys(survey_companies, available_time):
+    surveys_to_participate = [survey for survey, time_required in survey_companies if time_required <= available_time]
+    return surveys_to_participate
+
+# Sample usage:
+survey_companies = [("Survey Company A", 30), ("Survey Company B", 20), ("Survey Company C", 15)]
+available_time_for_surveys = 30
+surveys_to_participate = participate_in_surveys(survey_companies, available_time_for_surveys)
+print("Surveys to participate:", surveys_to_participate)# Using a list of assets to find assets that can be rented or sold
+
+def find_unused_assets(assets, is_rentable=True):
+    unused_assets = [asset for asset, rentable in assets.items() if rentable == is_rentable]
+    return unused_assets
+
+# Sample usage:
+assets = {"Unused Room": True, "Unused Items": False, "Unused Equipment": True}
+unused_rentable_assets = find_unused_assets(assets, is_rentable=True)
+unused_sellable_assets = find_unused_assets(assets, is_rentable=False)
+print("Unused rentable assets:", unused_rentable_assets)
+print("Unused sellable assets:", unused_sellable_assets)# Using a list of employee benefits to find available perks
+
+def find_employee_perks(benefits, current_employee_status):
+    available_perks = benefits.get(current_employee_status, [])
+    return available_perks
+
+# Sample usage:
+employee_benefits = {
+    "Full-Time Employee": ["Tuition Reimbursement", "Health Insurance", "Employee Discounts"],
+    "Part-Time Employee": ["Employee Discounts"],
+    "Contractor": ["Flexible Hours"]
+}
+current_employee_status = "Full-Time Employee"
+available_perks = find_employee_perks(employee_benefits, current_employee_status)
+print("Available employee perks:", available_perks)# Using a list of networking events to find opportunities for career growth
+
+def find_networking_opportunities(networking_events, current_field):
+    relevant_events = [event for event, field in networking_events if field == current_field]
+    return relevant_events
+
+# Sample usage:
+networking_events = [("Networking Event A", "Tech"), ("Networking Event B", "Finance"), ("Networking Event C", "Tech")]
+current_field_of_interest = "Tech"
+relevant_networking_events = find_networking_opportunities(networking_events, current_field_of_interest)
+print("Relevant networking events:", relevant_networking_events)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
