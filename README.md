@@ -10613,6 +10613,106 @@ Feel free to modify the range, maximum attempts, or add more features to the gam
 
 
 
+import json
+from datetime import datetime, timedelta
+
+# Define the workout routine
+def generate_workout(day):
+    workout_routine = {
+        "Day 1": {
+            "Warm-Up": [
+                "Light cardio (3-5 minutes): Jumping jacks, brisk walking, jogging, or cycling",
+                "Dynamic stretches (2-5 minutes): Arm circles, leg swings, torso twists, and hip circles"
+            ],
+            "Circuit 1: Lower Body": [
+                "Squats (3 sets of 12-15 reps)",
+                "Lunges (3 sets of 12 reps per leg)",
+                "Deadlifts (3 sets of 12 reps)"
+            ],
+            "Circuit 2: Upper Body": [
+                "Push-Ups (3 sets of 10-15 reps)",
+                "Dumbbell Rows (3 sets of 12 reps per arm)",
+                "Shoulder Press (3 sets of 12 reps)"
+            ],
+            "Circuit 3: Core and Balance": [
+                "Plank (3 sets of 30-60 seconds)",
+                "Russian Twists (3 sets of 20 reps)",
+                "Bicycle Crunches (3 sets of 20 reps)"
+            ],
+            "Cool Down": [
+                "Static stretching (5-10 minutes): Hamstring stretch, quadriceps stretch, calf stretch, chest stretch, and shoulder stretch",
+                "Deep breathing exercises"
+            ]
+        },
+        "Day 2": "Rest or Active Recovery (Light activities like walking, yoga, or stretching)",
+        "Day 3": "Same as Day 1",
+        "Day 4": "Same as Day 2",
+        "Day 5": "Same as Day 1",
+        "Day 6": "Same as Day 2",
+        "Day 7": "Optional Full Body Strength Training or Rest"
+    }
+    return workout_routine.get(day, "Rest or Active Recovery")
+
+# Define the meal plan
+meal_plan = {
+    "Day 1": {
+        "Breakfast": "Greek yogurt with honey, mixed berries, and a handful of almonds. 1 slice of whole-grain toast with avocado.",
+        "Snack": "Apple slices with peanut butter.",
+        "Lunch": "Grilled chicken breast, quinoa salad with mixed vegetables, and a side of steamed broccoli.",
+        "Snack": "Carrot sticks with hummus.",
+        "Dinner": "Baked salmon, brown rice, and steamed asparagus and carrots.",
+        "Snack": "Cottage cheese with pineapple chunks."
+    },
+    "Day 2": {
+        "Breakfast": "Smoothie with spinach, banana, protein powder, and almond milk. 1 slice of whole-grain toast with almond butter.",
+        "Snack": "Handful of mixed nuts.",
+        "Lunch": "Turkey and avocado wrap with a side of mixed greens.",
+        "Snack": "Greek yogurt with blueberries.",
+        "Dinner": "Grilled tofu stir-fry with mixed vegetables and brown rice. Side salad with lemon-tahini dressing.",
+        "Snack": "Dark chocolate square and a small handful of walnuts."
+    },
+    "Day 3": {
+        "Breakfast": "Oatmeal with chia seeds, sliced banana, and a drizzle of maple syrup. A boiled egg.",
+        "Snack": "Sliced bell peppers with guacamole.",
+        "Lunch": "Lentil soup with carrots, celery, and tomatoes. Whole-grain roll.",
+        "Snack": "Smoothie with mixed berries, spinach, and Greek yogurt.",
+        "Dinner": "Grilled shrimp skewers with bell peppers and zucchini. Couscous salad with cherry tomatoes and cucumber. Side of steamed spinach.",
+        "Snack": "Air-popped popcorn with a sprinkle of nutritional yeast."
+    },
+    "Day 4": {
+        "Breakfast": "Whole-grain waffles with fresh berries and Greek yogurt. Freshly squeezed orange juice.",
+        "Snack": "Handful of trail mix (nuts, seeds, and dried fruit).",
+        "Lunch": "Chickpea and vegetable curry with brown rice. Side of mixed greens.",
+        "Snack": "Celery sticks with almond butter.",
+        "Dinner": "Baked chicken thighs with rosemary and garlic. Sweet potato mash. Roasted Brussels sprouts.",
+        "Snack": "A small bowl of mixed fruit."
+    }
+}
+
+# Define the daily schedule
+def generate_schedule(start_date):
+    schedule = []
+    for i in range(7):
+        date = start_date + timedelta(days=i)
+        day_name = f"Day {i + 1}"
+        schedule.append({
+            "date": date.strftime("%Y-%m-%d"),
+            "workout": generate_workout(day_name),
+            "meal_plan": meal_plan.get(day_name, meal_plan["Day 1"])
+        })
+    return schedule
+
+# Start date for the schedule
+start_date = datetime.now()
+
+# Generate the 7-day schedule
+weekly_schedule = generate_schedule(start_date)
+
+# Save the schedule to a JSON file
+with open("weekly_schedule.json", "w") as file:
+    json.dump(weekly_schedule, file, indent=4)
+
+print("Weekly schedule has been generated and saved to 'weekly_schedule.json'.")
 
 
 
