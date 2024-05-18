@@ -10715,6 +10715,19 @@ with open("weekly_schedule.json", "w") as file:
 print("Weekly schedule has been generated and saved to 'weekly_schedule.json'.")
 
 
+goal_of_life_longevity = """
+The goal of life longevity involves implementing a comprehensive approach that integrates consistent physical exercise, 
+a balanced diet, and effective stress management practices. By following a structured 3-4 day full-body strength training 
+routine each week, individuals can build strength and improve overall fitness through exercises like squats, lunges, push-ups, 
+and planks. Complementing this physical regimen with a nutritious meal plan that includes diverse food groups—such as Greek 
+yogurt, lean proteins, whole grains, fruits, vegetables, and healthy fats—ensures the body receives essential nutrients to 
+support muscle recovery, energy levels, and overall health. Incorporating daily habits like proper hydration, deep breathing 
+exercises, and adequate sleep further enhances bodily functions and resilience against diseases. Monitoring progress, maintaining 
+consistency, and allowing time for recovery are crucial for sustaining these lifestyle changes. By adhering to this holistic 
+routine, individuals can promote longevity, reduce the risk of chronic illnesses, and achieve optimal well-being.
+"""
+
+print(goal_of_life_longevity)
 
 
 
