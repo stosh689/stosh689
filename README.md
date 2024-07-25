@@ -10731,13 +10731,295 @@ print(goal_of_life_longevity)
 
 
 
+import numpy as np
+import matplotlib.pyplot as plt
+from astropy.cosmology import Planck18 as cosmo
+
+# Define time parameters
+years = np.linspace(0, 4.8e9, 1000)  # Time from Big Bang to 4.8 billion years
+seconds_per_year = 3.154e7  # Number of seconds in a year
+time_seconds = years * seconds_per_year  # Convert years to seconds
+
+# Compute scale factor using astropy's cosmology model
+def scale_factor(t):
+    redshift = 1 / (t / 1e9) - 1
+    return 1 / (1 + redshift)  # Simplified for illustration
+
+# Compute temperature evolution (based on simplified model)
+def temperature(t):
+    # Temperature T is roughly proportional to the inverse of the scale factor
+    initial_temperature = 2.73  # CMB temperature today
+    scale_factor_today = scale_factor(4.8e9 * seconds_per_year)  # Scale factor at present
+    return initial_temperature * (1 / scale_factor_today) * (1 / scale_factor(t))
+
+# Compute distances
+def compute_distances(redshifts):
+    d_c = cosmo.comoving_distance(redshifts)  # Comoving distance in Mpc
+    d_l = cosmo.luminosity_distance(redshifts)  # Luminosity distance in Mpc
+    return d_c, d_l
+
+# Define redshift range
+z = np.linspace(0, 10, 100)  # Redshift from 0 to 10
+d_c, d_l = compute_distances(z)  # Compute distances
+
+# Compute scale factors and temperatures over time
+scale_factors = scale_factor(time_seconds)
+temperatures = temperature(years)
+
+# Create plots
+fig, axs = plt.subplots(3, 2, figsize=(18, 15))
+
+# Plot Scale Factor Over Time
+axs[0, 0].plot(years, scale_factors)
+axs[0, 0].set_title('Scale Factor Over Time')
+axs[0, 0].set_xlabel('Time (years)')
+axs[0, 0].set_ylabel('Scale Factor')
+
+# Plot Temperature Over Time
+axs[0, 1].plot(years, temperatures, color='orange')
+axs[0, 1].set_title('Temperature Over Time')
+axs[0, 1].set_xlabel('Time (years)')
+axs[0, 1].set_ylabel('Temperature (K)')
+
+# Plot Comoving Distance vs. Redshift
+axs[1, 0].plot(z, d_c, color='blue')
+axs[1, 0].set_title('Comoving Distance vs. Redshift')
+axs[1, 0].set_xlabel('Redshift (z)')
+axs[1, 0].set_ylabel('Comoving Distance (Mpc)')
+
+# Plot Luminosity Distance vs. Redshift
+axs[1, 1].plot(z, d_l, color='red')
+axs[1, 1].set_title('Luminosity Distance vs. Redshift')
+axs[1, 1].set_xlabel('Redshift (z)')
+axs[1, 1].set_ylabel('Luminosity Distance (Mpc)')
+
+# Plot Density Over Time
+densities = 1 / (scale_factors ** 3)  # Simplified model for density
+axs[2, 0].plot(years, densities, color='green')
+axs[2, 0].set_title('Density Over Time')
+axs[2, 0].set_xlabel('Time (years)')
+axs[2, 0].set_ylabel('Density (kg/m³)')
+
+# Hide the empty subplot
+axs[2, 1].axis('off')
+
+plt.tight_layout()
 
 
+import numpy as np
+
+# Define parameters
+alpha_q = 1e-5  # Coupling constant
+delta_phi = 1   # Quantum potential difference
+d = 1           # Distance in meters
+psi = 0.5       # Quantum state parameter
+lambda_q = 10   # Characteristic length scale in meters
+
+# Calculate the exponential term
+exp_term = np.exp(-abs(psi) / lambda_q)
+
+# Calculate the Quantum Flux Force
+F_QFF = -alpha_q * (delta_phi / d**2) * exp_term
+
+print(f"Quantum Flux Force: {F_QFF:.2e} N")
+
+Quantum Flux Force: -9.51e-06 N
+
+To run the equations and check their validity, we need to execute the calculations based on defined parameters. Here’s a step-by-step process to verify the Quantum Flux Force (QFF) equation:
+
+1. Define Parameters
+Coupling Constant (
+α
+q
+α 
+q
+​	
+ ): 
+1
+×
+1
+0
+−
+5
+1×10 
+−5
+ 
+Quantum Potential Difference (
+Δ
+Φ
+ΔΦ): 1
+Distance (
+d
+d): 1 meter
+Quantum State Parameter (
+ψ
+ψ): 0.5
+Characteristic Length Scale (
+λ
+λ): 10 meters
+2. Calculate the Force
+Using the equation:
+
+F
+QFF
+=
+−
+α
+q
+Δ
+Φ
+d
+2
+e
+−
+∣
+ψ
+∣
+λ
+F 
+QFF
+​	
+ =−α 
+q
+​	
+  
+d 
+2
+ 
+ΔΦ
+​	
+ e 
+− 
+λ
+∣ψ∣
+​	
+ 
+ 
+
+Substitute the parameters into the equation:
+
+F
+QFF
+=
+−
+1
+×
+1
+0
+−
+5
+1
+1
+2
+e
+−
+0.5
+10
+F 
+QFF
+​	
+ =−1×10 
+−5
+  
+1 
+2
+ 
+1
+​	
+ e 
+− 
+10
+0.5
+​	
+ 
+ 
+
+3. Perform the Calculation
+Let’s compute the force step-by-step:
+
+Compute the Exponential Term:
+e
+−
+0.5
+10
+=
+e
+−
+0.05
+e 
+− 
+10
+0.5
+​	
+ 
+ =e 
+−0.05
+ 
+
+Using a calculator:
+
+e
+−
+0.05
+≈
+0.951
+e 
+−0.05
+ ≈0.951
+Substitute Values into the Force Equation:
+F
+QFF
+=
+−
+1
+×
+1
+0
+−
+5
+⋅
+0.951
+F 
+QFF
+​	
+ =−1×10 
+−5
+ ⋅0.951
+
+F
+QFF
+≈
+−
+9.5
+×
+1
+0
+−
+6
+ N
+F 
+QFF
+​	
+ ≈−9.5×10 
+−6
+  N
+4. Verification Steps
+Consistency Check:
+Compare the magnitude of the computed force with typical forces observed in nature.
+Ensure it does not contradict known physical laws or experimental data.
+Experimental Validation:
+To validate, conduct experiments to detect forces at the quantum scale and compare with theoretical predictions.
+Look for discrepancies between the predicted and observed values to refine the model.
+Python Code Example
+Here’s a Python code snippet to perform this calculation and visualize the result:
 
 
-
-
-
-
+Summary
+The refined QFF model provides a deeper understanding by integrating quantum fluctuations, gravitational interactions, medium properties, 
+and temporal variability. 
+This comprehensive approach can uncover new insights into the behavior and applications of the Quantum Flux Force, highlighting aspects that
+ simpler models might miss. By running detailed simulations, researchers can gain a better understanding of the dynamic and interactive nature of QFF, 
+leading to more informed experimental 
+designs and potential technological applications.
 
 
