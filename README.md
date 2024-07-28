@@ -11929,6 +11929,64 @@ blockchain.new_block(proof=200)
 print(blockchain.chain)
 
 
+import pandas as pd
+
+# Data collected from sources for 2021
+data_2021 = {
+    "Year": [2021],
+    "Global Homicides": [458000],
+    "Homicides per Hour": [52],
+    "Homicides in Americas": [154000],
+    "Rate per 100k in Americas": [15],
+    "Homicides in Africa": [176000],
+    "Rate per 100k in Africa": [12.7],
+    "Global Average Rate per 100k": [5.8],
+    "Firearm Usage Americas (%)": [75],
+    "Firearm Usage Europe (%)": [17],
+    "Firearm Usage Asia (%)": [18],
+    "Percentage Male Victims (%)": [81],
+    "Percentage Male Suspects (%)": [90],
+    "Percentage Female Victims by Partners (%)": [66],
+    "Percentage Child Victims (%)": [15]
+}
+
+# Create DataFrame for 2021 data
+df_2021 = pd.DataFrame(data_2021)
+
+# Define the periods and their respective average rates over the last 10,000 years
+prehistoric_rate = 17.5
+ancient_medieval_rate = 7.5
+modern_rate = 1.5
+
+# Define the weights for each period
+prehistoric_weight = 0.5
+ancient_medieval_weight = 0.25
+modern_weight = 0.25
+
+# Calculate the weighted average rate of violent deaths over 10,000 years
+weighted_average_rate = (
+    (prehistoric_rate * prehistoric_weight) +
+    (ancient_medieval_rate * ancient_medieval_weight) +
+    (modern_rate * modern_weight)
+)
+
+# Display results
+print("Comprehensive Data Analysis for 2021:")
+print(df_2021)
+print("\nWeighted Average Rate of Violent Deaths Over 10,000 Years:", weighted_average_rate)
+print("Global Average Rate of Violent Deaths in 2021:", data_2021["Global Average Rate per 100k"][0])
+
+# Compare with modern statistics
+comparison = {
+    "Weighted Average Rate (Last 10,000 years)": [weighted_average_rate],
+    "Global Average Rate in 2021": [data_2021["Global Average Rate per 100k"][0]]
+}
+
+# Create DataFrame for comparison
+df_comparison = pd.DataFrame(comparison)
+
+print("\nComparison of Violent Death Rates:")
+print(df_comparison)
 
 
 
