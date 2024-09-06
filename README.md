@@ -11989,6 +11989,107 @@ print("\nComparison of Violent Death Rates:")
 print(df_comparison)
 
 
+# Adding more adversaries and expanding the simulation for 100 iterations
+
+# Expanded list of countries with critical infrastructure, offensive, and defensive capabilities
+def create_expanded_countries():
+    countries = []
+
+    # Adding more adversaries with critical infrastructure and capabilities
+    china = Country(
+        name="China",
+        critical_infrastructure=[
+            "Energy Grid (National, Three Gorges Dam)",
+            "Undersea Cables (Asia-Pacific)",
+            "Telecoms (Huawei, ZTE Networks)",
+            "Financial Systems (Shanghai Stock Exchange, Alipay)",
+            "Cyber Infrastructure (Great Firewall, Servers)",
+            "Ports (Shanghai, Tianjin)",
+            "Nuclear Facilities (Daya Bay, Qinshan)",
+            "Space Systems (Beidou Satellites)",
+            "Manufacturing Hubs (Shenzhen, Guangzhou)",
+            "Defense Contractors (NORINCO, AVIC)"
+        ],
+        offensive_capabilities=[
+            "Cyber Warfare Units (PLA Unit 61398)",
+            "Information Warfare",
+            "Naval Operations (South China Sea)",
+            "Covert Ops",
+            "Satellite Disruption Tools"
+        ],
+        defensive_capabilities=[
+            "Cybersecurity (Huawei Firewalls)",
+            "Redundancy Systems",
+            "Anti-Satellite Defense",
+            "Missile Defense Systems",
+            "Physical Protection of Ports and Factories"
+        ]
+    )
+
+    eu = Country(
+        name="European Union",
+        critical_infrastructure=[
+            "Energy Grid (Nord Stream, LNG Terminals)",
+            "Telecoms (Ericsson, Nokia)",
+            "Financial Systems (ECB, SWIFT)",
+            "Cyber Infrastructure (ENISA Networks)",
+            "Ports (Rotterdam, Hamburg)",
+            "Nuclear Facilities (France, Germany)",
+            "Space Systems (Galileo Satellites)",
+            "Undersea Cables (Atlantic)",
+            "Defense Contractors (Airbus, BAE Systems)",
+            "Transport Hubs (London, Frankfurt, Paris)"
+        ],
+        offensive_capabilities=[
+            "Cyber Warfare Units (NATO Cyber Forces)",
+            "Covert Ops (MI6, DGSE)",
+            "Naval Operations (Mediterranean, Atlantic)",
+            "Satellite Disruption Tools",
+            "Economic Warfare (Sanctions)"
+        ],
+        defensive_capabilities=[
+            "Firewalls (ENISA)",
+            "Redundancy Systems (Multiple Grids)",
+            "Air Defense Systems",
+            "Cybersecurity Firms (Sophos, F-Secure)",
+            "Physical Protection of Nuclear Plants"
+        ]
+    )
+
+    countries.extend([china, eu])
+    return countries
+
+# Expanding the number of countries of concern
+expanded_countries = countries + create_expanded_countries()
+
+# Running the simulation for 100 iterations and collecting the results
+def simulate_multiple_conflicts(lom, iterations=100):
+    results = {country.name: 0 for country in lom.countries}  # Track how many times each country wins
+
+    for i in range(iterations):
+        print(f"\n--- Simulation {i + 1} ---")
+        lom.simulate_global_conflict(turns=5)  # Reset and run each simulation
+        winner = None
+
+        for country in lom.countries:
+            if len(country.damaged_infrastructure) == len(country.critical_infrastructure):
+                winner = [c.name for c in lom.countries if c != country][0]
+                results[winner] += 1
+                print(f"\nWinner of simulation {i + 1}: {winner}")
+                break
+
+        # Reset the state of the countries for the next simulation
+        for country in lom.countries:
+            country.damaged_infrastructure = []
+
+    return results
+
+# Instantiate the LOM with expanded countries
+expanded_lom = LogisticsOperationsManager(expanded_countries)
+
+# Simulate global conflicts 10000 times and collect results
+simulation_results = simulate_multiple_conflicts(expanded_lom, iterations=100)
+simulation_results
 
 
 
