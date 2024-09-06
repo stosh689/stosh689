@@ -12091,6 +12091,179 @@ expanded_lom = LogisticsOperationsManager(expanded_countries)
 simulation_results = simulate_multiple_conflicts(expanded_lom, iterations=100)
 simulation_results
 
+#2
+
+import random
+
+# Defining the Country class
+class Country:
+    def __init__(self, name, critical_infrastructure, offensive_capabilities, defensive_capabilities):
+        self.name = name
+        self.critical_infrastructure = critical_infrastructure  # List of critical infrastructure elements
+        self.offensive_capabilities = offensive_capabilities    # List of offensive capabilities
+        self.defensive_capabilities = defensive_capabilities    # List of defensive capabilities
+        self.damaged_infrastructure = []                       # Keeps track of damaged infrastructure
+
+    def display_critical_infrastructure(self):
+        print(f"\nCritical Infrastructure for {self.name}:")
+        for idx, ci in enumerate(self.critical_infrastructure, 1):
+            status = "Damaged" if ci in self.damaged_infrastructure else "Operational"
+            print(f"{idx}. {ci} - Status: {status}")
+
+    def display_offensive_capabilities(self):
+        print(f"\nOffensive Capabilities for {self.name}:")
+        for idx, oc in enumerate(self.offensive_capabilities, 1):
+            print(f"{idx}. {oc}")
+
+    def display_defensive_capabilities(self):
+        print(f"\nDefensive Capabilities for {self.name}:")
+        for idx, dc in enumerate(self.defensive_capabilities, 1):
+            print(f"{idx}. {dc}")
+
+    def attack(self, target_country, infrastructure_idx):
+        """
+        Attempt to attack a specific piece of critical infrastructure in the target country.
+        """
+        if infrastructure_idx < 0 or infrastructure_idx >= len(target_country.critical_infrastructure):
+            print("Invalid infrastructure index!")
+            return
+
+        target = target_country.critical_infrastructure[infrastructure_idx]
+        print(f"{self.name} is attacking {target_country.name}'s {target}.")
+
+        # Simulate whether the attack succeeds or is defended
+        if random.random() > 0.5:  # 50% chance of success
+            print(f"Attack on {target} succeeded!")
+            target_country.damaged_infrastructure.append(target)
+        else:
+            print(f"{target_country.name} successfully defended {target} using {random.choice(target_country.defensive_capabilities)}!")
+
+    def repair_infrastructure(self, infrastructure_idx):
+        """
+        Attempt to repair a piece of damaged infrastructure.
+        """
+        if infrastructure_idx < 0 or infrastructure_idx >= len(self.critical_infrastructure):
+            print("Invalid infrastructure index!")
+            return
+
+        target = self.critical_infrastructure[infrastructure_idx]
+        if target in self.damaged_infrastructure:
+            print(f"{self.name} is repairing {target}.")
+            self.damaged_infrastructure.remove(target)  # Infrastructure repaired
+            print(f"{target} is now operational again!")
+        else:
+            print(f"{target} is not damaged!")
+
+# Logistics Operations Manager (LOM) class to manage system operations and avoid failure
+class LogisticsOperationsManager:
+    def __init__(self, countries):
+        self.countries = countries  # List of all countries in the system
+
+    def monitor_system(self):
+        """
+        Continuously monitor the status of the system to ensure it runs smoothly.
+        If critical infrastructure of a country is severely damaged, take action.
+        """
+        for country in self.countries:
+            damaged_percentage = len(country.damaged_infrastructure) / len(country.critical_infrastructure) * 100
+            print(f"\nMonitoring {country.name}: {damaged_percentage}% of infrastructure is damaged.")
+            if damaged_percentage > 50:  # If more than 50% of a country's infrastructure is damaged
+                print(f"{country.name} is in critical condition! Defensive measures required.")
+                # Perform repairs or escalate defense measures
+                country.repair_infrastructure(random.randint(0, len(country.critical_infrastructure) - 1))
+
+    def simulate_global_conflict(self, turns=5):
+        """
+        Simulate a global conflict where countries take turns attacking each other's infrastructure.
+        """
+        for turn in range(turns):
+            print(f"\n--- Turn {turn + 1} ---")
+            attacker = random.choice(self.countries)
+            target = random.choice([c for c in self.countries if c != attacker])
+            infrastructure_idx = random.randint(0, len(target.critical_infrastructure) - 1)
+            attacker.attack(target, infrastructure_idx)
+
+            # After each round of conflict, monitor the system status
+            self.monitor_system()
+
+# Example countries of concern
+def create_countries_of_concern():
+    countries = []
+
+    # Example country: United States
+    usa = Country(
+        name="United States",
+        critical_infrastructure=[
+            "Energy Grid (Texas, California, National Grid)",
+            "Oil Pipelines (Keystone, Colonial Pipeline)",
+            "Undersea Cables (Trans-Atlantic Cables)",
+            "Telecoms (5G Networks, AT&T, Verizon)",
+            "Nuclear Facilities (Three Mile Island, Hanford)",
+            "Space Systems (Satellites, GPS Infrastructure)",
+            "Financial Systems (SWIFT, NASDAQ, Wall Street)",
+            "Ports (Los Angeles, Houston, New York)",
+            "Defense Contractors (Lockheed Martin, Raytheon)",
+            "Cyber Infrastructure (Pentagon Networks, NSA)"
+        ],
+        offensive_capabilities=[
+            "Cyber Warfare Units (USCYBERCOM)",
+            "Drone Strikes",
+            "Covert Ops (CIA, Special Forces)",
+            "EMP Weapons",
+            "Naval Operations (Sea-based Undersea Cable Operations)"
+        ],
+        defensive_capabilities=[
+            "Advanced Firewalls",
+            "Redundancy Systems",
+            "Air Defense Systems",
+            "Cybersecurity Firms (Crowdstrike, FireEye)",
+            "Physical Protection of Nuclear Plants"
+        ]
+    )
+
+    # Example country: Russia
+    russia = Country(
+        name="Russia",
+        critical_infrastructure=[
+            "Energy Grid (National Grid, Siberian Pipelines)",
+            "Gas Pipelines (Nord Stream 2, Yamal-Europe)",
+            "Undersea Cables (Baltic Sea, Arctic)",
+            "Telecoms (Rostelecom, Beeline)",
+            "Nuclear Facilities (Kursk, Smolensk)",
+            "Space Systems (GLONASS, Roscosmos Satellites)",
+            "Financial Systems (Mir Payment System, Moscow Exchange)",
+            "Ports (Murmansk, Vladivostok)",
+            "Defense Contractors (Kalashnikov, Sukhoi)",
+            "Cyber Infrastructure (Kremlin Networks, FSB)"
+        ],
+        offensive_capabilities=[
+            "Cyber Warfare Units (FSB, GRU)",
+            "Information Warfare",
+            "Covert Ops (Spetsnaz)",
+            "Satellite Disruption Tools",
+            "Naval Operations (Undersea Cable Sabotage)"
+        ],
+        defensive_capabilities=[
+            "Firewalls (Kaspersky Labs)",
+            "Redundancy Systems (Backup Grids)",
+            "Air Defense Systems (S-400)",
+            "Cybersecurity Firms (Group-IB)",
+            "Physical Protection of Nuclear Plants"
+        ]
+    )
+
+    countries.extend([usa, russia])
+    return countries
+
+# Running the full system
+if __name__ == "__main__":
+    countries = create_countries_of_concern()
+
+    # Instantiate the LOM with the countries
+    lom = LogisticsOperationsManager(countries)
+
+    # Simulate global conflict and monitor the system
+    lom.simulate_global_conflict(turns=5)
 
 
 
