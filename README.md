@@ -12266,6 +12266,527 @@ if __name__ == "__main__":
     lom.simulate_global_conflict(turns=5)
 
 
+import random
+import numpy as np
+
+class Country:
+    def __init__(self, name, critical_infrastructure, offensive_capabilities, defensive_capabilities, repair_capacity):
+        self.name = name
+        self.critical_infrastructure = critical_infrastructure
+        self.offensive_capabilities = offensive_capabilities
+        self.defensive_capabilities = defensive_capabilities
+        self.damaged_infrastructure = []
+        self.repair_capacity = repair_capacity
+
+    def attack(self, target_country, conflict_type):
+        success_chance = self.calculate_success_rate(conflict_type)
+        if random.random() < success_chance:
+            # Randomly damage one piece of infrastructure that isn't already damaged
+            target_infra = random.choice([infra for infra in target_country.critical_infrastructure if infra not in target_country.damaged_infrastructure])
+            target_country.damaged_infrastructure.append(target_infra)
+            print(f"{self.name} successfully attacked {target_country.name}'s {target_infra}.")
+        else:
+            print(f"{self.name}'s attack on {target_country.name} failed.")
+
+    def repair(self):
+        # Repair infrastructure based on repair capacity
+        repaired = []
+        for _ in range(self.repair_capacity):
+            if self.damaged_infrastructure:
+                infra = random.choice(self.damaged_infrastructure)
+                self.damaged_infrastructure.remove(infra)
+                repaired.append(infra)
+        if repaired:
+            print(f"{self.name} repaired: {', '.join(repaired)}.")
+        else:
+            print(f"{self.name} had nothing to repair.")
+
+    def calculate_success_rate(self, conflict_type):
+        # Weighted success rates based on the conflict type
+        if conflict_type == "cyber":
+            offense_strength = len([cap for cap in self.offensive_capabilities if "Cyber" in cap])
+            defense_strength = len([cap for cap in self.defensive_capabilities if "Cyber" in cap])
+        elif conflict_type == "physical":
+            offense_strength = len([cap for cap in self.offensive_capabilities if "Naval" in cap or "Covert" in cap])
+            defense_strength = len([cap for cap in self.defensive_capabilities if "Physical" in cap])
+        else:  # Hybrid conflict
+            offense_strength = len(self.offensive_capabilities)
+            defense_strength = len(self.defensive_capabilities)
+
+        # Calibrated success rates (between 0.4 and 0.9 to simulate realistic scenarios)
+        return np.clip(offense_strength / (offense_strength + defense_strength + 1), 0.4, 0.9)
+
+
+class LogisticsOperationsManager:
+    def __init__(self, countries):
+        self.countries = countries
+
+    def simulate_global_conflict(self, turns=10, conflict_type="hybrid"):
+        for turn in range(turns):
+            print(f"\n--- Turn {turn + 1} ---")
+            for country in self.countries:
+                target = random.choice([c for c in self.countries if c != country])
+                country.attack(target, conflict_type)
+                country.repair()
+
+    def get_results(self):
+        results = {}
+        for country in self.countries:
+            results[country.name] = len(country.damaged_infrastructure)
+        return results
+
+
+# Define the countries using realistic infrastructure and capabilities data
+countries = [
+    Country(
+        name="USA",
+        critical_infrastructure=["Energy Grid", "Financial Systems", "Cyber Infrastructure", "Military Bases", "Ports"],
+        offensive_capabilities=["Cyber Warfare Units", "Naval Operations", "Covert Ops", "Economic Warfare"],
+        defensive_capabilities=["Cybersecurity Firms", "Missile Defense", "Redundancy Systems", "Air Defense"],
+        repair_capacity=2
+    ),
+    Country(
+        name="Russia",
+        critical_infrastructure=["Energy Grid", "Telecoms", "Financial Systems", "Military Bases", "Nuclear Facilities"],
+        offensive_capabilities=["Cyber Warfare Units", "Naval Operations", "Covert Ops", "Nuclear Threat"],
+        defensive_capabilities=["Cybersecurity Systems", "Air Defense", "Physical Security"],
+        repair_capacity=1
+    ),
+    Country(
+        name="China",
+        critical_infrastructure=["Energy Grid", "Telecoms", "Financial Systems", "Cyber Infrastructure", "Ports", "Space Systems"],
+        offensive_capabilities=["Cyber Warfare Units", "Naval Operations", "Covert Ops", "Satellite Disruption"],
+        defensive_capabilities=["Cybersecurity", "Redundancy Systems", "Missile Defense", "Space Defense"],
+        repair_capacity=2
+    ),
+    Country(
+        name="European Union",
+        critical_infrastructure=["Energy Grid", "Financial Systems", "Cyber Infrastructure", "Telecoms", "Ports", "Nuclear Facilities"],
+        offensive_capabilities=["Cyber Warfare Units", "Naval Operations", "Covert Ops", "Economic Warfare"],
+        defensive_capabilities=["Cybersecurity Firms", "Redundancy Systems", "Air Defense", "Physical Security"],
+        repair_capacity=3
+    )
+]
+
+# Instantiate the logistics manager
+lom = LogisticsOperationsManager(countries)
+
+# Run the simulation over 1000 iterations for a larger sample size
+def simulate_multiple_conflicts(lom, iterations=1000):
+    results = {country.name: 0 for country in lom.countries}  # Track wins for each country
+    overall_damage = {country.name: [] for country in lom.countries}  # Track overall damage levels per iteration
+
+    for i in range(iterations):
+        print(f"\n--- Simulation {i + 1} ---")
+        lom.simulate_global_conflict(turns=5, conflict_type="hybrid")
+        winner = None
+
+        for country in lom.countries:
+            damage_ratio = len(country.damaged_infrastructure) / len(country.critical_infrastructure)
+            overall_damage[country.name].append(damage_ratio)
+
+            if damage_ratio >= 0.7:  # If 70% or more of infrastructure is damaged
+                winner = [c.name for c in lom.countries if c != country][0]
+                results[winner] += 1
+                print(f"Winner of simulation {i + 1}: {winner}")
+                break
+
+        for country in lom.countries:
+            country.damaged_infrastructure = []  # Reset for next iteration
+
+    return results, overall_damage
+
+
+# Run the long simulation
+simulation_results, overall_damage = simulate_multiple_conflicts(lom, iterations=1000)
+
+# Calculate statistics for each country
+def calculate_statistics(overall_damage):
+    stats = {}
+    for country, damage_list in overall_damage.items():
+        avg_damage = np.mean(damage_list)
+        median_damage = np.median(damage_list)
+        std_dev = np.std(damage_list)
+        stats[country] = {"Average Damage": avg_damage, "Median Damage": median_damage, "Std Dev": std_dev}
+    return stats
+
+damage_stats = calculate_statistics(overall_damage)
+
+# Print final results and statistics
+print("\nFinal Results after 1000 iterations:", simulation_results)
+print("\nDamage Statistics for each country:", damage_stats)
+
+
+import random
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+class Country:
+    def __init__(self, name, critical_infrastructure, offensive_capabilities, defensive_capabilities, repair_rate):
+        self.name = name
+        self.critical_infrastructure = critical_infrastructure
+        self.offensive_capabilities = offensive_capabilities
+        self.defensive_capabilities = defensive_capabilities
+        self.damaged_infrastructure = []
+        self.repair_rate = repair_rate
+
+    def take_damage(self, damage):
+        self.damaged_infrastructure += damage
+        self.damaged_infrastructure = list(set(self.damaged_infrastructure))
+
+    def repair_infrastructure(self):
+        if len(self.damaged_infrastructure) > 0:
+            repaired = random.sample(self.damaged_infrastructure, min(self.repair_rate, len(self.damaged_infrastructure)))
+            for r in repaired:
+                self.damaged_infrastructure.remove(r)
+
+    def get_damage_percentage(self):
+        return len(self.damaged_infrastructure) / len(self.critical_infrastructure) * 100
+
+class Simulation:
+    def __init__(self, countries):
+        self.countries = countries
+
+    def simulate_year(self):
+        # Randomly select an attacker and a target
+        attacker = random.choice(self.countries)
+        target = random.choice([c for c in self.countries if c != attacker])
+
+        # Attacks cause random damage between 1-5 infrastructures
+        damage = random.sample(target.critical_infrastructure, min(random.randint(1, 5), len(target.critical_infrastructure)))
+        target.take_damage(damage)
+
+        # Each country repairs its infrastructure
+        for country in self.countries:
+            country.repair_infrastructure()
+
+    def run_simulation(self, years):
+        results = {country.name: [] for country in self.countries}
+
+        for year in range(years):
+            self.simulate_year()
+
+            # Log the infrastructure damage for each country
+            for country in self.countries:
+                results[country.name].append(country.get_damage_percentage())
+
+        return results
+
+# Define the countries and their properties
+usa = Country(
+    name="USA",
+    critical_infrastructure=[
+        "Energy Grid", "Financial Systems", "Cyber Infrastructure", "Telecoms", 
+        "Ports", "Space Systems", "Defense Contractors", "Undersea Cables"
+    ],
+    offensive_capabilities=["Cyber Warfare", "Missile Defense", "Naval Operations"],
+    defensive_capabilities=["Firewalls", "Missile Defense", "Physical Defense"],
+    repair_rate=2  # Repairs 2 infrastructures per turn
+)
+
+china = Country(
+    name="China",
+    critical_infrastructure=[
+        "Energy Grid", "Financial Systems", "Cyber Infrastructure", "Telecoms", 
+        "Ports", "Space Systems", "Defense Contractors", "Undersea Cables"
+    ],
+    offensive_capabilities=["Cyber Warfare", "Naval Operations", "Covert Ops"],
+    defensive_capabilities=["Firewalls", "Missile Defense", "Physical Defense"],
+    repair_rate=2
+)
+
+russia = Country(
+    name="Russia",
+    critical_infrastructure=[
+        "Energy Grid", "Financial Systems", "Cyber Infrastructure", "Telecoms", 
+        "Ports", "Nuclear Facilities", "Defense Contractors", "Undersea Cables"
+    ],
+    offensive_capabilities=["Cyber Warfare", "Covert Ops", "Missile Defense"],
+    defensive_capabilities=["Firewalls", "Physical Defense"],
+    repair_rate=1  # Lower repair rate
+)
+
+eu = Country(
+    name="European Union",
+    critical_infrastructure=[
+        "Energy Grid", "Financial Systems", "Cyber Infrastructure", "Telecoms", 
+        "Ports", "Nuclear Facilities", "Defense Contractors", "Space Systems"
+    ],
+    offensive_capabilities=["Cyber Warfare", "Economic Warfare", "Naval Operations"],
+    defensive_capabilities=["Firewalls", "Physical Defense", "Redundancy Systems"],
+    repair_rate=3  # Highest repair rate
+)
+
+# Run the 100-year simulation
+countries = [usa, china, russia, eu]
+simulation = Simulation(countries)
+years = 100
+results = simulation.run_simulation(years)
+
+# Convert results to a DataFrame for analysis
+df = pd.DataFrame(results)
+
+# Plotting the damage percentages over time
+plt.figure(figsize=(12, 6))
+for country in results:
+    plt.plot(df[country], label=country)
+
+plt.title("Critical Infrastructure Damage Over 100 Years")
+plt.xlabel("Years")
+plt.ylabel("Damage Percentage (%)")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# Win rates (victories based on least damage)
+win_counts = {country.name: 0 for country in countries}
+for year in range(years):
+    min_damage_country = df.iloc[year].idxmin()
+    win_counts[min_damage_country] += 1
+
+# Final win rates after 100 years
+total_wins = sum(win_counts.values())
+win_percentages = {k: (v / total_wins) * 100 for k, v in win_counts.items()}
+
+print("Win Percentages Over 100 Years:")
+for country, win_rate in win_percentages.items():
+    print(f"{country}: {win_rate:.2f}%")
+
+# Display average damage for each country
+print("\nAverage Damage Percentage Across 100 Years:")
+for country in results:
+    print(f"{country}: {df[country].mean():.2f}%")
+
+Code Explanation:
+Country Class:
+Each country has critical infrastructure, offensive, and defensive capabilities. The class tracks the infrastructure that gets damaged and handles the repair mechanism.
+Simulation Class:
+This class handles the year-by-year simulation. Each year, a random attacker and target are chosen. The target sustains some damage, and all countries attempt to repair their damaged infrastructure.
+Run Simulation:
+The simulation runs for 100 years, and the damage percentages for each country’s infrastructure are tracked and plotted.
+Analysis:
+The results dictionary tracks damage over time, and a Pandas DataFrame is used to analyze and plot the results.
+Win rates are calculated based on which country sustains the least damage over each year.
+Average damage percentage is also calculated for each country across the 100-year period.
+Key Results:
+Plot: The plot shows the infrastructure damage over time for all countries.
+Win Percentages: This shows how often each country “won” by sustaining the least damage over the 100 years.
+Average Damage: The average percentage of critical infrastructure damaged across the 100-year period for each country is displayed.
+Statistical Accuracy:
+This model simulates the competition among global powers for 100 years with each year representing an iteration.
+The repair_rate allows countries to rebuild damaged infrastructure, and the complexity increases as offensive and defensive capabilities interact across multiple fronts (cyber, physical, economic).
+
+import random
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Country class definition
+class Country:
+    def __init__(self, name, critical_infrastructure, offensive_capabilities, defensive_capabilities, repair_rate):
+        self.name = name
+        self.critical_infrastructure = critical_infrastructure
+        self.offensive_capabilities = offensive_capabilities
+        self.defensive_capabilities = defensive_capabilities
+        self.damaged_infrastructure = []
+        self.repair_rate = repair_rate
+
+    # Method to take damage
+    def take_damage(self, damage):
+        self.damaged_infrastructure += damage
+        self.damaged_infrastructure = list(set(self.damaged_infrastructure))
+
+    # Method to repair damaged infrastructure
+    def repair_infrastructure(self):
+        if len(self.damaged_infrastructure) > 0:
+            repaired = random.sample(self.damaged_infrastructure, min(self.repair_rate, len(self.damaged_infrastructure)))
+            for r in repaired:
+                self.damaged_infrastructure.remove(r)
+
+    # Method to get damage percentage
+    def get_damage_percentage(self):
+        return len(self.damaged_infrastructure) / len(self.critical_infrastructure) * 100
+
+# Simulation class definition
+class Simulation:
+    def __init__(self, countries):
+        self.countries = countries
+
+    # Method to simulate a single year of conflict
+    def simulate_year(self):
+        # Randomly select an attacker and a target
+        attacker = random.choice(self.countries)
+        target = random.choice([c for c in self.countries if c != attacker])
+
+        # Attacks cause random damage between 1-5 infrastructures
+        damage = random.sample(target.critical_infrastructure, min(random.randint(1, 5), len(target.critical_infrastructure)))
+        target.take_damage(damage)
+
+        # Each country repairs its infrastructure
+        for country in self.countries:
+            country.repair_infrastructure()
+
+    # Method to run the simulation for a specified number of years
+    def run_simulation(self, years):
+        results = {country.name: [] for country in self.countries}
+
+        for year in range(years):
+            self.simulate_year()
+
+            # Log the infrastructure damage for each country
+            for country in self.countries:
+                results[country.name].append(country.get_damage_percentage())
+
+        return results
+
+# Define the countries and their properties
+usa = Country(
+    name="USA",
+    critical_infrastructure=[
+        "Energy Grid", "Financial Systems", "Cyber Infrastructure", "Telecoms", 
+        "Ports", "Space Systems", "Defense Contractors", "Undersea Cables"
+    ],
+    offensive_capabilities=["Cyber Warfare", "Missile Defense", "Naval Operations"],
+    defensive_capabilities=["Firewalls", "Missile Defense", "Physical Defense"],
+    repair_rate=2  # Repairs 2 infrastructures per turn
+)
+
+china = Country(
+    name="China",
+    critical_infrastructure=[
+        "Energy Grid", "Financial Systems", "Cyber Infrastructure", "Telecoms", 
+        "Ports", "Space Systems", "Defense Contractors", "Undersea Cables"
+    ],
+    offensive_capabilities=["Cyber Warfare", "Naval Operations", "Covert Ops"],
+    defensive_capabilities=["Firewalls", "Missile Defense", "Physical Defense"],
+    repair_rate=2
+)
+
+russia = Country(
+    name="Russia",
+    critical_infrastructure=[
+        "Energy Grid", "Financial Systems", "Cyber Infrastructure", "Telecoms", 
+        "Ports", "Nuclear Facilities", "Defense Contractors", "Undersea Cables"
+    ],
+    offensive_capabilities=["Cyber Warfare", "Covert Ops", "Missile Defense"],
+    defensive_capabilities=["Firewalls", "Physical Defense"],
+    repair_rate=1  # Lower repair rate
+)
+
+eu = Country(
+    name="European Union",
+    critical_infrastructure=[
+        "Energy Grid", "Financial Systems", "Cyber Infrastructure", "Telecoms", 
+        "Ports", "Nuclear Facilities", "Defense Contractors", "Space Systems"
+    ],
+    offensive_capabilities=["Cyber Warfare", "Economic Warfare", "Naval Operations"],
+    defensive_capabilities=["Firewalls", "Physical Defense", "Redundancy Systems"],
+    repair_rate=3  # Highest repair rate
+)
+
+# Run the 100-year simulation
+countries = [usa, china, russia, eu]
+simulation = Simulation(countries)
+years = 100
+results = simulation.run_simulation(years)
+
+# Convert results to a DataFrame for analysis
+df = pd.DataFrame(results)
+
+# Plotting the damage percentages over time
+plt.figure(figsize=(12, 6))
+for country in results:
+    plt.plot(df[country], label=country)
+
+plt.title("Critical Infrastructure Damage Over 100 Years")
+plt.xlabel("Years")
+plt.ylabel("Damage Percentage (%)")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# Win rates (victories based on least damage)
+win_counts = {country.name: 0 for country in countries}
+for year in range(years):
+    min_damage_country = df.iloc[year].idxmin()
+    win_counts[min_damage_country] += 1
+
+# Final win rates after 100 years
+total_wins = sum(win_counts.values())
+win_percentages = {k: (v / total_wins) * 100 for k, v in win_counts.items()}
+
+print("Win Percentages Over 100 Years:")
+for country, win_rate in win_percentages.items():
+    print(f"{country}: {win_rate:.2f}%")
+
+# Display average damage for each country
+print("\nAverage Damage Percentage Across 100 Years:")
+for country in results:
+    print(f"{country}: {df[country].mean():.2f}%")
+
+#3
+
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import odeint
+
+# Damage function
+def damage(attack, defense):
+    return attack / (defense + 1)
+
+# Repair function
+def repair(infrastructure, repair_rate):
+    return repair_rate * (1 - infrastructure)
+
+# System of differential equations
+def model(I, t, attack, defense, repair_rate):
+    dIdt = -damage(attack, defense) + repair(I, repair_rate)
+    return dIdt
+
+# Initial infrastructure levels
+I0 = [1.0]  # 100% functional infrastructure
+
+# Time points (100 years)
+t = np.linspace(0, 100, 1000)
+
+# Offensive and defensive capabilities (could vary over time)
+attack = 0.05  # Constant attack rate
+defense = 0.03  # Constant defense rate
+repair_rate = 0.02  # Constant repair rate
+
+# Solve the differential equation
+I = odeint(model, I0, t, args=(attack, defense, repair_rate))
+
+# Plot the results
+plt.plot(t, I)
+plt.xlabel('Time (years)')
+plt.ylabel('Infrastructure Functionality (%)')
+plt.title('Infrastructure Damage and Repair Over Time')
+plt.grid(True)
+plt.show()
+
+Expanding the Model
+To expand this system for more complex interactions and multiple countries, you can:
+
+Model multiple interacting countries with different 
+I
+(
+t
+)
+I(t) equations.
+Introduce stochastic effects using the scipy.sdeint for stochastic differential equations.
+Apply game theory concepts by computing the optimal decisions for attack and repair at each step.
+This provides a flexible and expandable framework for solving complex problems involving strategic interactions, dynamic systems, and stochastic processes.
+
+
+
+
+
+
+
+
+
 
 
 
