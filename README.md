@@ -12928,6 +12928,174 @@ Next Steps
 This example is a starting point. For real-world applications, you need to consider additional factors like security best practices, regulatory compliance, and robust testing.
 
 
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes
+import base64
+import numpy as np
+import matplotlib.pyplot as plt
 
+# Golden ratio for chaotic effect
+phi = (1 + np.sqrt(5)) / 2
 
+# Generate a key for encryption/decryption
+def generate_key():
+    return Fernet.generate_key()
 
+# Save key to a file
+def save_key(key, file_path):
+    with open(file_path, "wb") as key_file:
+        key_file.write(key)
+
+# Load key from a file
+def load_key(file_path):
+    with open(file_path, "rb") as key_file:
+        return key_file.read()
+
+# Encrypt a message
+def encrypt_message(message, key):
+    fernet = Fernet(key)
+    encrypted_message = fernet.encrypt(message.encode())
+    return encrypted_message
+
+# Decrypt a message
+def decrypt_message(encrypted_message, key):
+    fernet = Fernet(key)
+    decrypted_message = fernet.decrypt(encrypted_message).decode()
+    return decrypted_message
+
+# Generate RSA keys
+def generate_rsa_keys():
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048,
+    )
+    public_key = private_key.public_key()
+    return private_key, public_key
+
+# Save RSA private key to a file
+def save_rsa_private_key(private_key, file_path):
+    pem = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption()
+    )
+    with open(file_path, "wb") as key_file:
+        key_file.write(pem)
+
+# Load RSA private key from a file
+def load_rsa_private_key(file_path):
+    with open(file_path, "rb") as key_file:
+        pem = key_file.read()
+    return serialization.load_pem_private_key(pem, password=None)
+
+# Save RSA public key to a file
+def save_rsa_public_key(public_key, file_path):
+    pem = public_key.public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo
+    )
+    with open(file_path, "wb") as key_file:
+        key_file.write(pem)
+
+# Load RSA public key from a file
+def load_rsa_public_key(file_path):
+    with open(file_path, "rb") as key_file:
+        pem = key_file.read()
+    return serialization.load_pem_public_key(pem)
+
+# Sign a message
+def sign_message(message, private_key):
+    signature = private_key.sign(
+        message.encode(),
+        padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH),
+        hashes.SHA256()
+    )
+    return base64.urlsafe_b64encode(signature).decode()
+
+# Verify a signature
+def verify_signature(message, signature, public_key):
+    try:
+        public_key.verify(
+            base64.urlsafe_b64decode(signature),
+            message.encode(),
+            padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH),
+            hashes.SHA256()
+        )
+        return True
+    except:
+        return False
+
+# Generate chaotic sequence based on phi
+def generate_chaotic_sequence(n):
+    x = np.random.rand()
+    sequence = []
+    for _ in range(n):
+        x = phi * x % 1
+        sequence.append(x)
+    return sequence
+
+# Plot chaotic sequence
+def plot_chaotic_sequence(sequence):
+    plt.figure(figsize=(10, 6))
+    plt.plot(sequence, 'o-', markersize=4)
+    plt.title("Chaotic Sequence Generated Using Golden Ratio")
+    plt.xlabel("Iteration")
+    plt.ylabel("Value")
+    plt.grid(True)
+    plt.show()
+
+# Example usage
+if __name__ == "__main__":
+    # Encryption and Decryption
+    key = generate_key()
+    save_key(key, "secret.key")
+    key = load_key("secret.key")
+    
+    message = "Secure transaction data"
+    encrypted_message = encrypt_message(message, key)
+    print(f"Encrypted: {encrypted_message}")
+    
+    decrypted_message = decrypt_message(encrypted_message, key)
+    print(f"Decrypted: {decrypted_message}")
+    
+    # RSA Encryption/Decryption and Signing
+    private_key, public_key = generate_rsa_keys()
+    save_rsa_private_key(private_key, "private.pem")
+    save_rsa_public_key(public_key, "public.pem")
+    
+    private_key = load_rsa_private_key("private.pem")
+    public_key = load_rsa_public_key("public.pem")
+    
+    signature = sign_message(message, private_key)
+    print(f"Signature: {signature}")
+    
+    is_valid = verify_signature(message, signature, public_key)
+    print(f"Signature valid: {is_valid}")
+    
+    # Chaos Theory Integration
+    chaotic_sequence = generate_chaotic_sequence(100)
+    plot_chaotic_sequence(chaotic_sequence)
+
+Key Components
+
+	1.	Symmetric Encryption/Decryption:
+	•	generate_key(): Generates a Fernet encryption key.
+	•	encrypt_message() and decrypt_message(): Functions for message encryption and decryption.
+	2.	RSA Keys and Signatures:
+	•	generate_rsa_keys(): Generates RSA key pairs.
+	•	sign_message() and verify_signature(): Functions for signing and verifying messages using RSA.
+	3.	Chaos Theory Integration:
+	•	generate_chaotic_sequence(): Generates a chaotic sequence based on the golden ratio.
+	•	plot_chaotic_sequence(): Visualizes the chaotic sequence.
+
+Usage
+
+	1.	Generate and Save Keys: Secure encryption and signing keys.
+	2.	Encrypt/Decrypt Messages: Manage sensitive data securely.
+	3.	Sign/Verify Messages: Ensure message integrity and authenticity.
+	4.	Chaos Theory Simulation: Generate and visualize chaotic sequences for simulation purposes.
+
+This refined code provides foundational cryptographic operations and integrates chaos theory principles to simulate chaotic elements, which can be used in advanced simulations or game theory applications related to the blockchain-based bank.
