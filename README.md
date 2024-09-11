@@ -12782,10 +12782,150 @@ This provides a flexible and expandable framework for solving complex problems i
 
 
 
+from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import hashes
+import base64
+
+# Generate a key for encryption/decryption
+def generate_key():
+    return Fernet.generate_key()
+
+# Save key to a file
+def save_key(key, file_path):
+    with open(file_path, "wb") as key_file:
+        key_file.write(key)
+
+# Load key from a file
+def load_key(file_path):
+    with open(file_path, "rb") as key_file:
+        return key_file.read()
+
+# Encrypt a message
+def encrypt_message(message, key):
+    fernet = Fernet(key)
+    encrypted_message = fernet.encrypt(message.encode())
+    return encrypted_message
+
+# Decrypt a message
+def decrypt_message(encrypted_message, key):
+    fernet = Fernet(key)
+    decrypted_message = fernet.decrypt(encrypted_message).decode()
+    return decrypted_message
+
+# Generate RSA keys
+def generate_rsa_keys():
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048,
+    )
+    public_key = private_key.public_key()
+    return private_key, public_key
+
+# Save RSA private key to a file
+def save_rsa_private_key(private_key, file_path):
+    pem = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption()
+    )
+    with open(file_path, "wb") as key_file:
+        key_file.write(pem)
+
+# Load RSA private key from a file
+def load_rsa_private_key(file_path):
+    with open(file_path, "rb") as key_file:
+        pem = key_file.read()
+    return serialization.load_pem_private_key(pem, password=None)
+
+# Save RSA public key to a file
+def save_rsa_public_key(public_key, file_path):
+    pem = public_key.public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo
+    )
+    with open(file_path, "wb") as key_file:
+        key_file.write(pem)
+
+# Load RSA public key from a file
+def load_rsa_public_key(file_path):
+    with open(file_path, "rb") as key_file:
+        pem = key_file.read()
+    return serialization.load_pem_public_key(pem)
+
+# Sign a message
+def sign_message(message, private_key):
+    signature = private_key.sign(
+        message.encode(),
+        padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH),
+        hashes.SHA256()
+    )
+    return base64.urlsafe_b64encode(signature).decode()
+
+# Verify a signature
+def verify_signature(message, signature, public_key):
+    try:
+        public_key.verify(
+            base64.urlsafe_b64decode(signature),
+            message.encode(),
+            padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH),
+            hashes.SHA256()
+        )
+        return True
+    except:
+        return False
+
+# Example usage
+if __name__ == "__main__":
+    # Encryption and Decryption
+    key = generate_key()
+    save_key(key, "secret.key")
+    key = load_key("secret.key")
+    
+    message = "Secure transaction data"
+    encrypted_message = encrypt_message(message, key)
+    print(f"Encrypted: {encrypted_message}")
+    
+    decrypted_message = decrypt_message(encrypted_message, key)
+    print(f"Decrypted: {decrypted_message}")
+    
+    # RSA Encryption/Decryption and Signing
+    private_key, public_key = generate_rsa_keys()
+    save_rsa_private_key(private_key, "private.pem")
+    save_rsa_public_key(public_key, "public.pem")
+    
+    private_key = load_rsa_private_key("private.pem")
+    public_key = load_rsa_public_key("public.pem")
+    
+    signature = sign_message(message, private_key)
+    print(f"Signature: {signature}")
+    
+    is_valid = verify_signature(message, signature, public_key)
+    print(f"Signature valid: {is_valid}")
 
 
+Components Covered
 
+	1.	Symmetric Encryption/Decryption:
+	•	Uses Fernet for encrypting and decrypting messages.
+	2.	RSA Keys and Signatures:
+	•	Generates RSA keys.
+	•	Signs and verifies messages with RSA signatures.
 
+How It Works
+
+	1.	Encryption and Decryption: Secure sensitive information using symmetric encryption.
+	2.	Digital Signatures: Ensure that transactions and messages are authentic and haven’t been altered.
+
+Next Steps
+
+	1.	Integrate with Blockchain: Connect these cryptographic operations to your blockchain framework.
+	2.	Consensus Mechanism: Implement PoW, PoS, or another consensus algorithm for transaction validation.
+	3.	User Management: Develop user interfaces and backend systems to manage accounts, transactions, and other functionalities.
+
+This example is a starting point. For real-world applications, you need to consider additional factors like security best practices, regulatory compliance, and robust testing.
 
 
 
