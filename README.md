@@ -13220,4 +13220,308 @@ if __name__ == "__main__":
 have a great day; be happy and learn something. You deserve it!
 
 
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+import random
+import time
+
+# Game Functions
+def load_data():
+    """Simulate loading data."""
+    data = {
+        'feature1': np.random.rand(100),
+        'feature2': np.random.rand(100),
+        'target': np.random.rand(100)
+    }
+    df = pd.DataFrame(data)
+    print("Data loaded successfully.")
+    return df
+
+def analyze_data(df):
+    """Simulate data analysis."""
+    print("Analyzing data...")
+    print("Data Summary:")
+    print(df.describe())
+    print("\nData Correlation:")
+    print(df.corr())
+
+def visualize_data(df):
+    """Simulate data visualization."""
+    print("Visualizing data...")
+    plt.figure(figsize=(10, 6))
+    plt.scatter(df['feature1'], df['feature2'])
+    plt.title('Feature1 vs Feature2')
+    plt.xlabel('Feature1')
+    plt.ylabel('Feature2')
+    plt.show()
+
+def train_model(df):
+    """Simulate model training."""
+    X = df[['feature1', 'feature2']]
+    y = df['target']
+    
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    model = LinearRegression()
+    model.fit(X_train, y_train)
+    
+    score = model.score(X_test, y_test)
+    return score
+
+def handle_security():
+    """Simulate handling a security challenge."""
+    challenges = [
+        "Malicious code detected! Fix the issue.",
+        "Unauthorized access attempt detected! Restrict permissions.",
+        "Vulnerability found! Update dependencies."
+    ]
+    challenge = random.choice(challenges)
+    print(f"Security Challenge: {challenge}")
+    print("Solving security challenge...")
+    time.sleep(2)
+    print("Security challenge resolved.")
+
+def run_iterations(iterations=1000):
+    """Run the model training and evaluation for a given number of iterations."""
+    scores = []
+    
+    print(f"Running model training for {iterations} iterations...")
+    for i in range(iterations):
+        df = load_data()
+        analyze_data(df)
+        visualize_data(df)
+        score = train_model(df)
+        scores.append(score)
+        
+        if i % 100 == 0:  # Print progress every 100 iterations
+            print(f"Iteration {i}: Model Score = {score:.2f}")
+    
+    avg_score = np.mean(scores)
+    std_dev = np.std(scores)
+    min_score = np.min(scores)
+    max_score = np.max(scores)
+    
+    print("\nAnalytics Results:")
+    print(f"Average Model Score: {avg_score * 100:.2f}%")
+    print(f"Standard Deviation: {std_dev * 100:.2f}%")
+    print(f"Minimum Model Score: {min_score * 100:.2f}%")
+    print(f"Maximum Model Score: {max_score * 100:.2f}%")
+    print(f"Score Range: {(max_score - min_score) * 100:.2f}%")
+
+def play_game():
+    """Main game loop."""
+    score = 0
+    
+    print("Welcome to the Data Analysis and Security Game!")
+    print("Your goal is to successfully complete data analysis, implement a model, and secure your system.")
+
+    # Task 1: Load and analyze data
+    df = load_data()
+    analyze_data(df)
+    visualize_data(df)
+
+    # Task 2: Train a model
+    model_score = train_model(df)
+    score += int(model_score * 100)  # Score based on model accuracy
+
+    # Task 3: Handle security challenges
+    print("Handling security...")
+    handle_security()
+    
+    # Task 4: Run 1000 iterations of model training and provide analytics
+    run_iterations(1000)
+    
+    print(f"Game Over! Your final score is: {score}")
+
+if __name__ == "__main__":
+    play_game()
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+import random
+import time
+
+# Game Functions
+def load_data():
+    """Simulate loading data"""
+    data = {
+        'feature1': np.random.rand(100),
+        'feature2': np.random.rand(100),
+        'target': np.random.rand(100)
+    }
+    df = pd.DataFrame(data)
+    print("Data loaded successfully.")
+    return df
+
+def analyze_data(df):
+    """Simulate data analysis"""
+    print("Analyzing data...")
+    print("Data Summary:")
+    print(df.describe())
+    print("\nData Correlation:")
+    print(df.corr())
+
+def visualize_data(df):
+    """Simulate data visualization"""
+    print("Visualizing data...")
+    plt.figure(figsize=(10, 6))
+    plt.scatter(df['feature1'], df['feature2'])
+    plt.title('Feature1 vs Feature2')
+    plt.xlabel('Feature1')
+    plt.ylabel('Feature2')
+    plt.show()
+
+def train_model(df):
+    """Simulate model training"""
+    X = df[['feature1', 'feature2']]
+    y = df['target']
+    
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    model = LinearRegression()
+    model.fit(X_train, y_train)
+    
+    score = model.score(X_test, y_test)
+    return score
+
+def handle_security():
+    """Simulate handling a security challenge"""
+    challenges = [
+        "Malicious code detected! Fix the issue.",
+        "Unauthorized access attempt detected! Restrict permissions.",
+        "Vulnerability found! Update dependencies."
+    ]
+    challenge = random.choice(challenges)
+    print(f"Security Challenge: {challenge}")
+    print("Solving security challenge...")
+    time.sleep(2)
+    print("Security challenge resolved.")
+
+def run_iterations(iterations=1000):
+    """Run the model training and evaluation for a given number of iterations"""
+    scores = []
+    
+    print(f"Running model training for {iterations} iterations...")
+    for i in range(iterations):
+        df = load_data()
+        analyze_data(df)
+        visualize_data(df)
+        score = train_model(df)
+        scores.append(score)
+        
+        if i % 100 == 0:  # Print progress every 100 iterations
+            print(f"Iteration {i}: Model Score = {score:.2f}")
+    
+    avg_score = np.mean(scores)
+    print(f"Average Model Score after {iterations} iterations: {avg_score:.2f}")
+
+def play_game():
+    """Main game loop"""
+    score = 0
+    
+    print("Welcome to the Data Analysis and Security Game!")
+    print("Your goal is to successfully complete data analysis, implement a model, and secure your system.")
+
+    # Task 1: Load and analyze data
+    df = load_data()
+    analyze_data(df)
+    visualize_data(df)
+
+    # Task 2: Train a model
+    model_score = train_model(df)
+    score += int(model_score * 100
+
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+import random
+import time
+
+# Game Functions
+def load_data():
+    """Simulate loading data"""
+    data = {
+        'feature1': np.random.rand(100),
+        'feature2': np.random.rand(100),
+        'target': np.random.rand(100)
+    }
+    df = pd.DataFrame(data)
+    print("Data loaded successfully.")
+    return df
+
+def analyze_data(df):
+    """Simulate data analysis"""
+    print("Analyzing data...")
+    print("Data Summary:")
+    print(df.describe())
+    print("\nData Correlation:")
+    print(df.corr())
+
+def visualize_data(df):
+    """Simulate data visualization"""
+    print("Visualizing data...")
+    plt.figure(figsize=(10, 6))
+    plt.scatter(df['feature1'], df['feature2'])
+    plt.title('Feature1 vs Feature2')
+    plt.xlabel('Feature1')
+    plt.ylabel('Feature2')
+    plt.show()
+
+def train_model(df):
+    """Simulate model training"""
+    X = df[['feature1', 'feature2']]
+    y = df['target']
+    
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    model = LinearRegression()
+    model.fit(X_train, y_train)
+    
+    score = model.score(X_test, y_test)
+    print(f"Model Accuracy: {score:.2f}")
+    return score
+
+def handle_security():
+    """Simulate handling a security challenge"""
+    challenges = [
+        "Malicious code detected! Fix the issue.",
+        "Unauthorized access attempt detected! Restrict permissions.",
+        "Vulnerability found! Update dependencies."
+    ]
+    challenge = random.choice(challenges)
+    print(f"Security Challenge: {challenge}")
+    print("Solving security challenge...")
+    time.sleep(2)
+    print("Security challenge resolved.")
+
+def play_game():
+    """Main game loop"""
+    score = 0
+    
+    print("Welcome to the Data Analysis and Security Game!")
+    print("Your goal is to successfully complete data analysis, implement a model, and secure your system.")
+
+    # Task 1: Load and analyze data
+    df = load_data()
+    analyze_data(df)
+    visualize_data(df)
+
+    # Task 2: Train a model
+    model_score = train_model(df)
+    score += int(model_score * 100)  # Score based on model accuracy
+
+    # Task 3: Handle security challenges
+    print("Handling security...")
+    handle_security()
+    
+    print(f"Game Over! Your final score is: {score}")
+
+if __name__ == "__main__":
+    play_game()
 
