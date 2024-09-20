@@ -14430,5 +14430,116 @@ def generate_visualization(industry_name):
 
 This simplified structure provides a clear roadmap for implementation. If you need further adjustments or details, let me know!
 
+Sure! Below is an expanded version of the original script that includes additional analysis techniques. This version adds features such as correlation analysis, trend analysis over time, and includes a summary of key statistics.
 
+```python
+import requests
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Function to fetch health data from an API
+def fetch_health_data(api_url):
+    response = requests.get(api_url)
+    response.raise_for_status()
+    data = response.json()
+    return pd.DataFrame(data)
+
+# Function to clean the data
+def clean_data(df):
+    df.dropna(inplace=True)  # Remove missing values
+    df.drop_duplicates(inplace=True)  # Remove duplicates
+    # Convert date columns to datetime if applicable
+    if 'date' in df.columns:
+        df['date'] = pd.to_datetime(df['date'])
+    return df
+
+# Function to analyze threat trends
+def analyze_threat_trends(dataframe):
+    analysis = dataframe.groupby('threat_type').agg({'severity': 'mean', 'impact': 'sum'}).reset_index()
+    return analysis
+
+# Function to perform correlation analysis
+def correlation_analysis(dataframe):
+    correlation = dataframe.corr()
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(correlation, annot=True, cmap='coolwarm', fmt='.2f')
+    plt.title('Correlation Matrix')
+    plt.show()
+
+# Function to visualize trend over time
+def visualize_trends_over_time(dataframe):
+    if 'date' in dataframe.columns:
+        trend_data = dataframe.groupby('date').agg({'severity': 'mean'}).reset_index()
+        plt.figure(figsize=(12, 6))
+        plt.plot(trend_data['date'], trend_data['severity'], marker='o', color='blue')
+        plt.xlabel('Date')
+        plt.ylabel('Average Severity')
+        plt.title('Trend of Threat Severity Over Time')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.show()
+
+# Function to visualize the threat trends
+def visualize_threat_trends(analysis_df):
+    plt.figure(figsize=(10, 6))
+    plt.bar(analysis_df['threat_type'], analysis_df['severity'], color='red')
+    plt.xlabel('Threat Type')
+    plt.ylabel('Average Severity')
+    plt.title('2024 Global Threat Trends')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+# Main script
+if __name__ == "__main__":
+    # Replace with the actual API URL for health data
+    who_api_url = 'https://example.who.int/data/gho'
+    
+    # Fetch and process the data
+    try:
+        health_data = fetch_health_data(who_api_url)
+        cleaned_health_data = clean_data(health_data)
+        
+        # Analyze and visualize the data
+        threat_analysis = analyze_threat_trends(cleaned_health_data)
+        visualize_threat_trends(threat_analysis)
+        
+        # Perform correlation analysis
+        correlation_analysis(cleaned_health_data)
+        
+        # Visualize trends over time
+        visualize_trends_over_time(cleaned_health_data)
+        
+        print("Analysis complete. Visualizations generated.")
+        
+    except Exception as e:
+        print(f"An error occurred: {e}")
+```
+
+### New Features Explained:
+
+1. **Correlation Analysis**: 
+   - This function computes the correlation matrix of the dataset and visualizes it using a heatmap. This helps identify relationships between different numerical variables.
+
+2. **Trend Analysis Over Time**: 
+   - This function aggregates the data by date to visualize how the average severity of threats changes over time. This is particularly useful for identifying trends and shifts in threat levels.
+
+3. **Enhanced Visualization**:
+   - The script uses `seaborn` for better heatmap visualization and includes markers in the trend plot for clarity.
+
+### Instructions to Use the Updated Script:
+
+1. **Install Required Libraries**: Ensure you have `seaborn` installed along with the other libraries:
+   ```bash
+   pip install requests pandas matplotlib seaborn
+   ```
+
+2. **Replace API URL**: Update `who_api_url` with the actual data source URL.
+
+3. **Run the Script**: Execute the script in your Python environment.
+
+4. **Review Outputs**: Check the generated visualizations to interpret the findings and relationships in the data.
+
+Feel free to let me know if you want to add more specific analyses or features!
 
