@@ -14543,3 +14543,37 @@ if __name__ == "__main__":
 
 Feel free to let me know if you want to add more specific analyses or features!
 
+pip install tensorflow
+
+# Import the TensorFlow library
+import tensorflow as tf
+
+# Print the TensorFlow version
+print("TensorFlow version:", tf.__version__)
+
+# Create a simple sequential model
+model = tf.keras.Sequential([
+    tf.keras.layers.Dense(10, activation='relu', input_shape=(10,)),  # Input layer with 10 features
+    tf.keras.layers.Dense(1, activation='sigmoid')  # Output layer for binary classification
+])
+
+# Compile the model with an optimizer and loss function
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+# Print the model summary
+model.summary()
+
+# Example data (10 samples, 10 features)
+import numpy as np
+X_train = np.random.rand(10, 10)  # Random training data
+y_train = np.random.randint(2, size=(10, 1))  # Random binary labels
+
+# Train the model
+model.fit(X_train, y_train, epochs=5)
+
+# Make a prediction on new data
+X_new = np.random.rand(1, 10)  # New sample with 10 features
+prediction = model.predict(X_new)
+print("Prediction:", prediction)
+
+
