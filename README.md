@@ -14996,7 +14996,236 @@ Conclusion
 Now you have a complete, interactive digital brochure application that can be translated into multiple languages and is ready for deployment. You can expand upon this foundation by adding more sections, improving the design, and enhancing interactivity as needed. If you have any questions or need further assistance, feel free to ask!
 
 
+Certainly! Here’s the complete code for the enhanced digital brochure application, organized by file type:
 
+1. app.py
+
+This is your main Flask application file.
+
+from flask import Flask, render_template, request, redirect
+
+app = Flask(__name__)
+
+brochure_content = {
+    'title': 'Healthy Living: Protect Yourself and Your Family',
+    'sections': [
+        {
+            'header': 'Nutrition Essentials',
+            'content': 'Eat a balanced diet including all food groups.',
+            'expanded_content': 'A balanced diet includes carbohydrates, proteins, fats, vitamins, and minerals. '
+                                'For example, whole grains provide essential carbohydrates, while beans and legumes are great sources of protein. '
+                                'Eating a variety of foods helps ensure you get all necessary nutrients.'
+        },
+        {
+            'header': 'Importance of Hygiene',
+            'content': 'Wash your hands regularly to prevent diseases.',
+            'expanded_content': 'Good hygiene is crucial for health. Regular handwashing with soap can reduce the spread of infections, '
+                                'and maintaining personal hygiene can prevent illnesses like colds and flu.'
+        },
+        {
+            'header': 'Preventing Waterborne Diseases',
+            'content': 'Boil water before drinking to ensure safety.',
+            'expanded_content': 'Waterborne diseases like cholera and typhoid can be prevented by boiling water. '
+                                'Ensure that your drinking water is clean and safe to avoid these diseases.'
+        }
+    ],
+    'footer': 'Together, We Can Build a Healthier Community!',
+}
+
+user_stories = []
+ratings = []
+
+@app.route('/')
+def home():
+    return render_template('brochure.html', content=brochure_content)
+
+@app.route('/translate', methods=['POST'])
+def translate():
+    # Assume translation logic is implemented here
+    return render_template('brochure.html', content=brochure_content)
+
+@app.route('/quiz', methods=['GET', 'POST'])
+def quiz():
+    if request.method == 'POST':
+        score = 0
+        total_questions = 3
+        answers = {
+            'q1': 'A',
+            'q2': 'B',
+            'q3': 'C'
+        }
+        for question, correct_answer in answers.items():
+            user_answer = request.form.get(question)
+            if user_answer == correct_answer:
+                score += 1
+        return render_template('quiz_result.html', score=score, total_questions=total_questions)
+
+    return render_template('quiz.html')
+
+@app.route('/submit_story', methods=['GET', 'POST'])
+def submit_story():
+    if request.method == 'POST':
+        story = request.form['story']
+        user_stories.append(story)
+        return redirect('/submit_story')
+
+    return render_template('submit_story.html', stories=user_stories)
+
+@app.route('/rate', methods=['POST'])
+def rate():
+    section = request.form['section']
+    rating = request.form['rating']
+    ratings.append({'section': section, 'rating': rating})
+    return redirect('/')
+
+@app.route('/search', methods=['GET'])
+def search():
+    query = request.args.get('query')
+    results = [section for section in brochure_content['sections'] if query.lower() in section['content'].lower()]
+    return render_template('search_results.html', query=query, results=results)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+2. templates/brochure.html
+
+The main brochure template with expandable content.
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ content.title }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        h1, h2, h3 { color: #2c3e50; }
+        p { color: #34495e; }
+        img { width: 100%; max-width: 300px; }
+        section { margin-bottom: 20px; }
+        .interactive { background-color: #f9f9f9; padding: 10px; border-radius: 5px; }
+        .expandable { display: none; margin-top: 10px; }
+        .expandable-btn { cursor: pointer; color: blue; text-decoration: underline; }
+    </style>
+    <script>
+        function toggleContent(id) {
+            const content = document.getElementById(id);
+            content.style.display = content.style.display === "none" ? "block" : "none";
+        }
+    </script>
+</head>
+<body>
+    <h1>{{ content.title }}</h1>
+    
+    {% for section in content.sections %}
+        <section>
+            <h2 class="expandable-btn" onclick="toggleContent('content-{{ loop.index }}')">{{ section.header }}</h2>
+            <div id="content-{{ loop.index }}" class="expandable">
+                <p>{{ section.content }}</p>
+                <p><strong>Expanded Content:</strong></p>
+                <p>{{ section.expanded_content }}</p>
+            </div>
+            <img src="{{ url_for('static', filename='images/placeholder.jpg') }}" alt="{{ section.header }}">
+            <div>
+                <label>Rate this section:</label>
+                <form method="POST" action="/rate">
+                    <input type="hidden" name="section" value="{{ section.header }}">
+                    <button name="rating" value="1">1</button>
+                    <button name="rating" value="2">2</button>
+                    <button name="rating" value="3">3</button>
+                    <button name="rating" value="4">4</button>
+                    <button name="rating" value="5">5</button>
+                </form>
+            </div>
+        </section>
+    {% endfor %}
+    
+    <footer>
+        <p>{{ content.footer }}</p>
+    </footer>
+
+    <form method="GET" action="/search">
+        <input type="text" name="query" placeholder="Search...">
+        <button type="submit">Search</button>
+    </form>
+
+    <form method="POST" action="/translate">
+        <label for="language">Choose a language:</label>
+        <select id="language" name="language">
+            <option value="fr">🇫🇷 French</option>
+            <option value="es">🇪🇸 Spanish</option>
+            <option value="ar">🇸🇦 Arabic</option>
+            <option value="sw">🇰🇪 Swahili</option>
+            <option value="ha">🇳🇬 Hausa</option>
+            <option value="am">🇪🇹 Amharic</option>
+        </select>
+        <button type="submit">Translate</button>
+    </form>
+
+    <div class="interactive">
+        <h3>Interactive Quiz</h3>
+        <p><a href="/quiz">Take our short quiz on hygiene practices!</a></p>
+    </div>
+
+    <div class="interactive">
+        <h3>Share Your Health Story</h3>
+        <p><a href="/submit_story">Tell us your story!</a></p>
+    </div>
+</body>
+</html>
+
+3. templates/quiz.html
+
+The quiz template.
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        h1 { color: #2c3e50; }
+        p { color: #34495e; }
+        .question { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Health Quiz</h1>
+    <form method="POST">
+        <div class="question">
+            <p>1. What is the main benefit of washing your hands?</p>
+            <input type="radio" name="q1" value="A"> A) Prevents diseases<br>
+            <input type="radio" name="q1" value="B"> B) Makes you stronger<br>
+            <input type="radio" name="q1" value="C"> C) It tastes good<br>
+        </div>
+        <div class="question">
+            <p>2. Which food group is the best source of protein?</p>
+            <input type="radio" name="q2" value="A"> A) Fruits<br>
+            <input type="radio" name="q2" value="B"> B) Meat and legumes<br>
+            <input type="radio" name="q2" value="C"> C) Grains<br>
+        </div>
+        <div class="question">
+            <p>3. How should you treat drinking water to ensure it is safe?</p>
+            <input type="radio" name="q3" value="A"> A) Leave it outside<br>
+            <input type="radio" name="q3" value="B"> B) Add sugar<br>
+            <input type="radio" name="q3" value="C"> C) Boil it<br>
+        </div>
+        <button type="submit">Submit Quiz</button>
+    </form>
+</body>
+</html>
+
+4. templates/quiz_result.html
+
+The quiz results page.
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 
 
