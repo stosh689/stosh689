@@ -15681,4 +15681,103 @@ Winnipeg	22.14
 This summary shows how each action contributed to the overall crime reduction in percentage terms. If you have specific data or different actions you want to analyze, feel free to share, and I can help further!
 
 
+Below is a Python program that integrates IP tracking, power consumption monitoring, and service usage analytics. It uses libraries such as requests for making HTTP requests, psutil for system and process monitoring, and socket for obtaining IP information. You will need to install the requests and psutil libraries if you haven’t already.
 
+Python Program for Server Tracking
+
+import requests
+import socket
+import psutil
+import json
+
+def get_ip_info():
+    """Fetch IP address and geolocation information."""
+    try:
+        response = requests.get('https://ipinfo.io/json')
+        ip_info = response.json()
+        return {
+            'ip': ip_info.get('ip'),
+            'city': ip_info.get('city'),
+            'region': ip_info.get('region'),
+            'country': ip_info.get('country'),
+            'location': ip_info.get('loc'),
+            'org': ip_info.get('org'),
+        }
+    except requests.RequestException as e:
+        print(f"Error fetching IP info: {e}")
+        return None
+
+def get_power_usage():
+    """Fetch current power usage of the system."""
+    try:
+        # This is a placeholder; typically, power usage would require specific hardware support
+        # such as smart meters or specific server power management APIs.
+        power_usage = psutil.sensors_battery()
+        if power_usage:
+            return {
+                'percent': power_usage.percent,
+                'plugged': power_usage.power_plugged,
+            }
+        else:
+            return "Power usage data not available."
+    except Exception as e:
+        print(f"Error fetching power usage: {e}")
+        return None
+
+def get_service_usage():
+    """Fetch service usage statistics."""
+    try:
+        services = []
+        for proc in psutil.process_iter(['pid', 'name', 'cpu_percent', 'memory_info']):
+            services.append({
+                'pid': proc.info['pid'],
+                'name': proc.info['name'],
+                'cpu_percent': proc.info['cpu_percent'],
+                'memory_info': proc.info['memory_info'].rss / (1024 * 1024)  # Convert bytes to MB
+            })
+        return services
+    except Exception as e:
+        print(f"Error fetching service usage: {e}")
+        return None
+
+def main():
+    print("Fetching server tracking information...\n")
+    
+    ip_info = get_ip_info()
+    if ip_info:
+        print("IP Information:")
+        print(json.dumps(ip_info, indent=4))
+    
+    power_usage = get_power_usage()
+    print("\nPower Usage:")
+    print(power_usage)
+
+    service_usage = get_service_usage()
+    print("\nService Usage:")
+    print(json.dumps(service_usage, indent=4))
+
+if __name__ == "__main__":
+    main()
+
+Explanation of the Program
+
+	•	IP Tracking: The program uses requests to get the public IP address and geographical location from the ipinfo.io API.
+	•	Power Consumption: It retrieves the battery status using psutil, although actual power consumption data requires specific hardware support.
+	•	Service Usage: It lists active processes along with their CPU and memory usage using psutil.
+
+Requirements
+
+To run this program, make sure you have the required libraries installed. You can do this via pip:
+
+pip install requests psutil
+
+Conclusion
+
+This Python script provides a basic framework for tracking server information, including IP details, power usage, and service statistics. Depending on the specific infrastructure and hardware capabilities, more sophisticated tracking and monitoring may be implemented using appropriate APIs or tools.
+
+For more information on the libraries used, you can refer to:
+
+	•	Requests Documentation
+	•	Psutil Documentation
+
+You're welcome ;)
