@@ -15336,3 +15336,278 @@ Explanation:
 	5.	Scalability: This framework can easily be extended by adding more agents or integrating different data sources, making it perfect for future use and development.
 
 You can save this script as multi_agent_system.py and push it to your GitHub repository for future development. Let me know if you need any help with GitHub commands!
+
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import geopandas as gpd
+
+# Step 1: Define Parameters
+num_iterations = 1000000  # Number of simulation iterations
+areas = ['Vancouver', 'Toronto', 'Montreal', 'Edmonton', 'Winnipeg']
+
+# Initial crime rates (per 100,000 population)
+initial_crime_rates = {
+    'Vancouver': 92.1,
+    'Toronto': 56.4,
+    'Montreal': 60.6,
+    'Edmonton': 110.1,
+    'Winnipeg': 126.9
+}
+
+# Intervention effectiveness (reduction in crime rate per iteration)
+intervention_effectiveness = {
+    'Community Programs': 0.01,  # 1% reduction
+    'Law Enforcement': 0.02,      # 2% reduction
+    'Economic Development': 0.015, # 1.5% reduction
+    'Mental Health Services': 0.005 # 0.5% reduction
+}
+
+# Step 2: Run Simulation Function
+def run_simulation():
+    results = []
+    
+    # Initialize crime rates
+    crime_rates = initial_crime_rates.copy()
+    
+    for _ in range(num_iterations):
+        for area in areas:
+            # Apply interventions to reduce crime
+            for intervention, effectiveness in intervention_effectiveness.items():
+                crime_rates[area] *= (1 - effectiveness)  # Exponential decay
+            
+            # Record the results
+            results.append((area, crime_rates[area]))
+    
+    return results
+
+# Step 3: Run the simulation
+simulation_results = run_simulation()
+
+# Step 4: Convert results to DataFrame for analysis
+df_results = pd.DataFrame(simulation_results, columns=['Area', 'Crime_Rate'])
+
+# Step 5: Analyze results - calculating the average crime rate per area
+summary = df_results.groupby('Area').agg({'Crime_Rate': 'mean'}).reset_index()
+
+# Step 6: Visualize results
+plt.figure(figsize=(10, 6))
+plt.bar(summary['Area'], summary['Crime_Rate'], color='skyblue')
+plt.title('Average Crime Rates After Interventions')
+plt.ylabel('Average Crime Rate')
+plt.xlabel('Area')
+plt.xticks(rotation=45)
+plt.grid(axis='y')
+plt.show()
+
+# Optional Step 7: Load Geospatial Data and Map Crime Rates
+# Load geographical data for Canada (replace with actual shapefile path)
+canada_shapefile = 'path_to_shapefile/canada_provinces.shp'  # Update with actual path
+gdf_canada = gpd.read_file(canada_shapefile)
+
+# Merge the crime data with the geographical data
+gdf_canada = gdf_canada.merge(summary, left_on='PROV_NAME', right_on='Area', how='left')
+
+# Plotting the crime rates on the map
+fig, ax = plt.subplots(1, 1, figsize=(12, 8))
+gdf_canada.boundary.plot(ax=ax, linewidth=1, color='black')
+gdf_canada.plot(column='Crime_Rate', ax=ax, legend=True,
+                legend_kwds={'label': "Crime Rate (per 100,000 population)",
+                             'orientation': "horizontal"},
+                cmap='OrRd', missing_kwds={'color': 'lightgrey'})
+
+plt.title('Crime Rates Across Canada After Interventions')
+plt.xlabel('Longitude')
+plt.ylabel('Latitude')
+plt.show()
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Step 1: Define Parameters
+num_iterations = 1000000  # Number of simulation iterations
+areas = ['Vancouver', 'Toronto', 'Montreal', 'Edmonton', 'Winnipeg']
+
+# Initial crime rates (per 100,000 population)
+initial_crime_rates = {
+    'Vancouver': 92.1,
+    'Toronto': 56.4,
+    'Montreal': 60.6,
+    'Edmonton': 110.1,
+    'Winnipeg': 126.9
+}
+
+# Intervention effectiveness (reduction in crime rate per iteration)
+intervention_effectiveness = {
+    'Community Programs': 0.01,  # 1% reduction
+    'Law Enforcement': 0.02,      # 2% reduction
+    'Economic Development': 0.015, # 1.5% reduction
+    'Mental Health Services': 0.005 # 0.5% reduction
+}
+
+# Step 2: Run Simulation Function
+def run_simulation():
+    results = []
+    
+    # Initialize crime rates
+    crime_rates = initial_crime_rates.copy()
+    
+    for _ in range(num_iterations):
+        for area in areas:
+            # Apply interventions to reduce crime
+            for intervention, effectiveness in intervention_effectiveness.items():
+                crime_rates[area] *= (1 - effectiveness)  # Exponential decay
+            
+            # Record the results
+            results.append((area, crime_rates[area]))
+    
+    return results
+
+# Step 3: Run the simulation
+simulation_results = run_simulation()
+
+# Step 4: Convert results to DataFrame for analysis
+df_results = pd.DataFrame(simulation_results, columns=['Area', 'Crime_Rate'])
+
+# Step 5: Analyze results - calculating the average crime rate per area
+summary = df_results.groupby('Area').agg({'Crime_Rate': 'mean'}).reset_index()
+
+# Calculate percentage reduction from initial rates
+summary['Initial_Crime_Rate'] = summary['Area'].map(initial_crime_rates)
+summary['Percentage_Reduction'] = ((summary['Initial_Crime_Rate'] - summary['Crime_Rate']) / summary['Initial_Crime_Rate']) * 100
+
+# Step 6: Visualizations
+# Bar chart for average crime rates
+plt.figure(figsize=(10, 6))
+plt.bar(summary['Area'], summary['Crime_Rate'], color='skyblue')
+plt.title('Average Crime Rates After Interventions')
+plt.ylabel('Average Crime Rate (per 100,000)')
+plt.xlabel('Area')
+plt.xticks(rotation=45)
+plt.grid(axis='y')
+plt.savefig('average_crime_rates.png')
+plt.show()
+
+# Pie chart for percentage reduction in crime rates
+plt.figure(figsize=(8, 8))
+plt.pie(summary['Percentage_Reduction'], labels=summary['Area'], autopct='%1.1f%%', startangle=140)
+plt.title('Percentage Reduction in Crime Rates by Area')
+plt.savefig('percentage_reduction_crime.png')
+plt.show()
+
+# Heatmap for initial vs. final crime rates
+heatmap_data = pd.DataFrame({
+    'Area': summary['Area'],
+    'Initial Crime Rate': summary['Initial_Crime_Rate'],
+    'Final Crime Rate': summary['Crime_Rate'],
+    'Reduction (%)': summary['Percentage_Reduction']
+})
+
+plt.figure(figsize=(10, 6))
+sns.heatmap(heatmap_data.set_index('Area'), annot=True, cmap='YlGnBu', fmt=".1f")
+plt.title('Heatmap of Crime Rates and Reductions')
+plt.savefig('heatmap_crime_rates.png')
+plt.show()
+
+# Return the summary for review
+summary
+
+Here’s a simple Python code that calculates the percentage reduction in crime rates based on the initial and final crime rates, along with explanations for each step in layman’s terms.
+
+Python Code
+
+# Define the initial and final crime rates
+areas = ['Vancouver', 'Toronto', 'Montreal', 'Edmonton', 'Winnipeg']
+initial_crime_rates = [92.1, 56.4, 60.6, 110.1, 126.9]  # Initial crime rates (before intervention)
+final_crime_rates = [75.9, 46.6, 52.5, 88.1, 104.9]    # Final crime rates (after intervention)
+
+# Function to calculate percentage reduction
+def calculate_percentage_reduction(initial_rate, final_rate):
+    """
+    This function calculates the percentage reduction in crime rates.
+
+    Parameters:
+    initial_rate (float): The crime rate before intervention
+    final_rate (float): The crime rate after intervention
+
+    Returns:
+    float: The percentage reduction in crime rate
+    """
+    # Step 1: Subtract the final rate from the initial rate
+    difference = initial_rate - final_rate
+    # Step 2: Divide the difference by the initial rate to get the proportion of reduction
+    proportion_reduction = difference / initial_rate
+    # Step 3: Multiply by 100 to convert to percentage
+    percentage_reduction = proportion_reduction * 100
+    
+    return percentage_reduction
+
+# Calculate and print percentage reductions for each area
+for area, initial, final in zip(areas, initial_crime_rates, final_crime_rates):
+    reduction = calculate_percentage_reduction(initial, final)
+    print(f"The percentage reduction in crime rates for {area} is approximately {reduction:.2f}%.")
+
+# Explanation in layman's terms
+print("\nExplanation:")
+print("1. We start with the initial crime rate, which is how many crimes happened before any changes were made.")
+print("2. Next, we look at the final crime rate, which tells us how many crimes happened after the changes.")
+print("3. By subtracting the final rate from the initial rate, we find out how many fewer crimes occurred.")
+print("4. To understand how significant that reduction is, we divide the number of fewer crimes by the initial rate.")
+print("5. Finally, we multiply by 100 to turn it into a percentage, which makes it easier to understand the reduction.")
+
+Explanation of the Code
+
+	1.	Define the Data: The initial and final crime rates for various cities are defined as lists.
+	2.	Function Definition: The function calculate_percentage_reduction is created to encapsulate the logic for calculating the percentage reduction. It takes two parameters: the initial crime rate and the final crime rate.
+	3.	Calculation Steps:
+	•	Difference Calculation: The function calculates how many fewer crimes occurred by subtracting the final rate from the initial rate.
+	•	Proportion Calculation: It divides this difference by the initial crime rate to find out what fraction of the initial rate the reduction represents.
+	•	Percentage Conversion: The fraction is then multiplied by 100 to convert it into a percentage.
+	4.	Loop Through Areas: The code iterates through each area, calculates the percentage reduction using the defined function, and prints the results.
+	5.	Layman’s Terms Explanation: After the calculations, a simple explanation is printed to help users understand what each step of the calculation means.
+
+Output Example
+
+When you run this code, the output will display the percentage reduction for each area, along with a simple explanation of how the calculation works.
+
+If you have any specific requirements for adjustments or further explanations, let me know!
+
+
+To express the percentage reduction in crime rates as an equation or formula, you can use the following formula:
+
+Formula for Percentage Reduction
+
+￼
+
+Where:
+
+	•	Initial Crime Rate: The crime rate before any interventions.
+	•	Final Crime Rate: The crime rate after interventions have been applied.
+
+Example Calculation
+
+Using the crime rates from earlier examples:
+
+	•	Initial Crime Rate (Vancouver): 92.1
+	•	Final Crime Rate (Vancouver): 75.9
+
+Plugging these values into the formula:
+
+￼
+
+Calculating this:
+
+	1.	Subtract the final crime rate from the initial crime rate:
+￼
+	2.	Divide by the initial crime rate:
+￼
+	3.	Multiply by 100 to get the percentage:
+￼
+
+So, the percentage reduction in crime rates for Vancouver would be approximately 17.5%.
+
+If you need to calculate this for different areas or scenarios, just replace the initial and final crime rates in the formula. Let me know if you need further assistance or additional examples!
+
