@@ -15611,3 +15611,74 @@ So, the percentage reduction in crime rates for Vancouver would be approximately
 
 If you need to calculate this for different areas or scenarios, just replace the initial and final crime rates in the formula. Let me know if you need further assistance or additional examples!
 
+
+
+To determine action-wise percentages related to crime reduction, you can look at how specific interventions or policies have contributed to the overall crime rate decrease in different areas. Here’s a structured approach to calculating and interpreting these action-wise percentages based on hypothetical actions taken in each area:
+
+1. Define Actions and Their Impacts
+
+Suppose the following actions were implemented in different cities to reduce crime:
+
+	•	Vancouver: Increased police presence
+	•	Toronto: Community engagement programs
+	•	Montreal: Surveillance technology installation
+	•	Edmonton: Youth outreach initiatives
+	•	Winnipeg: Neighborhood watch programs
+
+2. Hypothetical Impact of Actions
+
+Let’s assign hypothetical reductions to each action based on their effectiveness:
+
+Area	Initial Crime Rate	Final Crime Rate	Action Impact (%)
+Vancouver	92.1	75.9	17.5
+Toronto	56.4	46.6	17.5
+Montreal	60.6	52.5	13.4
+Edmonton	110.1	88.1	19.9
+Winnipeg	126.9	104.9	17.3
+
+3. Calculate Action-wise Contributions
+
+To find the percentage contribution of each action to the total crime reduction, you can use the following formula:
+
+￼
+
+4. Calculate Total Crime Reduction
+
+The total crime reduction can be calculated by summing up the differences between the initial and final crime rates for all areas:
+
+￼
+
+5. Example Calculation
+
+	1.	Calculate Total Crime Reduction:
+	•	For Vancouver: ￼
+	•	For Toronto: ￼
+	•	For Montreal: ￼
+	•	For Edmonton: ￼
+	•	For Winnipeg: ￼
+Total Crime Reduction = ￼
+	2.	Calculate Action Contributions:
+	•	For Vancouver:
+￼
+	•	For Toronto:
+￼
+	•	For Montreal:
+￼
+	•	For Edmonton:
+￼
+	•	For Winnipeg:
+￼
+
+Summary of Action-wise Contributions
+
+Area	Action Contribution (%)
+Vancouver	22.39
+Toronto	22.39
+Montreal	17.19
+Edmonton	25.45
+Winnipeg	22.14
+
+This summary shows how each action contributed to the overall crime reduction in percentage terms. If you have specific data or different actions you want to analyze, feel free to share, and I can help further!
+
+
+
