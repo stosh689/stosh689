@@ -16440,4 +16440,157 @@ Instructions for GitHub Setup
 
 Now, the project is structured to be easily copied into a GitHub repository. Each Python file is focused on a specific task, and you can update and expand the analysis as needed. If you’d like to continue iterating on this setup, feel free to modify the files, add more analyses, or tweak simulation parameters.
 
+# main.py
 
+import numpy as np
+from scipy.integrate import odeint
+import networkx as nx
+import matplotlib.pyplot as plt
+from collections import defaultdict
+
+# ===================== Global Financial System Model =====================
+
+def global_financial_system(y, t, params):
+    # Define variables for global financial system
+    debt, interest_rate, currency_value = y
+    debt_growth, interest_rate_sensitivity, currency_volatility = params
+
+    # Differential equations representing the financial system
+    dydt = [
+        debt_growth * debt - interest_rate * debt,
+        interest_rate_sensitivity * debt - currency_volatility * interest_rate,
+        currency_volatility * currency_value - interest_rate * currency_value
+    ]
+    return dydt
+
+def simulate_global_financial_system():
+    initial_conditions = np.array([1000, 5, 1.5])  # Debt, interest_rate, currency_value
+    params = [0.02, 0.1, 0.05]  # Debt growth, interest sensitivity, currency volatility
+    time_points = np.linspace(0, 100, 1000)
+
+    solution = odeint(global_financial_system, initial_conditions, time_points, args=(params,))
+    
+    plt.plot(time_points, solution[:, 0], label='Debt')
+    plt.plot(time_points, solution[:, 1], label='Interest Rate')
+    plt.plot(time_points, solution[:, 2], label='Currency Value')
+    plt.legend()
+    plt.title('Global Financial System Simulation')
+    plt.xlabel('Time')
+    plt.ylabel('Values')
+    plt.show()
+
+# ===================== Gravity Model of Trade =====================
+
+def gravity_model_trade(MA, MB, distance):
+    G = 6.674 * 10**-11  # Gravitational constant in m^3 kg^-1 s^-2
+    trade_flow = G * (MA * MB) / (distance ** 2)
+    return trade_flow
+
+def simulate_gravity_trade():
+    MA = 1000  # Economic mass of country A
+    MB = 500  # Economic mass of country B
+    distance = 2000  # Distance between the two countries
+    
+    trade_flow = gravity_model_trade(MA, MB, distance)
+    print(f"Trade flow between country A and B: {trade_flow:.2f} USD")
+
+# ===================== Markov Decision Process =====================
+
+def markov_decision_process(transition_matrix, reward_matrix, gamma=0.9):
+    num_states = len(transition_matrix)
+    value_function = np.zeros(num_states)
+    
+    # Bellman update
+    for _ in range(1000):
+        new_value_function = np.copy(value_function)
+        for state in range(num_states):
+            expected_value = sum(transition_matrix[state, next_state] * (reward_matrix[state, next_state] + gamma * value_function[next_state])
+                                 for next_state in range(num_states))
+            new_value_function[state] = expected_value
+        value_function = new_value_function
+
+    return value_function
+
+def simulate_markov_decision_process():
+    transition_matrix = np.array([[0.8, 0.2], [0.5, 0.5]])  # Transition probabilities
+    reward_matrix = np.array([[5, 10], [3, 4]])  # Rewards for transitions
+    value_function = markov_decision_process(transition_matrix, reward_matrix)
+    print(f"Optimal Value Function: {value_function}")
+
+# ===================== Network Flow Algorithm =====================
+
+def max_flow_network(capacity_matrix):
+    G = nx.DiGraph()
+    
+    # Create the graph from capacity matrix
+    for i, row in enumerate(capacity_matrix):
+        for j, cap in enumerate(row):
+            if cap > 0:
+                G.add_edge(i, j, capacity=cap)
+    
+    # Compute maximum flow
+    flow_value, flow_dict = nx.maximum_flow(G, 0, len(capacity_matrix)-1)
+    print(f"Maximum Flow Value: {flow_value}")
+    print("Flow Distribution:", flow_dict)
+
+def simulate_max_flow_network():
+    # Example capacity matrix for a directed graph (nodes: A, B, C, D)
+    capacity_matrix = np.array([[0, 10, 0, 5],
+                                [0, 0, 15, 0],
+                                [10, 0, 0, 10],
+                                [0, 0, 0, 0]])
+    
+    max_flow_network(capacity_matrix)
+
+# ===================== Main Function =====================
+
+def main():
+    print("Simulating Global Financial System...")
+    simulate_global_financial_system()
+    
+    print("\nSimulating Gravity Model of Trade...")
+    simulate_gravity_trade()
+    
+    print("\nSimulating Markov Decision Process...")
+    simulate_markov_decision_process()
+    
+    print("\nSimulating Maximum Flow Network...")
+    simulate_max_flow_network()
+
+if __name__ == '__main__':
+    main()
+
+# ===================== Unit Testing =====================
+
+import unittest
+
+class TestGlobalFinancialSystem(unittest.TestCase):
+    def test_global_financial_system(self):
+        initial_conditions = np.array([1000, 5, 1.5])
+        params = [0.02, 0.1, 0.05]
+        time_points = np.linspace(0, 100, 1000)
+
+        solution = odeint(global_financial_system, initial_conditions, time_points, args=(params,))
+        
+        self.assertTrue(np.any(solution != 0))
+
+class TestGravityModelTrade(unittest.TestCase):
+    def test_gravity_model_trade(self):
+        trade_flow = gravity_model_trade(1000, 500, 2000)
+        self.assertGreater(trade_flow, 0)
+
+class TestMarkovDecisionProcess(unittest.TestCase):
+    def test_markov_decision_process(self):
+        transition_matrix = np.array([[0.8, 0.2], [0.5, 0.5]])
+        reward_matrix = np.array([[5, 10], [3, 4]])
+        value_function = markov_decision_process(transition_matrix, reward_matrix)
+        self.assertTrue(len(value_function) > 0)
+
+class TestMaxFlowNetwork(unittest.TestCase):
+    def test_max_flow_network(self):
+        capacity_matrix = np.array([[0, 10, 0, 5], [0, 0, 15, 0], [10, 0, 0, 10], [0, 0, 0, 0]])
+        flow_value, flow_dict = nx.maximum_flow(nx.DiGraph(), 0, 3)
+        self.assertGreater(flow_value, 0)
+
+if __name__ == '__main__':
+    unittest.main()
