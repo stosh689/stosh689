@@ -16753,3 +16753,123 @@ This project is open-source under the MIT License. Feel free to contribute, enha
 
 Once you have copied and pasted this into your GitHub repository, it will be ready for others to access, test, and contribute to! Let me know if you need further changes.
     unittest.main()
+
+
+
+
+Here is the full code that you can copy and paste directly into your Python environment or a .py file:
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+
+# 1. Load Data from CSV (replace this with your actual data file path)
+# For demo purposes, we simulate the data
+
+data = {
+    'Year': [2000, 2005, 2010, 2015, 2020],
+    'CO2 Emissions (million tons)': [2500, 2700, 2900, 3100, 3300],
+    'Ocean Pollution Index': [65, 68, 72, 75, 80],
+    'Temperature Rise (°C)': [0.5, 0.6, 0.7, 0.8, 1.0],
+    'Forest Cover (%)': [32, 30, 28, 25, 22]
+}
+
+# Convert to DataFrame
+df = pd.DataFrame(data)
+
+# 2. Data Preprocessing
+# Separate features (X) and target variable (y)
+X = df[['Ocean Pollution Index', 'Temperature Rise (°C)', 'Forest Cover (%)']]
+y = df['CO2 Emissions (million tons)']
+
+# Split the data into training and test sets (80% train, 20% test)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# 3. Model Building: Linear Regression Model
+model = LinearRegression()
+
+# Train the model on the training data
+model.fit(X_train, y_train)
+
+# 4. Model Prediction
+y_pred = model.predict(X_test)
+
+# 5. Evaluate the Model: Calculate Mean Squared Error
+mse = mean_squared_error(y_test, y_pred)
+print(f"Mean Squared Error: {mse}")
+
+# 6. Visualizing Actual vs Predicted CO2 Emissions
+plt.figure(figsize=(10,6))
+plt.scatter(y_test, y_pred)
+plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], color='red')  # Identity line
+plt.xlabel('Actual CO2 Emissions (million tons)')
+plt.ylabel('Predicted CO2 Emissions (million tons)')
+plt.title('Actual vs Predicted CO2 Emissions')
+plt.show()
+
+# 7. Actionable Insights Function
+def actionable_insights(ocean_pollution, temperature_rise, forest_cover):
+    insights = []
+    
+    if ocean_pollution > 75:
+        insights.append("High ocean pollution. Consider reducing emissions and promoting green energy.")
+    
+    if temperature_rise > 1:
+        insights.append("Temperature rise above 1°C. Immediate action needed to reduce global warming.")
+    
+    if forest_cover < 20:
+        insights.append("Low forest cover. Promote reforestation efforts.")
+    
+    if not insights:
+        insights.append("The environment is stable, but continuous monitoring is necessary.")
+    
+    return insights
+
+# 8. Provide Insights for Current Year (2020)
+current_year = df.loc[df['Year'] == 2020]
+ocean_pollution = current_year['Ocean Pollution Index'].values[0]
+temperature_rise = current_year['Temperature Rise (°C)'].values[0]
+forest_cover = current_year['Forest Cover (%)'].values[0]
+
+insights = actionable_insights(ocean_pollution, temperature_rise, forest_cover)
+print("\nActionable Insights:")
+for insight in insights:
+    print(f"- {insight}")
+
+# 9. Predict Future CO2 Emissions (for 2025, for example)
+future_data = np.array([[82, 1.2, 18]])  # Example data for ocean pollution, temperature rise, and forest cover in 2025
+predicted_emission_2025 = model.predict(future_data)
+print(f"\nPredicted CO2 Emissions for 2025: {predicted_emission_2025[0]:.2f} million tons")
+
+# 10. Visualization of CO2 Emissions Over Time
+plt.figure(figsize=(10,6))
+plt.plot(df['Year'], df['CO2 Emissions (million tons)'], label='Actual CO2 Emissions')
+plt.xlabel('Year')
+plt.ylabel('CO2 Emissions (million tons)')
+plt.title('CO2 Emissions Over Time')
+plt.grid(True)
+plt.show()
+
+How to Run:
+
+	1.	Install Dependencies: If you don’t have the required libraries, you can install them using:
+
+pip install pandas matplotlib scikit-learn numpy
+
+
+	2.	Replace Data: The code currently uses simulated data. You can replace it with real-world data from a CSV file or other sources like the World Bank, UN Environment, etc.
+	3.	Run the Script: Save this code in a .py file (e.g., environmental_prediction.py) and run it from your terminal or an IDE (like VSCode or PyCharm).
+
+Key Features:
+
+	•	Predictive Model: It predicts CO2 emissions based on environmental factors (like ocean pollution, temperature rise, and forest cover) using linear regression.
+	•	Actionable Insights: It provides insights based on current environmental data, such as recommended actions for mitigating climate change.
+	•	Data Visualization: Graphs are created to visualize the data and the model’s performance.
+
+Feel free to copy and paste this code, modify it as needed, and use it in your own projects or upload it to GitHub.
+
+
+
