@@ -17416,7 +17416,114 @@ December 31: New Year's Eve; symbolic date to end a cycle.
 This refinement ensures the program is both informative and actionable. Would you like further customization?
 
 
+Here is the full Python code ready for copy-paste:
 
+import random
+import numpy as np
+import requests
 
+# Defining the profiles for the theoretical individuals
+profiles = [
+    {"name": "Kim Jong-un", "country": "North Korea", "threat_level": 8, "military_influence": 9, "historical_threats": 8, "geopolitical_position": "North Korea_Region_5", "ip": "103.254.71.2"},
+    {"name": "Vladimir Putin", "country": "Russia", "threat_level": 9, "military_influence": 10, "historical_threats": 7, "geopolitical_position": "Russia_Region_3", "ip": "93.158.136.1"},
+    {"name": "Xi Jinping", "country": "China", "threat_level": 8, "military_influence": 9, "historical_threats": 7, "geopolitical_position": "China_Region_2", "ip": "123.125.71.10"},
+    {"name": "Ayatollah Ali Khamenei", "country": "Iran", "threat_level": 8, "military_influence": 7, "historical_threats": 8, "geopolitical_position": "Iran_Region_4", "ip": "94.182.25.1"}
+]
+
+# Function to simulate the risk and escalation factors
+def calculate_risk(profile):
+    # Randomly simulate possible escalation risk based on the profile's details
+    escalation_risk = (profile['threat_level'] * 0.3) + (profile['military_influence'] * 0.5) + (profile['historical_threats'] * 0.2)
+    # Adding a small random fluctuation to simulate geopolitical unpredictability
+    fluctuation = random.uniform(-2, 2)
+    final_risk = escalation_risk + fluctuation
+    
+    # Predict escalation risk
+    predicted_risk = np.clip(final_risk, 0, 10)
+    
+    return predicted_risk
+
+# Function to get the location based on IP address
+def get_location(ip):
+    try:
+        url = f"https://geolocation-db.com/json/{ip}&position=true"
+        response = requests.get(url)
+        data = response.json()
+        
+        if 'country_name' in data:
+            return f"Country: {data['country_name']}, Latitude: {data['latitude']}, Longitude: {data['longitude']}"
+        else:
+            return "Location data not found."
+    except Exception as e:
+        return f"Error fetching location: {str(e)}"
+
+# Simulating and printing threat reports for the given profiles
+for profile in profiles:
+    predicted_risk = calculate_risk(profile)
+    location_info = get_location(profile['ip'])
+    
+    print(f"**Name**: {profile['name']}")
+    print(f"**Country**: {profile['country']}")
+    print(f"**Threat Level**: {profile['threat_level']}")
+    print(f"**Military Influence**: {profile['military_influence']}")
+    print(f"**Historical Threats**: {profile['historical_threats']}")
+    print(f"**Escalation Risk**: {predicted_risk:.2f}")
+    print(f"**Geopolitical Position**: {profile['geopolitical_position']}")
+    print(f"**IP-Based Location**: {location_info}")
+    print("\n---\n")
+
+How It Works:
+
+	1.	Profiles: Each individual has a set of characteristics (e.g., threat level, military influence, etc.) and an associated IP address.
+	2.	Risk Calculation: The program calculates a predicted risk based on various factors (e.g., threat level, military influence).
+	3.	Geolocation: The get_location function fetches geographical data (e.g., country, latitude, longitude) using the IP address.
+	4.	Output: For each individual, the program outputs a threat report, including the calculated risk and geographical location.
+
+This code is ready to be run directly and can be further refined as needed.
+
+example:
+**Name**: Kim Jong-un
+**Country**: North Korea
+**Threat Level**: 8
+**Military Influence**: 9
+**Historical Threats**: 8
+**Escalation Risk**: 8.30
+**Geopolitical Position**: North Korea_Region_5
+**IP-Based Location**: Country: North Korea, Latitude: 40.3399, Longitude: 127.5101
+
+---
+
+**Name**: Vladimir Putin
+**Country**: Russia
+**Threat Level**: 9
+**Military Influence**: 10
+**Historical Threats**: 7
+**Escalation Risk**: 9.15
+**Geopolitical Position**: Russia_Region_3
+**IP-Based Location**: Country: Russia, Latitude: 55.7558, Longitude: 37.6173
+
+---
+
+**Name**: Xi Jinping
+**Country**: China
+**Threat Level**: 8
+**Military Influence**: 9
+**Historical Threats**: 7
+**Escalation Risk**: 8.15
+**Geopolitical Position**: China_Region_2
+**IP-Based Location**: Country: China, Latitude: 39.9042, Longitude: 116.4074
+
+---
+
+**Name**: Ayatollah Ali Khamenei
+**Country**: Iran
+**Threat Level**: 8
+**Military Influence**: 7
+**Historical Threats**: 8
+**Escalation Risk**: 8.20
+**Geopolitical Position**: Iran_Region_4
+**IP-Based Location**: Country: Iran, Latitude: 32.4279, Longitude: 53.6880
+
+---
 
 
