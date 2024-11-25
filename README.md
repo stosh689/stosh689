@@ -19255,3 +19255,127 @@ python <filename>.py
 
 Let me know if you’d like any further refinements, integrations, or additional features!
 
+Here’s the final code formatted for easy copy-paste into your GitHub repository:
+
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.ensemble import RandomForestClassifier
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+from Crypto.Util.Padding import pad, unpad
+import base64
+
+# Constants
+GRID_SIZE = 10
+AES_KEY = get_random_bytes(32)  # AES-256 Key
+
+# Battlefield Class
+class Battlefield:
+    def __init__(self, size):
+        self.size = size
+        self.grid = np.zeros((size, size), dtype=int)
+
+    def deploy_units(self, friendly, enemy):
+        """Deploy friendly and enemy units randomly on the grid."""
+        self._place_units(2, friendly)  # Friendly troops
+        self._place_units(1, enemy)    # Enemy troops
+
+    def _place_units(self, unit_type, count):
+        for _ in range(count):
+            while True:
+                x, y = np.random.randint(0, self.size, size=2)
+                if self.grid[x, y] == 0:
+                    self.grid[x, y] = unit_type
+                    break
+
+    def visualize(self):
+        """Visualize the battlefield grid."""
+        plt.imshow(self.grid, cmap="viridis", interpolation="nearest")
+        plt.title("Battlefield")
+        plt.colorbar(label="Troop Type (0=Empty, 1=Enemy, 2=Friendly)")
+        plt.show()
+
+    def get_features(self):
+        """Extract features: number of friendly and enemy units."""
+        friendly = np.sum(self.grid == 2)
+        enemy = np.sum(self.grid == 1)
+        return np.array([friendly, enemy])
+
+# Tactical AI Class
+class TacticalAI:
+    def __init__(self):
+        self.model = RandomForestClassifier(n_estimators=100, random_state=42)
+        self.train()
+
+    def train(self):
+        """Train the AI with basic scenarios."""
+        features = np.array([[5, 3], [3, 5], [4, 4], [6, 2]])  # [friendly, enemy]
+        actions = ["Defend", "Attack", "Hold", "Retreat"]  # Corresponding actions
+        self.model.fit(features, actions)
+
+    def predict(self, features):
+        """Predict action based on battlefield features."""
+        return self.model.predict([features])[0]
+
+# Secure Communication Class
+class SecureCommunication:
+    def __init__(self):
+        self.key = AES_KEY
+
+    def encrypt(self, message):
+        """Encrypt a message using AES-256."""
+        cipher = AES.new(self.key, AES.MODE_CBC)
+        ciphertext = cipher.encrypt(pad(message.encode(), AES.block_size))
+        return base64.b64encode(cipher.iv + ciphertext).decode()
+
+    def decrypt(self, encrypted_message):
+        """Decrypt a message using AES-256."""
+        data = base64.b64decode(encrypted_message)
+        iv, ciphertext = data[:16], data[16:]
+        cipher = AES.new(self.key, AES.MODE_CBC, iv)
+        return unpad(cipher.decrypt(ciphertext), AES.block_size).decode()
+
+# Simulation Class
+class Simulation:
+    def __init__(self, grid_size=GRID_SIZE):
+        self.battlefield = Battlefield(grid_size)
+        self.ai = TacticalAI()
+        self.comm = SecureCommunication()
+
+    def run(self, friendly_units=5, enemy_units=3):
+        """Run the simulation."""
+        # Deploy units on the battlefield
+        self.battlefield.deploy_units(friendly_units, enemy_units)
+        self.battlefield.visualize()
+
+        # AI makes a tactical decision
+        features = self.battlefield.get_features()
+        action = self.ai.predict(features)
+        print(f"Tactical AI Suggests: {action}")
+
+        # Securely transmit the AI's decision
+        encrypted_action = self.comm.encrypt(action)
+        print(f"Encrypted Action: {encrypted_action}")
+
+        decrypted_action = self.comm.decrypt(encrypted_action)
+        print(f"Decrypted Action: {decrypted_action}")
+
+# Main Function
+if __name__ == "__main__":
+    simulation = Simulation()
+    simulation.run()
+
+Instructions for GitHub
+
+	1.	Copy the code above.
+	2.	Create a new Python file in your GitHub repository, e.g., battlefield_simulation.py.
+	3.	Paste the code into the file and save it.
+	4.	Add, commit, and push the changes to your repository:
+
+git add battlefield_simulation.py
+git commit -m "Add Battlefield Simulation with Tactical AI and Secure Communication"
+git push
+
+
+
+Let me know if you need assistance with GitHub commands or setup!
