@@ -19431,5 +19431,175 @@ To generate massive output, define a high number of iterations (e.g., 10,000 or 
 Would you like me to expand the code to support these large-scale simulations and add options for file-based logging?
 
 
+Here is the updated Python code for running massive simulations with file-based logging for better scalability and analysis:
 
+Full Program Code with Massive Simulation and Logging
+
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.ensemble import RandomForestClassifier
+from Crypto.Cipher import AES
+from Crypto.Random import get_random_bytes
+from Crypto.Util.Padding import pad, unpad
+import base64
+import csv
+
+# Constants
+GRID_SIZE = 10
+AES_KEY = get_random_bytes(32)  # AES-256 Key
+
+# Battlefield Class
+class Battlefield:
+    def __init__(self, size):
+        self.size = size
+        self.grid = np.zeros((size, size), dtype=int)
+
+    def deploy_units(self, friendly, enemy):
+        """Deploy friendly and enemy units randomly on the grid."""
+        self._place_units(2, friendly)  # Friendly troops
+        self._place_units(1, enemy)    # Enemy troops
+
+    def _place_units(self, unit_type, count):
+        for _ in range(count):
+            while True:
+                x, y = np.random.randint(0, self.size, size=2)
+                if self.grid[x, y] == 0:
+                    self.grid[x, y] = unit_type
+                    break
+
+    def visualize(self):
+        """Visualize the battlefield grid."""
+        plt.imshow(self.grid, cmap="viridis", interpolation="nearest")
+        plt.title("Battlefield")
+        plt.colorbar(label="Troop Type (0=Empty, 1=Enemy, 2=Friendly)")
+        plt.show()
+
+    def get_features(self):
+        """Extract features: number of friendly and enemy units."""
+        friendly = np.sum(self.grid == 2)
+        enemy = np.sum(self.grid == 1)
+        return np.array([friendly, enemy])
+
+# Tactical AI Class
+class TacticalAI:
+    def __init__(self):
+        self.model = RandomForestClassifier(n_estimators=100, random_state=42)
+        self.train()
+
+    def train(self):
+        """Train the AI with basic scenarios."""
+        features = np.array([[5, 3], [3, 5], [4, 4], [6, 2]])  # [friendly, enemy]
+        actions = ["Defend", "Attack", "Hold", "Retreat"]  # Corresponding actions
+        self.model.fit(features, actions)
+
+    def predict(self, features):
+        """Predict action based on battlefield features."""
+        return self.model.predict([features])[0]
+
+# Secure Communication Class
+class SecureCommunication:
+    def __init__(self):
+        self.key = AES_KEY
+
+    def encrypt(self, message):
+        """Encrypt a message using AES-256."""
+        cipher = AES.new(self.key, AES.MODE_CBC)
+        ciphertext = cipher.encrypt(pad(message.encode(), AES.block_size))
+        return base64.b64encode(cipher.iv + ciphertext).decode()
+
+    def decrypt(self, encrypted_message):
+        """Decrypt a message using AES-256."""
+        data = base64.b64decode(encrypted_message)
+        iv, ciphertext = data[:16], data[16:]
+        cipher = AES.new(self.key, AES.MODE_CBC, iv)
+        return unpad(cipher.decrypt(ciphertext), AES.block_size).decode()
+
+# Simulation Class
+class Simulation:
+    def __init__(self, grid_size=GRID_SIZE):
+        self.battlefield = Battlefield(grid_size)
+        self.ai = TacticalAI()
+        self.comm = SecureCommunication()
+        self.log_file = "simulation_results.csv"
+
+    def run(self, friendly_units=5, enemy_units=3):
+        """Run the simulation."""
+        # Deploy units on the battlefield
+        self.battlefield.deploy_units(friendly_units, enemy_units)
+        features = self.battlefield.get_features()
+
+        # AI makes a tactical decision
+        action = self.ai.predict(features)
+        encrypted_action = self.comm.encrypt(action)
+        decrypted_action = self.comm.decrypt(encrypted_action)
+
+        # Return results
+        return {
+            "Friendly Units": features[0],
+            "Enemy Units": features[1],
+            "AI Action": action,
+            "Encrypted Action": encrypted_action,
+            "Decrypted Action": decrypted_action
+        }
+
+    def run_massive_simulation(self, iterations=100, friendly_units=5, enemy_units=3):
+        """Run the simulation for multiple iterations and save results to a CSV file."""
+        print(f"Running {iterations} simulations...")
+        results = []
+
+        # Run the iterations
+        for i in range(iterations):
+            result = self.run(friendly_units, enemy_units)
+            results.append(result)
+            print(f"Iteration {i + 1}/{iterations} Complete: {result['AI Action']}")
+
+        # Save results to a CSV file
+        self._save_results_to_csv(results)
+        print(f"Results saved to {self.log_file}.")
+
+    def _save_results_to_csv(self, results):
+        """Save simulation results to a CSV file."""
+        with open(self.log_file, mode='w', newline='') as file:
+            writer = csv.DictWriter(file, fieldnames=results[0].keys())
+            writer.writeheader()
+            writer.writerows(results)
+
+# Main Function
+if __name__ == "__main__":
+    simulation = Simulation()
+    simulation.run_massive_simulation(iterations=100, friendly_units=10, enemy_units=5)
+
+Key Features in This Code:
+
+	1.	Massive Simulation
+Runs hundreds or thousands of iterations automatically, logging results to a CSV file for analysis.
+	2.	Logging Results
+Each iteration records:
+	•	Number of friendly and enemy units
+	•	Tactical AI action
+	•	Encrypted decision
+	•	Decrypted decision
+	3.	CSV Output
+A file named simulation_results.csv is generated, containing all simulation results for further review.
+
+Example CSV Output:
+
+After running the program, you’ll get a CSV file (simulation_results.csv) like this:
+
+Friendly Units,Enemy Units,AI Action,Encrypted Action,Decrypted Action
+10,5,Attack,Bf9s3a9eGiRu9PQuPnbY+M6ziTrWtxQ21pi4xN7IHwU=,Attack
+8,6,Defend,Nx9uKPvGi9Ze5uQHpnR2fQ1JHg0YpOytR2biXYnbvjc=,Defend
+9,7,Hold,BbyXt3a02XeD9PZYeNbZ8W7nKPqBqwZRTubxN9eZJpQ=,Hold
+
+Running Instructions:
+
+	1.	Copy this program into a Python script file, e.g., massive_simulation.py.
+	2.	Run the program with Python:
+
+python massive_simulation.py
+
+
+	3.	Check the simulation_results.csv file for the output.
+
+Would you like me to assist with anything else, such as customizing parameters or integrating this with other tools?
 
