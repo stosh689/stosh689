@@ -19817,3 +19817,145 @@ After initializing the repository and pushing the code, your project will be ava
 This should give you a solid foundation to start implementing the IMGOOI system with real-time data fetching, validation, storage, AI analysis, and reporting. You can customize and expand upon each module as needed.
 
 Let me know if you need additional adjustments or further steps for deploying it!
+
+
+
+Here’s the compiled Python code that you can copy into your GitHub repository to implement the extended functionality for the IMGOOI system. This code integrates various sources like weather data, social media analysis, and financial market information, along with interactive mapping, AI sentiment analysis, and more.
+
+IMGOOI System Extended Code for GitHub:
+
+# Required Libraries:
+import requests
+import tweepy
+from textblob import TextBlob
+import folium
+from transformers import pipeline
+from twilio.rest import Client
+import paho.mqtt.client as mqtt
+
+# ----- WEATHER API: OpenWeather -----
+def fetch_weather(api_key, city):
+    url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}"
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {"error": "Failed to fetch weather data"}
+
+# ----- TWITTER API: Sentiment Analysis -----
+def fetch_twitter_data(api_key, api_secret_key, search_query):
+    auth = tweepy.OAuthHandler(api_key, api_secret_key)
+    api = tweepy.API(auth)
+    tweets = api.search(q=search_query, count=10)
+    sentiment = []
+
+    for tweet in tweets:
+        analysis = TextBlob(tweet.text)
+        sentiment.append(analysis.sentiment.polarity)
+    
+    return sentiment
+
+# ----- FINANCIAL API: Alpha Vantage -----
+def fetch_financial_data(api_key, symbol):
+    url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={symbol}&apikey={api_key}"
+    response = requests.get(url)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {"error": "Failed to fetch financial data"}
+
+# ----- NLP: HuggingFace BERT for Sentiment -----
+def analyze_sentiment_with_bert(text):
+    sentiment_analysis = pipeline("sentiment-analysis")
+    return sentiment_analysis(text)
+
+# ----- TWILIO API: Send SMS Alerts -----
+def send_sms_alert(to, message, from_='+1234567890'):
+    client = Client('TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN')
+    message = client.messages.create(
+        body=message,
+        from_=from_,
+        to=to
+    )
+    return message.sid
+
+# ----- FOLIUM MAP: Geospatial Data -----
+def generate_map(lat, lon, zoom=10):
+    m = folium.Map(location=[lat, lon], zoom_start=zoom)
+    folium.Marker([lat, lon]).add_to(m)
+    m.save("geospatial_map.html")
+
+# ----- MQTT API: IoT Device Data -----
+def on_connect(client, userdata, flags, rc):
+    print("Connected with result code " + str(rc))
+    client.subscribe("geopolitical/topic")
+
+def on_message(client, userdata, msg):
+    print(msg.topic + " " + str(msg.payload))
+
+def connect_to_mqtt():
+    client = mqtt.Client()
+    client.on_connect = on_connect
+    client.on_message = on_message
+    client.connect("mqtt.eclipse.org", 1883, 60)
+    client.loop_forever()
+
+# Example Usage
+if __name__ == "__main__":
+    # Example API keys
+    openweather_api_key = "YOUR_OPENWEATHER_API_KEY"
+    twitter_api_key = "YOUR_TWITTER_API_KEY"
+    twitter_api_secret_key = "YOUR_TWITTER_API_SECRET_KEY"
+    alpha_vantage_api_key = "YOUR_ALPHA_VANTAGE_API_KEY"
+    twilio_account_sid = "YOUR_TWILIO_ACCOUNT_SID"
+    twilio_auth_token = "YOUR_TWILIO_AUTH_TOKEN"
+
+    # Weather data for New York
+    weather_data = fetch_weather(openweather_api_key, "New York")
+    print(weather_data)
+
+    # Twitter sentiment analysis for "geopolitical events"
+    sentiment = fetch_twitter_data(twitter_api_key, twitter_api_secret_key, "geopolitical events")
+    print("Sentiment: ", sentiment)
+
+    # Financial market data for Tesla (TSLA)
+    financial_data = fetch_financial_data(alpha_vantage_api_key, "TSLA")
+    print(financial_data)
+
+    # Sentiment analysis using BERT
+    text = "The geopolitical tensions are rising."
+    bert_sentiment = analyze_sentiment_with_bert(text)
+    print("BERT Sentiment Analysis: ", bert_sentiment)
+
+    # Send SMS alert for important event
+    send_sms_alert("+1234567890", "Critical geopolitical event has occurred!")
+
+    # Generate map centered around New York (40.7128, -74.0060)
+    generate_map(40.7128, -74.0060)
+
+    # MQTT connection to listen for IoT device data
+    connect_to_mqtt()
+
+What this Code Does:
+	•	Weather Data: Fetches real-time weather information for a city using the OpenWeather API.
+	•	Social Media Sentiment: Analyzes the sentiment of recent tweets regarding geopolitical topics using Twitter API and TextBlob for sentiment analysis.
+	•	Financial Data: Retrieves daily stock price data for a specified symbol using Alpha Vantage API.
+	•	AI Sentiment: Utilizes HuggingFace Transformers (BERT model) to perform advanced sentiment analysis on a text string.
+	•	SMS Alerts: Sends SMS notifications using Twilio API for critical geopolitical or market events.
+	•	Geospatial Data Visualization: Generates an interactive map using Folium to plot geographic data.
+	•	IoT Data: Uses MQTT to connect to IoT devices and listen for messages on a specific topic.
+
+To Add to Your GitHub Repository:
+	1.	Create a new Python file (e.g., imgooi_system.py) and paste the code above.
+	2.	Install necessary libraries:
+
+pip install requests tweepy textblob folium transformers twilio paho-mqtt
+
+
+	3.	Push the file to your GitHub repository.
+
+This code now serves as a modular extension for your IMGOOI system, providing enriched global data analysis, including financial, environmental, and social media insights.
+
+Let me know if you’d like any further additions!
+
+
