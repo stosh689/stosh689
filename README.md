@@ -20260,9 +20260,111 @@ if __name__ == "__main__":
     manager.list_azure_queues()
 
     # Benchmark upload
-    manager.benchmark_upload("your_bucket_name", "path_to_your_file", service="aws")
+    manager.benchmark_upload("your_bucket_name", "path_to_your_file", service="class QueryOptimizer:
+    def optimize(self, query):
+        optimized_query = query.strip().replace("\n", " ").replace("  ", " ")
+        print("Query Optimized")
+        return optimized_query
 
+# Example usage:
+# optimizer = QueryOptimizer()
+# query = """
+# SELECT * 
+# FROM   large_table 
+# WHERE  date > '2023-01-01'  
+# """
+# print(optimizer.optimize(query))
 
+import numpy as np
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_absolute_error
+import random
+
+# Example dataset (replace with actual data from cloud usage logs)
+# Assume 'usage' is the resource usage in GB and 'cost' is the corresponding cost in USD
+data = {
+    'usage': [100, 250, 400, 600, 800, 1000, 1200, 1500, 1800, 2000],
+    'cost': [50, 125, 175, 250, 300, 350, 400, 475, 550, 600]
+}
+
+# Create DataFrame
+df = pd.DataFrame(data)
+
+# Feature scaling for usage
+scaler = StandardScaler()
+df['usage_scaled'] = scaler.fit_transform(df[['usage']])
+
+# Splitting data for training and testing (80% train, 20% test)
+train_data = df.iloc[:8]
+test_data = df.iloc[8:]
+
+# Train linear regression model to predict costs based on usage
+X_train = train_data[['usage_scaled']]
+y_train = train_data['cost']
+X_test = test_data[['usage_scaled']]
+y_test = test_data['cost']
+
+# Linear Regression Model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Predict the cost for the test set
+y_pred = model.predict(X_test)
+
+# Calculate Mean Absolute Error (MAE) for model performance
+mae = mean_absolute_error(y_test, y_pred)
+print(f'Mean Absolute Error: {mae}')
+
+# Cost Estimation Function
+def estimate_cost(usage):
+    usage_scaled = scaler.transform([[usage]])  # Scale the input usage
+    predicted_cost = model.predict(usage_scaled)
+    return predicted_cost[0]
+
+# Predict the cost for a new usage value (e.g., 1300 GB)
+predicted_cost = estimate_cost(1300)
+print(f'Predicted cost for 1300 GB of usage: ${predicted_cost:.2f}')
+
+# Example of Query Cost Estimation and Optimization
+class QueryOptimizer:
+    def __init__(self, cost_per_query, query_complexity):
+        self.cost_per_query = cost_per_query  # Cost per query in USD
+        self.query_complexity = query_complexity  # Query complexity score (1-10 scale)
+
+    def query_cost(self):
+        # Adjust cost based on query complexity
+        return self.cost_per_query * (1 + self.query_complexity / 10)
+
+    def optimize_query(self):
+        # Try to optimize the query by reducing its complexity and associated cost
+        optimized_cost = self.query_cost() * random.uniform(0.8, 0.95)  # Optimized by 5-20%
+        return optimized_cost
+
+# Example usage of QueryOptimizer
+query_optimizer = QueryOptimizer(cost_per_query=0.5, query_complexity=8)
+print(f'Original query cost: ${query_optimizer.query_cost():.2f}')
+print(f'Optimized query cost: ${query_optimizer.optimize_query():.2f}')
+
+# Dynamic Resource Scaling Example (Simple Model)
+class CloudScaler:
+    def __init__(self, usage_threshold, cost_threshold):
+        self.usage_threshold = usage_threshold
+        self.cost_threshold = cost_threshold
+    
+    def scale_resources(self, current_usage, current_cost):
+        # If usage exceeds threshold, suggest scaling resources
+        if current_usage > self.usage_threshold or current_cost > self.cost_threshold:
+            scale_factor = random.uniform(1.2, 1.5)  # Scale resources by 20-50%
+            new_usage = current_usage * scale_factor
+            print(f'Scaling resources by a factor of {scale_factor:.2f}. New usage: {new_usage:.2f} GB')
+        else:
+            print('No scaling required')
+
+# Example of Dynamic Resource Scaling
+cloud_scaler = CloudScaler(usage_threshold=1500, cost_threshold=500)
+cloud_scaler.scale_resources(current_usage=1600, current_cost=600)
 
 
 
