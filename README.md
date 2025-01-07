@@ -20158,7 +20158,109 @@ if __name__ == "__main__":
 
 
 
+import boto3
+from google.cloud import storage
+from azure.storage.queue import QueueServiceClient
+import time
+import os
 
+
+class CloudDataManager:
+    def __init__(self):
+        self.aws_s3_client = None
+        self.google_storage_client = None
+        self.azure_queue_client = None
+
+    def initialize_aws(self, aws_access_key, aws_secret_key, region_name):
+        """Initialize AWS S3 client."""
+        self.aws_s3_client = boto3.client(
+            's3',
+            aws_access_key_id=aws_access_key,
+            aws_secret_access_key=aws_secret_key,
+            region_name=region_name
+        )
+
+    def initialize_google(self, google_project_id, google_credentials_path):
+        """Initialize Google Cloud Storage client."""
+        os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = google_credentials_path
+        self.google_storage_client = storage.Client(project=google_project_id)
+
+    def initialize_azure(self, azure_connection_string):
+        """Initialize Azure Queue client."""
+        self.azure_queue_client = QueueServiceClient.from_connection_string(azure_connection_string)
+
+    def upload_to_aws(self, bucket_name, file_path, object_name=None):
+        """Upload file to AWS S3."""
+        if not object_name:
+            object_name = os.path.basename(file_path)
+        self.aws_s3_client.upload_file(file_path, bucket_name, object_name)
+        print(f"Uploaded {file_path} to AWS S3 bucket {bucket_name} as {object_name}")
+
+    def upload_to_google(self, bucket_name, file_path, object_name=None):
+        """Upload file to Google Cloud Storage."""
+        bucket = self.google_storage_client.bucket(bucket_name)
+        blob = bucket.blob(object_name if object_name else os.path.basename(file_path))
+        blob.upload_from_filename(file_path)
+        print(f"Uploaded {file_path} to Google Cloud bucket {bucket_name} as {blob.name}")
+
+    def send_message_to_azure(self, queue_name, message):
+        """Send a message to Azure Queue."""
+        queue_client = self.azure_queue_client.get_queue_client(queue_name)
+        queue_client.send_message(message)
+        print(f"Sent message to Azure queue {queue_name}: {message}")
+
+    def benchmark_upload(self, bucket_name, file_path, object_name=None, service="aws"):
+        """Benchmark upload time for AWS or Google."""
+        start_time = time.time()
+        if service.lower() == "aws":
+            self.upload_to_aws(bucket_name, file_path, object_name)
+        elif service.lower() == "google":
+            self.upload_to_google(bucket_name, file_path, object_name)
+        else:
+            raise ValueError("Unsupported service. Choose 'aws' or 'google'.")
+        elapsed_time = time.time() - start_time
+        print(f"Upload to {service.upper()} took {elapsed_time:.2f} seconds.")
+
+    def list_aws_buckets(self):
+        """List AWS S3 buckets."""
+        response = self.aws_s3_client.list_buckets()
+        buckets = [bucket['Name'] for bucket in response['Buckets']]
+        print(f"AWS S3 Buckets: {buckets}")
+        return buckets
+
+    def list_google_buckets(self):
+        """List Google Cloud Storage buckets."""
+        buckets = list(self.google_storage_client.list_buckets())
+        bucket_names = [bucket.name for bucket in buckets]
+        print(f"Google Cloud Buckets: {bucket_names}")
+        return bucket_names
+
+    def list_azure_queues(self):
+        """List Azure Storage Queues."""
+        queues = self.azure_queue_client.list_queues()
+        queue_names = [queue['name'] for queue in queues]
+        print(f"Azure Queues: {queue_names}")
+        return queue_names
+
+
+if __name__ == "__main__":
+    # Example usage
+    manager = CloudDataManager()
+
+    # AWS initialization
+    manager.initialize_aws("your_aws_access_key", "your_aws_secret_key", "your_region")
+    manager.list_aws_buckets()
+
+    # Google Cloud initialization
+    manager.initialize_google("your_google_project_id", "path_to_google_credentials.json")
+    manager.list_google_buckets()
+
+    # Azure initialization
+    manager.initialize_azure("your_azure_connection_string")
+    manager.list_azure_queues()
+
+    # Benchmark upload
+    manager.benchmark_upload("your_bucket_name", "path_to_your_file", service="aws")
 
 
 
