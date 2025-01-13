@@ -20369,3 +20369,144 @@ cloud_scaler.scale_resources(current_usage=1600, current_cost=600)
 
 Would you like assistance with formatting for publication or incorporating additional data visualizations?
 
+
+
+Here’s the finalized version of the Python program, structured for easy use and ready for GitHub. This version includes all the necessary components and clean code to make it functional for generating an interactive map with fire hazard zones and prioritized shelters.
+
+Final Python Program:
+
+import folium
+import geopandas as gpd
+
+# Load GeoJSON data for Fire Zones and Shelters
+def load_data(fire_zones_path, shelters_path):
+    """
+    Load GeoJSON data for fire zones and shelters.
+    """
+    fire_zones = gpd.read_file(fire_zones_path)
+    shelters = gpd.read_file(shelters_path)
+    return fire_zones, shelters
+
+# Assign priority to shelters based on proximity to fire zones
+def assign_priority_to_shelters(shelters, fire_zones):
+    """
+    Assign priority to shelters based on proximity to fire zones and other criteria.
+    
+    Returns:
+        shelters with priority levels (higher number indicates higher priority)
+    """
+    shelters['priority'] = 0  # Default priority
+    
+    for idx, shelter in shelters.iterrows():
+        # Calculate proximity to fire zones (for simplicity, assume proximity is the factor)
+        closest_fire_zone = fire_zones.distance(shelter.geometry).min()
+        
+        if closest_fire_zone < 0.05:  # Define a threshold for high-priority areas (example: 0.05 degrees)
+            shelters.at[idx, 'priority'] = 3  # High priority
+        elif closest_fire_zone < 0.1:
+            shelters.at[idx, 'priority'] = 2  # Medium priority
+        else:
+            shelters.at[idx, 'priority'] = 1  # Low priority
+    
+    return shelters
+
+# Create the Map with Priority Features
+def create_map(fire_zones, shelters, center_coords=(34.05, -118.25), zoom_start=10):
+    """
+    Create an interactive map with fire zones and shelters.
+    """
+    map_ = folium.Map(location=center_coords, zoom_start=zoom_start)
+
+    # Add fire-prone areas to the map
+    folium.Choropleth(
+        geo_data=fire_zones,
+        data=fire_zones,
+        columns=['id', 'hazard_level'],
+        key_on='feature.properties.id',
+        fill_color='Reds',
+        fill_opacity=0.6,
+        line_opacity=0.3,
+        legend_name='Fire Hazard Level'
+    ).add_to(map_)
+
+    # Add shelters with priority-based markers
+    for _, row in shelters.iterrows():
+        color = 'green' if row['priority'] == 1 else ('orange' if row['priority'] == 2 else 'red')
+        popup_text = f"Safe Shelter: {row['name']} (Priority: {row['priority']})"
+        
+        folium.Marker(
+            location=[row.geometry.y, row.geometry.x],
+            popup=popup_text,
+            icon=folium.Icon(color=color, icon='home')
+        ).add_to(map_)
+
+    return map_
+
+# Save the map as an HTML file
+def save_map(map_, output_file):
+    """
+    Save the generated map to an HTML file.
+    """
+    map_.save(output_file)
+
+# Main Function
+def main():
+    """
+    Main function to load data, assign priority, create map, and save the output.
+    """
+    fire_zones_path = "fire_zones.geojson"  # Update with actual file path
+    shelters_path = "shelters.geojson"  # Update with actual file path
+
+    try:
+        # Load the data
+        fire_zones, shelters = load_data(fire_zones_path, shelters_path)
+        
+        # Assign priority to shelters based on proximity
+        shelters = assign_priority_to_shelters(shelters, fire_zones)
+
+        # Generate the map
+        fire_map = create_map(fire_zones, shelters)
+
+        # Save the map as an HTML file
+        save_map(fire_map, "fire_zones_priority_map.html")
+
+        print("Map created with priority markers and saved successfully.")
+
+    except Exception as e:
+        print(f"Error occurred: {e}")
+
+# Run the program
+if __name__ == "__main__":
+    main()
+
+Program Features:
+	•	Load Data: It reads GeoJSON files for fire zones and shelter locations.
+	•	Priority Calculation: Shelters are assigned priority based on their proximity to fire zones.
+	•	Map Creation: It uses Folium to generate an interactive map where fire zones are color-coded, and shelters are marked with priority-based color codes (red for high, orange for medium, green for low).
+	•	Save Map: The map is saved as an HTML file, which can be opened in any web browser.
+
+Requirements:
+	1.	Install the required libraries:
+
+pip install folium geopandas
+
+
+	2.	GeoJSON Files:
+	•	Ensure that you have the fire_zones.geojson and shelters.geojson files. These files must contain the relevant data for fire hazard zones and shelters.
+
+Instructions for Running:
+	1.	Update the paths for the fire_zones.geojson and shelters.geojson files in the main() function.
+	2.	Run the program in your Python environment:
+
+python create_fire_map.py
+
+
+	3.	The map will be generated and saved as fire_zones_priority_map.html, which you can open in a browser to visualize the fire hazard areas and shelter priorities.
+
+GitHub-Ready:
+	•	The program is structured to be clean, modular, and easy to understand, making it perfect for sharing on GitHub.
+	•	You can upload this code along with a README.md file that explains the program’s functionality, installation instructions, and usage.
+
+This program will give you a dynamic map that helps visualize fire hazards and prioritize shelter locations. If you want to proceed with this for a GitHub project, you can add any additional features or documentation as needed!
+
+
