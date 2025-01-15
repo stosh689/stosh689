@@ -20878,3 +20878,124 @@ git push origin main
 
 With this, you’ll have all the necessary code files ready for GitHub.
 
+Below is a Python program that demonstrates a hybrid architecture for 2D image modeling. It integrates Convolutional Neural Networks (CNNs) for feature extraction, Vision Transformers (ViTs) for global context, and Generative Adversarial Networks (GANs) for synthetic data generation.
+
+The example uses TensorFlow/Keras to construct the architecture.
+
+Python Code: Hybrid Architecture
+
+import tensorflow as tf
+from tensorflow.keras import layers, models, optimizers
+from tensorflow.keras.models import Model
+from tensorflow.keras.applications import EfficientNetB0
+import numpy as np
+
+# Set random seed for reproducibility
+tf.random.set_seed(42)
+
+# CNN Feature Extractor
+def build_cnn(input_shape):
+    cnn_input = layers.Input(shape=input_shape)
+    x = layers.Conv2D(32, (3, 3), activation='relu', padding='same')(cnn_input)
+    x = layers.MaxPooling2D((2, 2))(x)
+    x = layers.Conv2D(64, (3, 3), activation='relu', padding='same')(x)
+    x = layers.MaxPooling2D((2, 2))(x)
+    cnn_output = layers.Flatten()(x)
+    cnn_output = layers.Dense(128, activation='relu')(cnn_output)
+    return Model(cnn_input, cnn_output, name="CNN_FeatureExtractor")
+
+# Vision Transformer (ViT) Block
+def build_vit(input_shape, num_patches=64, projection_dim=128, num_heads=4):
+    patch_size = input_shape[0] // num_patches
+    vit_input = layers.Input(shape=input_shape)
+    # Patch creation
+    patches = tf.image.extract_patches(images=tf.expand_dims(vit_input, axis=0),
+                                       sizes=[1, patch_size, patch_size, 1],
+                                       strides=[1, patch_size, patch_size, 1],
+                                       rates=[1, 1, 1, 1],
+                                       padding="VALID")[0]
+    patches = tf.reshape(patches, (-1, patch_size * patch_size))
+    # Embedding
+    x = layers.Dense(projection_dim)(patches)
+    # Multi-Head Attention
+    for _ in range(2):  # Stacked transformer blocks
+        attention_output = layers.MultiHeadAttention(num_heads=num_heads, key_dim=projection_dim)(x, x)
+        x = layers.Add()([x, attention_output])  # Residual connection
+        x = layers.LayerNormalization()(x)
+    vit_output = layers.Flatten()(x)
+    return Model(vit_input, vit_output, name="ViT_Module")
+
+# Generator for GAN
+def build_gan_generator(input_dim, output_shape):
+    generator_input = layers.Input(shape=(input_dim,))
+    x = layers.Dense(256, activation='relu')(generator_input)
+    x = layers.Reshape((8, 8, 4))(x)
+    x = layers.Conv2DTranspose(64, (3, 3), activation='relu', strides=(2, 2), padding='same')(x)
+    x = layers.Conv2DTranspose(32, (3, 3), activation='relu', strides=(2, 2), padding='same')(x)
+    generator_output = layers.Conv2D(output_shape[-1], (3, 3), activation='sigmoid', padding='same')(x)
+    return Model(generator_input, generator_output, name="GAN_Generator")
+
+# Discriminator for GAN
+def build_gan_discriminator(input_shape):
+    discriminator_input = layers.Input(shape=input_shape)
+    x = layers.Conv2D(64, (3, 3), activation='relu', padding='same')(discriminator_input)
+    x = layers.MaxPooling2D((2, 2))(x)
+    x = layers.Conv2D(128, (3, 3), activation='relu', padding='same')(x)
+    x = layers.MaxPooling2D((2, 2))(x)
+    x = layers.Flatten()(x)
+    discriminator_output = layers.Dense(1, activation='sigmoid')(x)
+    return Model(discriminator_input, discriminator_output, name="GAN_Discriminator")
+
+# Final Hybrid Model
+def build_hybrid_model(input_shape):
+    cnn = build_cnn(input_shape)
+    vit = build_vit(input_shape)
+    gan_generator = build_gan_generator(128, input_shape)
+    
+    # Inputs
+    hybrid_input = layers.Input(shape=input_shape)
+    cnn_features = cnn(hybrid_input)
+    vit_features = vit(hybrid_input)
+    combined_features = layers.Concatenate()([cnn_features, vit_features])
+    
+    # Output Layer
+    hybrid_output = layers.Dense(10, activation='softmax')(combined_features)
+    return Model(hybrid_input, hybrid_output, name="Hybrid_AI_Model"), gan_generator
+
+# Compile and Train the Hybrid Model
+def compile_and_train_model():
+    input_shape = (128, 128, 3)
+    hybrid_model, gan_generator = build_hybrid_model(input_shape)
+    hybrid_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    hybrid_model.summary()
+    
+    # Train hybrid model (dummy data example)
+    X_train = np.random.random((100, 128, 128, 3))
+    y_train = tf.keras.utils.to_categorical(np.random.randint(0, 10, 100), num_classes=10)
+    hybrid_model.fit(X_train, y_train, epochs=5, batch_size=16)
+    
+    # Demonstration of GAN generator output
+    noise = np.random.normal(0, 1, (1, 128))
+    generated_image = gan_generator.predict(noise)
+    print("Generated Image Shape:", generated_image.shape)
+
+# Execute
+compile_and_train_model()
+
+Features of the Code
+	1.	CNN Module: Extracts spatial features from 2D images.
+	2.	ViT Module: Incorporates global attention for enhanced feature understanding.
+	3.	GAN Generator: Generates synthetic 2D images for data augmentation.
+	4.	Hybrid Model: Combines CNN and ViT outputs for multi-modal learning.
+	5.	GAN Demonstration: Shows how GAN-generated data can be used to enhance training.
+
+How to Use
+	1.	Install required libraries:
+
+pip install tensorflow
+
+
+	2.	Save the code and run it in a Python environment.
+	3.	Modify the input_shape and dataset as needed for specific tasks.
+
+This code serves as a robust foundation for experimenting with hybrid architectures in 2D modeling tasks.
