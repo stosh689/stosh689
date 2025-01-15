@@ -26505,4 +26505,136 @@ git add .
 git commit -m "Added FastAPI model deployment with Docker"
 git push origin main
 
-Now you have the full code to copy-paste and run your app in GitHub.
+Now you have the full run your app in GitHub.
+
+
+
+To address the improvements and next steps mentioned, here is the code that incorporates various improvements:
+	1.	Training on Real Datasets: Integrating a real dataset like KITTI or NYU Depth V2.
+	2.	Incorporating Edge Cases: Adding techniques to handle edge cases like low-light conditions, extreme weather, and urban environments.
+	3.	Integration with Sensors: Combining depth estimation with sensor data (LiDAR, radar).
+	4.	Deployment: Optimizing the FastAPI application for cloud deployment.
+
+import tensorflow as tf
+from tensorflow.keras.models import load_model
+import numpy as np
+import cv2
+from fastapi import FastAPI, File, UploadFile
+from io import BytesIO
+import os
+
+# Create FastAPI app
+app = FastAPI()
+
+# Load your pre-trained model (after training on real datasets like KITTI or NYU Depth V2)
+model = load_model('depth_estimation_model.h5')
+
+# Helper function to preprocess input image
+def preprocess_image(image):
+    image = cv2.resize(image, (224, 224))  # Resize to match model input
+    image = image / 255.0  # Normalize the image
+    image = np.expand_dims(image, axis=0)  # Add batch dimension
+    return image
+
+# Helper function to handle edge cases
+def handle_edge_cases(image):
+    # Convert image to grayscale (for low-light conditions)
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    if gray_image.mean() < 50:  # Check for low-light conditions
+        image = cv2.convertScaleAbs(image, alpha=2.0, beta=0)  # Enhance brightness
+    return image
+
+# Function to integrate sensor data (LiDAR, Radar)
+def combine_sensor_data(depth_image, lidar_data):
+    # Simple example: Combine the depth from image and sensor data by averaging
+    combined_depth = (depth_image + lidar_data) / 2
+    return combined_depth
+
+# Endpoint to handle image uploads and predictions
+@app.post("/predict/")
+async def predict_depth(file: UploadFile = File(...)):
+    # Convert uploaded image to OpenCV format
+    image_data = await file.read()
+    image = np.asarray(bytearray(image_data), dtype=np.uint8)
+    image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+
+    # Handle edge cases
+    image = handle_edge_cases(image)
+
+    # Preprocess the image for depth estimation
+    processed_image = preprocess_image(image)
+
+    # Make prediction using the model
+    predicted_depth = model.predict(processed_image)
+
+    # Combine with sensor data (Example: Assuming lidar_data is available)
+    lidar_data = np.ones_like(predicted_depth) * 2.0  # Dummy LiDAR data for illustration
+    combined_depth = combine_sensor_data(predicted_depth, lidar_data)
+
+    # Return the depth map prediction (can be adjusted for your needs)
+    return {"depth_map": combined_depth.tolist()}
+
+# Function to optimize model for real-world data (NYU Depth V2, KITTI datasets)
+def fine_tune_model():
+    # Load real datasets (like KITTI, NYU Depth V2)
+    train_data = load_real_dataset('KITTI')  # Add your custom dataset loader here
+    val_data = load_real_dataset('KITTI', split='validation')  # Validation data
+
+    # Compile and train the model
+    model.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
+    model.fit(train_data, validation_data=val_data, epochs=10)
+
+    # Save the fine-tuned model
+    model.save('fine_tuned_depth_model.h5')
+
+# Function to simulate loading real datasets (substitute with actual dataset loader)
+def load_real_dataset(dataset_name, split='train'):
+    # Dummy function: Replace with code to load actual dataset
+    if dataset_name == 'KITTI':
+        # Load KITTI dataset
+        pass
+    return np.random.rand(100, 224, 224, 3), np.random.rand(100, 224, 224, 1)  # Placeholder
+
+# Fine-tune the model on real data (call this as needed)
+fine_tune_model()
+
+# Deployment: Instructions for deployment in cloud (AWS, Azure)
+
+# On AWS:
+# - Push the FastAPI app as a Docker container to Amazon ECR.
+# - Use Amazon ECS to deploy the Docker container on AWS infrastructure.
+# - Use Amazon S3 for storing large datasets (KITTI, NYU Depth).
+# - Configure an API Gateway to expose the FastAPI app.
+
+# On Azure:
+# - Push the FastAPI app as a Docker container to Azure Container Registry.
+# - Use Azure Kubernetes Service (AKS) for deploying the Docker container.
+# - Use Azure Blob Storage for storing large datasets.
+
+# To start the FastAPI app locally (for development and testing)
+# uvicorn main:app --reload
+
+Explanation of the Code:
+	1.	Model Training on Real Datasets:
+	•	The fine_tune_model() function demonstrates how the model can be trained on real datasets like KITTI or NYU Depth V2.
+	•	The real dataset loading function (load_real_dataset) is currently a placeholder. You need to replace it with the actual code to load your dataset.
+	2.	Edge Case Handling:
+	•	The handle_edge_cases() function adjusts images that might be in low-light conditions, enhancing the brightness if necessary.
+	•	This is a basic approach, and you can extend it further by incorporating more edge cases such as extreme weather or urban environments.
+	3.	Sensor Data Integration (LiDAR, Radar):
+	•	The combine_sensor_data() function combines the depth map generated by the model with LiDAR or radar sensor data. In the example, it simply averages the depth data, but in real-world scenarios, you may want to apply more sophisticated fusion techniques (e.g., Kalman filters, deep learning-based fusion).
+	4.	FastAPI for Real-Time Predictions:
+	•	The FastAPI app allows you to upload an image, preprocess it, make a depth estimation prediction, and return the depth map. The model’s predictions are combined with sensor data before being returned.
+	•	You can extend this FastAPI app to deploy in cloud environments like AWS or Azure.
+
+Deployment Instructions:
+	•	AWS: Push the app as a Docker container to Amazon Elastic Container Registry (ECR). Use Amazon ECS for container orchestration. For large datasets like KITTI, you can use Amazon S3 for storage.
+	•	Azure: Similarly, you can use Azure Container Registry to store your Docker container and Azure Kubernetes Service (AKS) to deploy the container. Large datasets can be stored in Azure Blob Storage.
+
+Next Steps:
+	•	Training on Real Datasets: Replace the placeholder dataset loader function with code that actually loads KITTI or NYU Depth V2 datasets. Train the model and save the fine-tuned version.
+	•	Edge Case Handling: Improve the edge case handling to account for additional real-world conditions (e.g., rain, fog, etc.).
+	•	Sensor Data Integration: Further refine the sensor data fusion logic, perhaps by incorporating machine learning models that specifically focus on sensor fusion techniques.
+	•	Cloud Deployment: Push the FastAPI app to the cloud using Docker and configure it to handle real-time predictions at scale.
+
+
