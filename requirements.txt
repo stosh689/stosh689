@@ -39,3 +39,37 @@ Once added to requirements.txt, you can use the command:
 pip install -r requirements.txt
 
 This will install all the necessary dependencies for your project.
+
+
+numpy==1.21.2
+scipy==1.7.1
+matplotlib==3.4.3
+ray==2.0.0
+dask==2021.8.0
+tensorflow==2.6.0
+scikit-learn==0.24.2
+pandas==1.3.3
+joblib==1.0.1
+seaborn==0.11.2
+flask==2.0.1
+pytest==6.2.4
+requests==2.26.0
+sqlalchemy==1.4.22
+psycopg2==2.9.1
+plotly==5.1.0
+jupyterlab==3.1.0
+pytorch==1.9.1
+h5py==3.1.0
+lightgbm==3.3.1
+xgboost==1.4.2
+catboost==0.26
+optuna==2.8.0
+hyperopt==0.2.7
+tqdm==4.62.3
+networkx==2.6.3
+sympy==1.8
+statsmodels==0.12.2
+pyomo==5.7.3
+cvxpy==1.1.15
+
+
