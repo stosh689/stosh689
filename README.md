@@ -22488,3 +22488,8 @@ git commit -m "Initial commit"
 git remote add origin https://github.com/stosh689/my-project.git
 
 git push -u origin master
+
+
+git add .
+git commit -m "Added some wizardry, no one knows how it works but it’s magic"
+git push origin main
