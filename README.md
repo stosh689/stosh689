@@ -23754,7 +23754,104 @@ if __name__ == "__main__":
     main()
 
 
+To compile a Python script that cleans programs (i.e., formats and fixes code), we can use a combination of tools like autopep8, black, isort, and flake8. Here is a Python script that automates the process of cleaning up a Python file by running these tools in sequence. The script will:
+	1.	Use autopep8 to format the code according to PEP 8.
+	2.	Use black to ensure consistent formatting.
+	3.	Use isort to sort the imports.
+	4.	Optionally, run flake8 to check for code issues (this won’t automatically fix the issues, but it will provide feedback).
 
+Complete Python Script to Clean Programs:
+
+import subprocess
+import os
+
+# Function to clean up a single Python file
+def clean_code(file_path):
+    if not os.path.exists(file_path):
+        print(f"File {file_path} does not exist!")
+        return
+
+    print(f"Cleaning code for {file_path}...")
+
+    # Run autopep8 to format the code
+    print("Running autopep8...")
+    subprocess.run(['autopep8', '--in-place', '--aggressive', '--aggressive', file_path])
+
+    # Run black to reformat the code
+    print("Running black...")
+    subprocess.run(['black', file_path])
+
+    # Run isort to sort the imports
+    print("Running isort...")
+    subprocess.run(['isort', file_path])
+
+    # Optionally, run flake8 to check for issues (not automatic fixing)
+    print("Running flake8...")
+    subprocess.run(['flake8', file_path])
+
+    print(f"Cleaning complete for {file_path}")
+
+# Function to clean multiple files in a directory
+def clean_directory(directory_path):
+    # Loop through all files in the directory
+    for filename in os.listdir(directory_path):
+        file_path = os.path.join(directory_path, filename)
+        # Check if the file is a Python file
+        if file_path.endswith(".py"):
+            clean_code(file_path)
+
+# Main function
+def main():
+    # Specify the file or directory to clean
+    path_to_clean = "your_file.py"  # You can change this to a directory like './scripts' for batch cleaning
+    
+    # Check if it's a file or directory
+    if os.path.isdir(path_to_clean):
+        clean_directory(path_to_clean)
+    else:
+        clean_code(path_to_clean)
+
+if __name__ == "__main__":
+    main()
+
+Instructions:
+	1.	Install Dependencies:
+Ensure you have the required tools installed. You can install them using pip:
+
+pip install autopep8 black isort flake8
+
+
+	2.	Usage:
+	•	Single File Cleaning: If you want to clean a single Python file, set the path_to_clean variable to the file’s path (e.g., "your_file.py").
+	•	Batch Cleaning: If you want to clean all Python files in a directory, set the path_to_clean to the directory path (e.g., "./scripts"). The script will loop through all .py files in the directory and clean them.
+	3.	What Each Tool Does:
+	•	autopep8: Automatically formats Python code to conform to PEP 8.
+	•	black: Reformats code to ensure a consistent style (unlike autopep8, it doesn’t leave any customizable style options).
+	•	isort: Sorts imports in your Python file alphabetically and groups them appropriately.
+	•	flake8: A linter that checks for style and code issues (it will only report issues, not fix them).
+
+Example:
+
+path_to_clean = "your_file.py"  # Specify your file or directory here
+
+You can replace "your_file.py" with the name of the file you wish to clean. If it’s a directory, replace it with the path to the folder that contains the Python files you want to clean.
+
+Output:
+
+After running the script, you should see output like:
+
+Cleaning code for your_file.py...
+Running autopep8...
+Running black...
+Running isort...
+Running flake8...
+Cleaning complete for your_file.py
+
+Customization:
+	•	You can add more cleaning tools or modify the existing ones based on your needs.
+	•	If you don’t want to run flake8 or any other tool, simply comment or remove that part of the script.
+
+This script will help automate the process of cleaning up your Python code, ensuring that it’s formatted consistently, imports are sorted, and any style issues are reported.
 
 
 
