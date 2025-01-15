@@ -22844,7 +22844,8 @@ By following these steps, you can create a highly optimized, scalable system for
 
 
 
-
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 
 
