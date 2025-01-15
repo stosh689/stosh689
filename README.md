@@ -22485,4 +22485,4 @@ git add filename.py
 git commit -m "Initial commit"
 
 
-
+git remote add origin https://github.com/stosh688/my-project.git
