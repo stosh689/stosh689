@@ -23854,4 +23854,31 @@ Customization:
 This script will help automate the process of cleaning up your Python code, ensuring that it’s formatted consistently, imports are sorted, and any style issues are reported.
 
 
+from googletrans import Translator
 
+# Initialize the translator
+translator = Translator()
+
+# List of languages to translate to
+languages = ['af', 'ar', 'bg', 'bn', 'ca', 'cs', 'cy', 'da', 'de', 'el', 'en', 'eo', 'es', 'et', 'fa', 'fi', 'fr', 'ga', 'gl', 'gu', 'hi', 'hr', 'ht', 'hu', 'id', 'is', 'it', 'iw', 'ja', 'ka', 'kn', 'ko', 'la', 'lt', 'lv', 'mk', 'ms', 'mt', 'nl', 'no', 'pl', 'pt', 'ro', 'ru', 'sk', 'sl', 'sq', 'sr', 'sv', 'sw', 'ta', 'te', 'th', 'tl', 'tr', 'uk', 'ur', 'vi', 'yi', 'zh-CN', 'zh-TW']
+
+# Loop through each language to translate the word "sampilin"
+for language in languages:
+    translation = translator.translate("sampilin", dest=language)
+    print(f"{language}: {translation.text}")
+
+DISCLAIMER:
+
+By accessing or using [product/service], you agree to the following terms and conditions. If you do not agree to these terms and conditions, do not access or use [product/service].
+
+[The services] is provided on an "as is" and "as available" basis, without warranty of any kind, either express or implied. [Sampilin] makes no representations or warranties of any kind, express or implied, as to the operation of [product/service] or the information, content, materials, or products included on [product/service].
+
+[Sampilin] will not be liable for any damages of any kind arising from the use of [product/service], including, but not limited to, direct, indirect, incidental, punitive, and consequential damages.
+
+[Sampilin] reserves the right to change or modify these terms and conditions at any time without prior notice. Your continued use of [product/service] following the posting of changes to these terms and conditions will mean that you accept those changes.
+
+[Product/service] may contain links to third-party websites. [Sampilin] is not responsible for the content of any linked websites and does not endorse any linked websites.
+
+Any personal information provided to [Sampilin] through [product/service] will be treated in accordance with [Sampilin] privacy policy.
+
+These terms and conditions shall be governed by and construed in accordance with the laws of the [state/country/globally]. Any dispute arising out of or in connection with these terms and conditions shall be subject to the exclusive jurisdiction of the courts of [state/country/globally].
