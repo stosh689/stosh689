@@ -26344,4 +26344,165 @@ This structure integrates modern best practices for serving a machine learning m
 
 
 
+Certainly! Here’s the final, organized code ready for your GitHub repository:
 
+1. app.py (Main FastAPI Application)
+
+from fastapi import FastAPI, File, UploadFile
+from pydantic import BaseModel
+import tensorflow as tf
+import numpy as np
+from PIL import Image
+import io
+
+app = FastAPI()
+
+# Load the trained model
+model = tf.keras.models.load_model('model.h5')
+
+# Helper function to preprocess the image
+def preprocess_image(image_bytes: bytes):
+    img = Image.open(io.BytesIO(image_bytes))
+    img = img.resize((224, 224))  # Resize to model's input shape
+    img_array = np.array(img) / 255.0  # Normalize the image
+    img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
+    return img_array
+
+# Define the prediction model response
+class PredictionResponse(BaseModel):
+    prediction: str
+
+@app.post("/predict/", response_model=PredictionResponse)
+async def predict(file: UploadFile = File(...)):
+    image_bytes = await file.read()
+    img_array = preprocess_image(image_bytes)
+    
+    # Model Prediction
+    prediction = model.predict(img_array)
+    predicted_class = np.argmax(prediction, axis=1)[0]  # Get the class with max probability
+    
+    # Map class index to class label (update according to your model's classes)
+    class_names = ['class_0', 'class_1', 'class_2']  # Modify according to your dataset
+    predicted_label = class_names[predicted_class]
+    
+    return PredictionResponse(prediction=predicted_label)
+
+2. Dockerfile
+
+# Use official Python image from Docker Hub
+FROM python:3.9-slim
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the requirements.txt file to the container
+COPY requirements.txt /app/
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the current directory contents into the container
+COPY . /app/
+
+# Expose the port FastAPI will run on
+EXPOSE 8000
+
+# Run FastAPI with Uvicorn
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+
+3. requirements.txt
+
+fastapi
+tensorflow
+uvicorn
+pillow
+numpy
+
+4. docker-compose.yml
+
+version: '3.8'
+
+services:
+  fastapi-app:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - MODEL_PATH=/app/model.h5
+
+5. README.md
+
+# FastAPI with TensorFlow Model Deployment
+
+This project demonstrates how to deploy a machine learning model using FastAPI and TensorFlow. The FastAPI app exposes an endpoint to serve predictions from the model.
+
+## Requirements
+
+- Python 3.9+
+- Docker (for containerization)
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/stosh689/your-repository-name.git
+cd your-repository-name
+
+Install the dependencies:
+
+pip install -r requirements.txt
+
+Running the Application
+
+To run the FastAPI app locally, you can use the following command:
+
+uvicorn app:app --reload
+
+Docker Setup
+
+To build and run the Docker container, use:
+
+docker-compose up --build
+
+This will expose the FastAPI app on port 8000.
+
+Endpoints
+	•	POST /predict/: Upload an image file, and the model will return a predicted class label.
+
+Example Request:
+
+curl -X 'POST' \
+  'http://127.0.0.1:8000/predict/' \
+  -F 'file=@/path/to/your/image.jpg'
+
+Model
+
+Ensure that the model.h5 file is placed in the root directory, or update the Docker configuration to load it from another location.
+
+---
+
+### Steps to Follow:
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/stosh689/your-repository-name.git
+   cd your-repository-name
+
+	2.	Build and run the Docker container:
+
+docker-compose up --build
+
+
+	3.	Test the API locally:
+After running the above command, the FastAPI app should be running on http://127.0.0.1:8000. You can use curl or Postman to test the /predict/ endpoint.
+	4.	Push to GitHub:
+After making sure everything is working, commit the changes and push them to your GitHub repository:
+
+git add .
+git commit -m "Added FastAPI model deployment with Docker"
+git push origin main
+
+Now you have the full code to copy-paste and run your app in GitHub.
