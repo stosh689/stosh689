@@ -25953,3 +25953,136 @@ grid_result = grid.fit(X_train, y_train)
 print(f"Best Hyperparameters: {grid_result.best_params_}")
 
 
+Here’s the complete Docker integration with your code. This includes a Dockerfile and the requirements.txt with your specific project needs for seamless deployment:
+
+1. Dockerfile
+
+# Use the official Python image from the Docker Hub
+FROM python:3.8-slim
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the requirements.txt into the container
+COPY requirements.txt .
+
+# Install the Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application code into the container
+COPY . .
+
+# Expose port 8000 for FastAPI
+EXPOSE 8000
+
+# Define the command to run your FastAPI app using uvicorn
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+
+2. requirements.txt
+
+This file includes all the dependencies necessary for your FastAPI app, TensorFlow, and model-related packages.
+
+tensorflow
+fastapi
+uvicorn
+tensorflow-model-optimization
+scikit-learn
+numpy
+Pillow  # for image processing
+opencv-python  # for computer vision tasks
+matplotlib  # optional, for plotting if needed
+
+3. app.py (FastAPI Application)
+
+Make sure you have a FastAPI application to run your code. If you don’t already have it, here’s a basic template for it:
+
+from fastapi import FastAPI, File, UploadFile
+from pydantic import BaseModel
+from tensorflow.keras.models import load_model
+import numpy as np
+from PIL import Image
+import io
+import tensorflow as tf
+
+app = FastAPI()
+
+# Load your model (update path to the saved model file)
+model = load_model('your_model.h5')
+
+# Pydantic model for input validation
+class PredictionRequest(BaseModel):
+    # define any necessary fields for input parameters
+    pass
+
+# Prediction endpoint
+@app.post("/predict/")
+async def predict(file: UploadFile = File(...)):
+    # Read image file
+    image_data = await file.read()
+    image = Image.open(io.BytesIO(image_data))
+
+    # Preprocess image to the model's expected input format
+    image = image.resize((128, 128))  # adjust size as per your model
+    image = np.array(image)
+    image = image.astype('float32') / 255.0  # normalize if needed
+    image = np.expand_dims(image, axis=0)  # add batch dimension
+
+    # Model prediction
+    prediction = model.predict(image)
+
+    # Return the prediction
+    return {"prediction": prediction.tolist()}
+
+4. Build and Run Instructions
+
+To build and run the Docker container with your FastAPI application:
+	1.	Build the Docker Image
+
+In your terminal, navigate to the directory where your Dockerfile, requirements.txt, and app.py are located. Run the following command:
+
+docker build -t my-hybrid-model .
+
+This builds the Docker image and tags it as my-hybrid-model.
+	2.	Run the Docker Container
+
+After the image is built, run the Docker container with:
+
+docker run -p 8000:8000 my-hybrid-model
+
+This will start the FastAPI application, and you can now access it on http://localhost:8000.
+
+5. Testing the Deployment
+
+You can test the /predict/ endpoint by sending a POST request with an image. For example, using curl:
+
+curl -X 'POST' \
+  'http://127.0.0.1:8000/predict/' \
+  -F 'file=@/path/to/your/image.jpg'
+
+This will send the image to the FastAPI endpoint, where the model will process the image and return the prediction.
+
+6. Push to Docker Hub (Optional)
+
+If you want to share your Docker image or deploy it to a server, you can push the image to Docker Hub.
+	1.	Log in to Docker Hub
+
+docker login
+
+	2.	Tag the Docker Image
+
+docker tag my-hybrid-model username/my-hybrid-model:latest
+
+	3.	Push the Image to Docker Hub
+
+docker push username/my-hybrid-model:latest
+
+Replace username with your Docker Hub username.
+
+Summary
+
+This complete setup allows you to:
+	1.	Package your code and dependencies into a Docker container.
+	2.	Run the model via FastAPI and interact with it through API endpoints.
+	3.	Optionally, push the Docker image to Docker Hub for sharing and deployment.
+
+You now have the Docker integration and FastAPI app working together with your model, and you can deploy or test it easily.
