@@ -22502,3 +22502,8 @@ git add .
 git commit -m "Final implementation of genetic algorithm for chip design optimization, added machine learning integration, and refactored performance metrics"
 
 
+# Stage all changes
+git add .
+
+# Commit changes with a descriptive message
+git commit -m "Final implementation of genetic algorithm for chip design optimization, added machine learning integration, and refactored performance metrics"
