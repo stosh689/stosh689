@@ -26086,3 +26086,213 @@ This complete setup allows you to:
 	3.	Optionally, push the Docker image to Docker Hub for sharing and deployment.
 
 You now have the Docker integration and FastAPI app working together with your model, and you can deploy or test it easily.
+
+Here’s the compiled and streamlined Python code, organized and ready to be copied for your GitHub project. I’ve removed redundancies and combined everything logically. It includes FastAPI, TensorFlow, Docker setup, and other necessary components for serving your model.
+
+# app.py - FastAPI application serving a TensorFlow model
+
+import os
+from fastapi import FastAPI, File, UploadFile
+import tensorflow as tf
+import numpy as np
+from io import BytesIO
+from PIL import Image
+
+# Load the pre-trained model (ensure your model is located in the same directory as this file or adjust the path)
+model = tf.keras.models.load_model('my_model.h5')
+
+# Initialize FastAPI app
+app = FastAPI()
+
+# Helper function to preprocess image
+def preprocess_image(image: UploadFile):
+    image_bytes = image.file.read()
+    image = Image.open(BytesIO(image_bytes))
+    image = image.resize((224, 224))  # Adjust to the input size expected by the model
+    image = np.array(image) / 255.0  # Normalize the image
+    image = np.expand_dims(image, axis=0)  # Add batch dimension
+    return image
+
+# Predict endpoint
+@app.post("/predict/")
+async def predict(file: UploadFile = File(...)):
+    image = preprocess_image(file)
+    prediction = model.predict(image)
+    return {"prediction": prediction.tolist()}
+
+# Root endpoint
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to the FastAPI server serving the TensorFlow model!"}
+
+Dockerfile
+
+# Dockerfile for containerizing FastAPI and TensorFlow application
+
+# Use official Python image
+FROM python:3.9-slim
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the current directory contents into the container
+COPY . /app
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Expose the port FastAPI will run on
+EXPOSE 8000
+
+# Command to run the FastAPI application
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+
+requirements.txt
+
+fastapi
+uvicorn
+tensorflow
+pillow
+numpy
+
+README.md
+
+# Hybrid Model FastAPI with Docker
+
+This repository contains a **FastAPI application** that serves a **TensorFlow model** for **predictive analytics**. The model is wrapped in a Docker container for easy deployment and can be tested locally or deployed to production. This system provides predictions from images through a REST API, making it an ideal starting point for integrating machine learning models into production environments.
+
+## Table of Contents
+
+- [About](#about)
+- [Features](#features)
+- [Installation](#installation)
+  - [Clone the Repository](#clone-the-repository)
+  - [Dependencies](#dependencies)
+  - [Docker Setup](#docker-setup)
+- [Usage](#usage)
+  - [Run the Application](#run-the-application)
+  - [API Endpoints](#api-endpoints)
+  - [Test the API](#test-the-api)
+- [Contributing](#contributing)
+- [License](#license)
+
+## About
+
+This project serves a pre-trained **TensorFlow model** through a FastAPI application. The model is designed to predict certain outcomes based on image data, and the FastAPI app provides a `POST` endpoint where users can send images to get predictions.
+
+The entire setup is containerized using **Docker** for easy portability and deployment. This setup is ready to be used locally, on a cloud platform, or as part of a larger microservices-based architecture.
+
+## Features
+
+- FastAPI-based web application.
+- Pre-trained TensorFlow model served through an API.
+- Dockerized application for easy setup and deployment.
+- Predictive API endpoint that handles image file uploads.
+
+## Installation
+
+### Clone the Repository
+
+To get started, clone this repository:
+
+```bash
+git clone https://github.com/stosh689/my-hybrid-model.git
+cd my-hybrid-model
+
+Dependencies
+
+The required dependencies are listed in requirements.txt. Install them using pip:
+
+pip install -r requirements.txt
+
+Dependencies include:
+	•	FastAPI: A modern, fast (high-performance) web framework for building APIs with Python 3.7+.
+	•	TensorFlow: An open-source machine learning framework used for the predictive model.
+	•	Uvicorn: ASGI server used to run the FastAPI application.
+
+Docker Setup
+
+If you prefer to run the application inside a Docker container (recommended for production), follow these steps:
+	1.	Ensure Docker is installed on your machine. If not, follow the Docker installation guide.
+	2.	Build the Docker image:
+
+docker build -t my-hybrid-model .
+
+	3.	Run the Docker container:
+
+docker run -p 8000:8000 my-hybrid-model
+
+This will run the FastAPI application inside the container, exposing it on port 8000.
+
+Usage
+
+Run the Application
+
+If you’re not using Docker and prefer to run the app directly from your local machine, you can run the FastAPI app using uvicorn:
+
+uvicorn app:app --reload
+
+This will start the FastAPI application and automatically open a local development server at http://127.0.0.1:8000.
+
+API Endpoints
+	•	POST /predict/: Upload an image and receive a prediction.
+
+Request Example:
+
+curl -X 'POST' \
+  'http://127.0.0.1:8000/predict/' \
+  -F 'file=@/path/to/your/image.jpg'
+
+Response Example:
+
+{
+  "prediction": [[0.98, 0.02]]  # Example output, replace with actual model predictions
+}
+
+Test the API
+
+You can test the API using tools like Postman or curl. Below is a curl command for uploading an image:
+
+curl -X 'POST' \
+  'http://127.0.0.1:8000/predict/' \
+  -F 'file=@/path/to/your/image.jpg'
+
+In the example above, replace /path/to/your/image.jpg with the actual path to the image file.
+
+Contributing
+
+We welcome contributions to this project. If you would like to contribute, follow these steps:
+	1.	Fork the repository.
+	2.	Clone your fork to your local machine.
+	3.	Create a new branch for your changes.
+	4.	Commit your changes and push them to your fork.
+	5.	Open a pull request to the main repository.
+
+Reporting Issues
+
+If you find any bugs or issues, feel free to open an issue in the Issues tab of this repository.
+
+License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+### Instructions to Push the Code to GitHub
+
+1. **Add files to Git**:
+   ```bash
+   git add .
+
+	2.	Commit your changes:
+
+git commit -m "Initial commit with FastAPI app and model Docker setup"
+
+
+	3.	Push to GitHub:
+
+git push origin main
+
+
+
+Once the code is pushed to GitHub, the project should be fully set up and ready for use. You can then access the repository online and follow the instructions in the README.md file to run and interact with the application.
+
+
