@@ -23803,7 +23803,7 @@ def clean_directory(directory_path):
 # Main function
 def main():
     # Specify the file or directory to clean
-    path_to_clean = "your_file.py"  # You can change this to a directory like './scripts' for batch cleaning
+    path_to_clean = stosh689.py  # You can change this to a directory like './scripts' for batch cleaning
     
     # Check if it's a file or directory
     if os.path.isdir(path_to_clean):
@@ -23832,9 +23832,9 @@ pip install autopep8 black isort flake8
 
 Example:
 
-path_to_clean = "your_file.py"  # Specify your file or directory here
+path_to_clean = stosh689.py  #Specify your file or directory here
 
-You can replace "your_file.py" with the name of the file you wish to clean. If it’s a directory, replace it with the path to the folder that contains the Python files you want to clean.
+You can replace stosh689.py with the name of the file you wish to clean. If it’s a directory, replace it with the path to the folder that contains the Python files you want to clean.
 
 Output:
 
