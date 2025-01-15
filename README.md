@@ -21708,3 +21708,91 @@ git push origin main
 If You Encounter Issues
 
 If anything fails during the testing, feel free to share the error messages or describe the problem, and I’ll help you resolve it.
+
+
+import tensorflow as tf
+from tensorflow.keras import layers, models, optimizers
+from tensorflow.keras.models import Model
+from tensorflow.keras.applications import EfficientNetB0
+from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
+import numpy as np
+
+# Performance-enhancing additions
+def build_cnn(input_shape):
+    cnn_input = layers.Input(shape=input_shape)
+    x = layers.Conv2D(32, (3, 3), activation='relu', padding='same')(cnn_input)
+    x = layers.BatchNormalization()(x)
+    x = layers.MaxPooling2D((2, 2))(x)
+    x = layers.Conv2D(64, (3, 3), activation='relu', padding='same')(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.MaxPooling2D((2, 2))(x)
+    cnn_output = layers.Flatten()(x)
+    cnn_output = layers.Dense(128, activation='relu')(cnn_output)
+    return Model(cnn_input, cnn_output, name="CNN_FeatureExtractor")
+
+def build_vit(input_shape, num_patches=64, projection_dim=128, num_heads=4):
+    patch_size = input_shape[0] // num_patches
+    vit_input = layers.Input(shape=input_shape)
+    patches = tf.image.extract_patches(images=tf.expand_dims(vit_input, axis=0),
+                                       sizes=[1, patch_size, patch_size, 1],
+                                       strides=[1, patch_size, patch_size, 1],
+                                       rates=[1, 1, 1, 1],
+                                       padding="VALID")[0]
+    patches = tf.reshape(patches, (-1, patch_size * patch_size))
+    x = layers.Dense(projection_dim)(patches)
+    for _ in range(2):
+        attention_output = layers.MultiHeadAttention(num_heads=num_heads, key_dim=projection_dim)(x, x)
+        x = layers.Add()([x, attention_output])
+        x = layers.LayerNormalization()(x)
+    vit_output = layers.Flatten()(x)
+    return Model(vit_input, vit_output, name="ViT_Module")
+
+def build_gan_generator(input_dim, output_shape):
+    generator_input = layers.Input(shape=(input_dim,))
+    x = layers.Dense(256, activation='relu')(generator_input)
+    x = layers.Reshape((8, 8, 4))(x)
+    x = layers.Conv2DTranspose(64, (3, 3), activation='relu', strides=(2, 2), padding='same')(x)
+    x = layers.Conv2DTranspose(32, (3, 3), activation='relu', strides=(2, 2), padding='same')(x)
+    generator_output = layers.Conv2D(output_shape[-1], (3, 3), activation='sigmoid', padding='same')(x)
+    return Model(generator_input, generator_output, name="GAN_Generator")
+
+def build_hybrid_model(input_shape):
+    cnn = build_cnn(input_shape)
+    vit = build_vit(input_shape)
+    gan_generator = build_gan_generator(128, input_shape)
+    
+    hybrid_input = layers.Input(shape=input_shape)
+    cnn_features = cnn(hybrid_input)
+    vit_features = vit(hybrid_input)
+    combined_features = layers.Concatenate()([cnn_features, vit_features])
+    
+    hybrid_output = layers.Dense(10, activation='softmax')(combined_features)
+    return Model(hybrid_input, hybrid_output, name="Hybrid_AI_Model"), gan_generator
+
+# Training with EarlyStopping, ReduceLROnPlateau
+def compile_and_train_model():
+    input_shape = (128, 128, 3)
+    hybrid_model, gan_generator = build_hybrid_model(input_shape)
+    hybrid_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    
+    early_stopping = EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)
+    lr_scheduler = ReduceLROnPlateau(monitor='val_loss', patience=2, factor=0.5)
+    
+    hybrid_model.summary()
+    
+    # Dummy data for illustration
+    X_train = np.random.random((100, 128, 128, 3))
+    y_train = tf.keras.utils.to_categorical(np.random.randint(0, 10, 100), num_classes=10)
+    
+    hybrid_model.fit(X_train, y_train, epochs=10, batch_size=16, validation_split=0.2, 
+                     callbacks=[early_stopping, lr_scheduler])
+
+    noise = np.random.normal(0, 1, (1, 128))
+    generated_image = gan_generator.predict(noise)
+    print("Generated Image Shape:", generated_image.shape)
+
+compile_and_train_model()
+
+
+
+
