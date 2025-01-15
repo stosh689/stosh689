@@ -23882,3 +23882,345 @@ By accessing or using [product/service], you agree to the following terms and co
 Any personal information provided to [Sampilin] through [product/service] will be treated in accordance with [Sampilin] privacy policy.
 
 These terms and conditions shall be governed by and construed in accordance with the laws of the [state/country/globally]. Any dispute arising out of or in connection with these terms and conditions shall be subject to the exclusive jurisdiction of the courts of [state/country/globally].
+
+
+
+
+
+Here’s a polished, ready-to-upload GitHub repository structure and code for the 2D model recognition project using a pretrained MobileNetV2 model. This includes well-structured directories, a README.md file, and the main script.
+
+Folder Structure
+
+2D-Model-Recognition/
+├── README.md
+├── requirements.txt
+├── src/
+│   ├── main.py
+│   ├── utils.py
+├── images/
+│   └── sample.jpg
+
+1. README.md
+
+# 2D Model Recognition using MobileNetV2
+
+This project demonstrates a simple implementation of 2D model recognition using a pretrained MobileNetV2 model. The script loads an input image, preprocesses it, and predicts the object category with a confidence score.
+
+## Features
+- Utilizes TensorFlow and MobileNetV2 for image recognition.
+- Displays the image along with the predicted label and confidence score.
+
+## Requirements
+- Python 3.7+
+- TensorFlow 2.x
+- Matplotlib
+
+## Installation
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/2D-Model-Recognition.git
+   cd 2D-Model-Recognition
+
+	2.	Install dependencies:
+
+pip install -r requirements.txt
+
+
+
+Usage
+	1.	Add your image(s) to the images folder.
+	2.	Run the script:
+
+python src/main.py --image_path images/sample.jpg
+
+
+
+Example
+
+Example prediction with sample.jpg:
+
+License
+
+This project is licensed under the MIT License.
+
+---
+
+### **2. requirements.txt**
+
+tensorflow>=2.0.0
+matplotlib
+numpy
+pillow
+
+---
+
+### **3. src/utils.py**
+Utility functions for image preprocessing and visualization.
+```python
+import numpy as np
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
+import matplotlib.pyplot as plt
+
+def preprocess_image(image_path, target_size=(224, 224)):
+    """
+    Load and preprocess an image for MobileNetV2.
+    Args:
+        image_path (str): Path to the image file.
+        target_size (tuple): Target size for the image.
+
+    Returns:
+        np.array: Preprocessed image ready for prediction.
+    """
+    image = load_img(image_path, target_size=target_size)
+    image_array = img_to_array(image)
+    image_array = np.expand_dims(image_array, axis=0)
+    return preprocess_input(image_array)
+
+def visualize_prediction(image_path, prediction):
+    """
+    Display the image with its predicted label.
+    Args:
+        image_path (str): Path to the image file.
+        prediction (tuple): Predicted label tuple.
+    """
+    image = load_img(image_path)
+    plt.imshow(image)
+    plt.axis('off')
+    plt.title(f"Predicted: {prediction[1]} (Confidence: {prediction[2]:.2f})")
+    plt.show()
+
+4. src/main.py
+
+Main script for running the prediction.
+
+import argparse
+from tensorflow.keras.applications import MobileNetV2
+from tensorflow.keras.applications.mobilenet_v2 import decode_predictions
+from utils import preprocess_image, visualize_prediction
+
+def predict_image(model, image_array):
+    """
+    Predict the label of an image using the pretrained model.
+    Args:
+        model (tf.keras.Model): Pretrained model for prediction.
+        image_array (np.array): Preprocessed image array.
+
+    Returns:
+        str: Predicted label.
+    """
+    predictions = model.predict(image_array)
+    decoded_predictions = decode_predictions(predictions, top=1)
+    return decoded_predictions[0][0]  # Top prediction
+
+def main(image_path):
+    # Load the MobileNetV2 model
+    model = MobileNetV2(weights='imagenet', include_top=True)
+
+    # Preprocess the image
+    image_array = preprocess_image(image_path)
+
+    # Predict the image label
+    prediction = predict_image(model, image_array)
+
+    # Visualize the prediction
+    visualize_prediction(image_path, prediction)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="2D Model Recognition using MobileNetV2")
+    parser.add_argument("--image_path", type=str, required=True, help="Path to the input image")
+    args = parser.parse_args()
+
+    main(args.image_path)
+
+5. Sample Image
+
+Place your sample images in the images directory. Use a placeholder image like sample.jpg.
+
+6. Uploading to GitHub
+	1.	Initialize a Git repository:
+
+git init
+
+
+	2.	Add files:
+
+git add .
+
+
+	3.	Commit changes:
+
+git commit -m "Initial commit for 2D model recognition project"
+
+
+	4.	Push to GitHub:
+
+git remote add origin https://github.com/yourusername/2D-Model-Recognition.git
+git branch -M main
+git push -u origin main
+
+This repository is now structured, documented, and ready for deployment on GitHub. Let me know if you’d like further enhancements!
+
+Here’s how you can create a Python script to programmatically generate a placeholder image and save it to the images/ directory:
+
+Code to Generate a Placeholder Image
+
+from PIL import Image, ImageDraw, ImageFont
+import os
+
+def create_placeholder_image(output_path, width=224, height=224, text="Sample Image"):
+    """
+    Create a placeholder image with specified dimensions and text.
+    
+    Args:
+        output_path (str): Path to save the generated image.
+        width (int): Width of the placeholder image.
+        height (int): Height of the placeholder image.
+        text (str): Text to display on the image.
+    """
+    # Create a blank white image
+    image = Image.new("RGB", (width, height), "white")
+    draw = ImageDraw.Draw(image)
+    
+    # Add placeholder text
+    try:
+        # Use a default font; if unavailable, use a fallback font
+        font = ImageFont.load_default()
+    except:
+        font = None
+    
+    # Calculate text size and position
+    text_width, text_height = draw.textsize(text, font=font)
+    text_x = (width - text_width) // 2
+    text_y = (height - text_height) // 2
+    
+    # Draw the text on the image
+    draw.text((text_x, text_y), text, fill="black", font=font)
+    
+    # Save the image
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    image.save(output_path)
+    print(f"Placeholder image saved to {output_path}")
+
+# Generate a placeholder image in the "images" directory
+output_dir = "images"
+output_file = os.path.join(output_dir, "sample.jpg")
+create_placeholder_image(output_file)
+
+How it Works
+	1.	Pillow Library: This code uses the Pillow library to create and manipulate the image.
+	2.	Text Overlay: The ImageDraw module adds the placeholder text to the image.
+	3.	File Saving: The os.makedirs ensures the images directory exists before saving the file.
+
+Output
+
+Running the script will create a sample.jpg placeholder image in the images/ directory with a resolution of 224x224 pixels and the text “Sample Image” in the center.
+
+Let me know if you’d like me to refine this further!
+
+
+Here is an expanded and improved version of the placeholder image creation script, including enhancements such as customizable font size, colors, error handling, and additional flexibility for styling. The script also automatically checks if the required directory exists and provides feedback.
+
+Expanded and Improved Script
+
+from PIL import Image, ImageDraw, ImageFont
+import os
+
+def create_placeholder_image(
+    output_path,
+    width=224,
+    height=224,
+    text="Sample Image",
+    font_size=24,
+    background_color="white",
+    text_color="black"
+):
+    """
+    Create a customizable placeholder image with specified dimensions and text.
+    
+    Args:
+        output_path (str): Path to save the generated image.
+        width (int): Width of the placeholder image.
+        height (int): Height of the placeholder image.
+        text (str): Text to display on the image.
+        font_size (int): Font size for the text.
+        background_color (str): Background color of the image.
+        text_color (str): Color of the text.
+    """
+    try:
+        # Create a blank image with the specified background color
+        image = Image.new("RGB", (width, height), background_color)
+        draw = ImageDraw.Draw(image)
+        
+        # Load default font; fallback if unavailable
+        try:
+            font = ImageFont.truetype("arial.ttf", font_size)
+        except:
+            font = ImageFont.load_default()
+            print("Custom font not found. Using default font.")
+
+        # Calculate text size and position
+        text_width, text_height = draw.textsize(text, font=font)
+        text_x = (width - text_width) // 2
+        text_y = (height - text_height) // 2
+        
+        # Draw the text in the center of the image
+        draw.text((text_x, text_y), text, fill=text_color, font=font)
+
+        # Ensure the output directory exists
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+        # Save the image
+        image.save(output_path)
+        print(f"Placeholder image successfully created: {output_path}")
+
+    except Exception as e:
+        print(f"Error creating placeholder image: {e}")
+
+# Generate a placeholder image in the "images" directory
+if __name__ == "__main__":
+    output_dir = "images"
+    output_file = os.path.join(output_dir, "sample.jpg")
+    create_placeholder_image(
+        output_file,
+        width=300,
+        height=300,
+        text="2D Recognition",
+        font_size=30,
+        background_color="lightgray",
+        text_color="blue"
+    )
+
+Improvements and Features
+	1.	Customizable Parameters:
+	•	Font Size: Control the font size dynamically based on your image dimensions.
+	•	Colors: Specify custom background and text colors using HTML-style color names or RGB tuples.
+	•	Text Positioning: Ensures text is centered regardless of its length or font size.
+	2.	Directory Handling:
+	•	Automatically creates the directory for the output image if it doesn’t already exist.
+	3.	Robust Error Handling:
+	•	Detects issues like missing fonts or invalid paths and falls back to safe defaults.
+	4.	Enhanced Aesthetics:
+	•	Text color and background color can be set to ensure high contrast for better readability.
+
+Usage
+	•	Modify the parameters in the create_placeholder_image function call in the __main__ block as needed:
+	•	Dimensions: Change width and height to match the size of your target application.
+	•	Colors: Customize background_color and text_color to fit your theme.
+	•	Text: Adjust the text parameter for specific project branding or messaging.
+
+Output Example
+
+By default, this script will create a 300x300 pixel image with:
+	•	A light gray background.
+	•	The text “2D Recognition” in blue.
+
+You can replace these with your desired dimensions, text, or colors. Let me know if further enhancements are needed!
+
+
+
+
+
+
+
+
