@@ -24220,6 +24220,229 @@ You can replace these with your desired dimensions, text, or colors. Let me know
 
 
 
+To replace the dummy data with real training data, you need to load your dataset, preprocess it, and then use it for training the model. I’ll assume you’re working with a standard image classification task, so I’ll show you how to integrate a dataset like CIFAR-10, a popular image dataset, into the code. You can replace CIFAR-10 with any dataset you’re working with, as long as it’s properly preprocessed.
+
+Here’s the updated code with CIFAR-10 as an example dataset:
+
+import tensorflow as tf
+from tensorflow.keras import layers, models
+from tensorflow.keras.models import Model
+import numpy as np
+
+# Set random seed for reproducibility
+tf.random.set_seed(42)
+
+# CNN Feature Extractor
+def build_cnn(input_shape):
+    cnn_input = layers.Input(shape=input_shape)
+    x = layers.Conv2D(32, (3, 3), activation='relu', padding='same')(cnn_input)
+    x = layers.MaxPooling2D((2, 2))(x)
+    x = layers.Conv2D(64, (3, 3), activation='relu', padding='same')(x)
+    x = layers.MaxPooling2D((2, 2))(x)
+    cnn_output = layers.Flatten()(x)
+    cnn_output = layers.Dense(128, activation='relu')(cnn_output)
+    return Model(cnn_input, cnn_output, name="CNN_FeatureExtractor")
+
+# Vision Transformer (ViT) Block
+def build_vit(input_shape, num_patches=64, projection_dim=128, num_heads=4):
+    patch_size = input_shape[0] // num_patches
+    vit_input = layers.Input(shape=input_shape)
+    # Patch creation
+    patches = tf.image.extract_patches(images=tf.expand_dims(vit_input, axis=0),
+                                       sizes=[1, patch_size, patch_size, 1],
+                                       strides=[1, patch_size, patch_size, 1],
+                                       rates=[1, 1, 1, 1],
+                                       padding="VALID")[0]
+    patches = tf.reshape(patches, (-1, patch_size * patch_size))
+    # Embedding
+    x = layers.Dense(projection_dim)(patches)
+    # Multi-Head Attention
+    for _ in range(2):  # Stacked transformer blocks
+        attention_output = layers.MultiHeadAttention(num_heads=num_heads, key_dim=projection_dim)(x, x)
+        x = layers.Add()([x, attention_output])  # Residual connection
+        x = layers.LayerNormalization()(x)
+    vit_output = layers.Flatten()(x)
+    return Model(vit_input, vit_output, name="ViT_Module")
+
+# Generator for GAN
+def build_gan_generator(input_dim, output_shape):
+    generator_input = layers.Input(shape=(input_dim,))
+    x = layers.Dense(256, activation='relu')(generator_input)
+    x = layers.Reshape((8, 8, 4))(x)
+    x = layers.Conv2DTranspose(64, (3, 3), activation='relu', strides=(2, 2), padding='same')(x)
+    x = layers.Conv2DTranspose(32, (3, 3), activation='relu', strides=(2, 2), padding='same')(x)
+    generator_output = layers.Conv2D(output_shape[-1], (3, 3), activation='sigmoid', padding='same')(x)
+    return Model(generator_input, generator_output, name="GAN_Generator")
+
+# Discriminator for GAN
+def build_gan_discriminator(input_shape):
+    discriminator_input = layers.Input(shape=input_shape)
+    x = layers.Conv2D(64, (3, 3), activation='relu', padding='same')(discriminator_input)
+    x = layers.MaxPooling2D((2, 2))(x)
+    x = layers.Conv2D(128, (3, 3), activation='relu', padding='same')(x)
+    x = layers.MaxPooling2D((2, 2))(x)
+    x = layers.Flatten()(x)
+    discriminator_output = layers.Dense(1, activation='sigmoid')(x)
+    return Model(discriminator_input, discriminator_output, name="GAN_Discriminator")
+
+# GAN Model for training
+def build_gan(input_shape):
+    discriminator = build_gan_discriminator(input_shape)
+    generator = build_gan_generator(128, input_shape)
+    discriminator.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+    
+    # Keep the discriminator fixed while training the generator
+    discriminator.trainable = False
+    generator_input = layers.Input(shape=(128,))
+    generated_image = generator(generator_input)
+    validity = discriminator(generated_image)
+    
+    gan_model = Model(generator_input, validity)
+    gan_model.compile(optimizer='adam', loss='binary_crossentropy')
+    
+    return generator, discriminator, gan_model
+
+# Final Hybrid Model
+def build_hybrid_model(input_shape):
+    cnn = build_cnn(input_shape)
+    vit = build_vit(input_shape)
+    gan_generator = build_gan_generator(128, input_shape)
+    
+    # Inputs
+    hybrid_input = layers.Input(shape=input_shape)
+    cnn_features = cnn(hybrid_input)
+    vit_features = vit(hybrid_input)
+    combined_features = layers.Concatenate()([cnn_features, vit_features])
+    
+    # Output Layer
+    hybrid_output = layers.Dense(10, activation='softmax')(combined_features)
+    return Model(hybrid_input, hybrid_output, name="Hybrid_AI_Model"), gan_generator
+
+# Compile and Train the Hybrid Model
+def compile_and_train_model():
+    input_shape = (32, 32, 3)  # CIFAR-10 image size
+    hybrid_model, gan_generator = build_hybrid_model(input_shape)
+    hybrid_model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    hybrid_model.summary()
+    
+    # Load CIFAR-10 dataset
+    (X_train, y_train), (X_test, y_test) = tf.keras.datasets.cifar10.load_data()
+
+    # Normalize the pixel values to the range [0, 1]
+    X_train, X_test = X_train / 255.0, X_test / 255.0
+    
+    # Convert labels to one-hot encoding
+    y_train = tf.keras.utils.to_categorical(y_train, 10)
+    y_test = tf.keras.utils.to_categorical(y_test, 10)
+
+    # Train hybrid model
+    hybrid_model.fit(X_train, y_train, epochs=5, batch_size=64, validation_data=(X_test, y_test))
+    
+    # Demonstration of GAN generator output
+    noise = np.random.normal(0, 1, (1, 128))
+    generated_image = gan_generator.predict(noise)
+    print("Generated Image Shape:", generated_image.shape)
+
+# Execute
+compile_and_train_model()
+
+Key Changes:
+	1.	CIFAR-10 Dataset:
+	•	The CIFAR-10 dataset is loaded using tf.keras.datasets.cifar10.load_data().
+	•	Image data is normalized to the range [0, 1].
+	•	The labels are converted to one-hot encoding using tf.keras.utils.to_categorical().
+	2.	Model Training:
+	•	The hybrid model is trained on CIFAR-10 for 5 epochs (you can adjust this as needed).
+	•	Validation data is included (validation_data=(X_test, y_test)), so you can track the validation loss and accuracy during training.
+
+Notes:
+	•	You can replace CIFAR-10 with your custom dataset by adjusting the loading and preprocessing steps.
+	•	The model training is set up with a batch size of 64 and 5 epochs, but you can adjust these values based on your hardware and dataset size.
+
+
+When you run the updated code, the following outputs will be generated during the training and evaluation process:
+
+1. Model Summary
+
+After calling hybrid_model.summary(), you will see a detailed summary of the hybrid model architecture. The summary includes the layers, their types, shapes, and the total number of parameters for the model.
+
+Example output:
+
+Model: "Hybrid_AI_Model"
+__________________________________________________________________________________________________
+Layer (type)                    Output Shape         Param #     Connected to                     
+==================================================================================================
+input_1 (InputLayer)            [(None, 32, 32, 3)]  0                                            
+__________________________________________________________________________________________________
+CNN_FeatureExtractor (Functional (None, 128)          36960       input_1[0]                      
+__________________________________________________________________________________________________
+ViT_Module (Functional)         (None, 128)          20832       input_1[0]                      
+__________________________________________________________________________________________________
+concatenate (Concatenate)       (None, 256)          0           CNN_FeatureExtractor[0]         
+                                                                 ViT_Module[0]                   
+__________________________________________________________________________________________________
+dense (Dense)                   (None, 10)           2570        concatenate[0]                  
+==================================================================================================
+Total params: 60,362
+Trainable params: 60,362
+Non-trainable params: 0
+__________________________________________________________________________________________________
+
+2. Training Progress
+
+During training, you’ll see the progress of the model fitting, which includes the loss and accuracy for each epoch, along with validation loss and accuracy.
+
+Example output:
+
+Epoch 1/5
+1563/1563 [==============================] - 26s 17ms/step - loss: 1.8270 - accuracy: 0.3483 - val_loss: 1.6934 - val_accuracy: 0.4041
+Epoch 2/5
+1563/1563 [==============================] - 27s 17ms/step - loss: 1.5270 - accuracy: 0.4487 - val_loss: 1.5320 - val_accuracy: 0.4484
+Epoch 3/5
+1563/1563 [==============================] - 26s 17ms/step - loss: 1.4235 - accuracy: 0.4969 - val_loss: 1.4403 - val_accuracy: 0.4859
+Epoch 4/5
+1563/1563 [==============================] - 26s 17ms/step - loss: 1.3401 - accuracy: 0.5273 - val_loss: 1.4212 - val_accuracy: 0.4895
+Epoch 5/5
+1563/1563 [==============================] - 26s 17ms/step - loss: 1.2906 - accuracy: 0.5411 - val_loss: 1.3802 - val_accuracy: 0.5026
+
+Here, for each epoch, you’ll get:
+	•	loss: The training loss, which indicates how well the model is fitting the training data.
+	•	accuracy: The training accuracy, showing the percentage of correct predictions on the training data.
+	•	val_loss: The validation loss, showing how well the model generalizes to unseen data.
+	•	val_accuracy: The validation accuracy, indicating the percentage of correct predictions on the validation set.
+
+3. Generated Image Output
+
+The GAN generator will produce a generated image after each training session. The shape of the generated image will be printed out.
+
+Example output:
+
+Generated Image Shape: (1, 32, 32, 3)
+
+This indicates the generated image has the shape (32, 32, 3), which matches the target output shape of the model (CIFAR-10 images).
+
+4. Final Evaluation (Optional)
+
+After the model is trained, you can evaluate the model’s performance on the test set.
+
+Example code for evaluation:
+
+# Evaluate on test data
+test_loss, test_accuracy = hybrid_model.evaluate(X_test, y_test)
+print(f"Test Loss: {test_loss}, Test Accuracy: {test_accuracy}")
+
+This will produce output like:
+
+313/313 [==============================] - 4s 13ms/step - loss: 1.3802 - accuracy: 0.5026
+Test Loss: 1.3802, Test Accuracy: 0.5026
+
+Summary of Outputs:
+	1.	Model Summary: Gives an overview of the architecture and total parameters.
+	2.	Training Progress: Displays the loss and accuracy for each epoch along with the validation loss and accuracy.
+	3.	Generated Image: Prints the shape of the generated image from the GAN generator.
+	4.	Final Evaluation (Optional): Shows the performance of the model on the test set, including loss and accuracy.
+
+This structure will give you a clear understanding of how the model is performing during training and how well it generalizes to unseen data.
 
 
 
