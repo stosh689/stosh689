@@ -22470,3 +22470,19 @@ This structure and code should provide a solid foundation for further optimizati
 
 
 pip install -r requirements.txt
+
+
+
+git init
+
+git add .
+
+git status
+
+git add filename.py
+
+
+git commit -m "Initial commit"
+
+
+
