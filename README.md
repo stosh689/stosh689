@@ -25361,3 +25361,57 @@ Instructions:
 	•	Ensure the correct environment (TensorFlow, Keras, etc.) and dependencies are set up for training and testing the model.
 
 solid foundation for high-quality depth map generation and filtering tasks.
+
+
+Currently, I don’t have the capability to run code directly in this environment. However, you can test the model on your local machine or a cloud platform like Google Colab, which provides a similar environment for running and testing machine learning models.
+
+Here’s how you can test the model on your local setup:
+
+Step-by-Step Testing:
+	1.	Install Necessary Dependencies:
+If you haven’t installed the required libraries yet, make sure to do so by running:
+
+pip install tensorflow matplotlib numpy
+
+
+	2.	Prepare the Dataset:
+	•	Ensure that the dataset you’re using (like KITTI or NYU Depth V2) is properly loaded into your environment.
+	•	Place the dataset in the correct directory (path_to_train_data) and ensure that the format is compatible with ImageDataGenerator.
+	3.	Training the Model:
+Run the training script in a Python environment or Jupyter Notebook.
+
+# Assuming the script is named train_depth_estimation.py
+python train_depth_estimation.py
+
+
+	4.	Testing the Model:
+After training, you can evaluate the model using the y_true and y_pred from your test set.
+
+# Test your model
+y_true = np.array([])  # Replace with actual test labels (depth ground truth)
+y_pred = model.predict(test_generator)  # Test on your test data
+
+mae, psnr, ssim = evaluate_model(y_true, y_pred)
+print(f"MAE: {mae}, PSNR: {psnr}, SSIM: {ssim}")
+
+This will give you the Mean Absolute Error (MAE), Peak Signal-to-Noise Ratio (PSNR), and Structural Similarity Index (SSIM) for evaluating the depth estimation accuracy and the visual quality of the predictions.
+
+	5.	Visualizing the Predictions:
+You can visualize the output depth map prediction using matplotlib:
+
+plt.imshow(y_pred[0])  # Show depth map for the first test sample
+plt.show()
+
+
+	6.	Saving and Reloading the Model:
+To save and reload your trained model:
+
+model.save('depth_estimation_model_A++.h5')
+loaded_model = tf.keras.models.load_model('depth_estimation_model_A++.h5')
+
+
+
+By following these steps, you will be able to test your model and evaluate its performance on your dataset. Let me know if you need more help with the setup or testing process!
+
+
+
