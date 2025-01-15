@@ -25658,5 +25658,142 @@ Next Steps:
 This code is ready for integration and can be directly used in your GitHub repository for development and experimentation.
 
 
+import tensorflow as tf
+from tensorflow.keras import layers, models, optimizers
+from tensorflow.keras.models import Model
+from tensorflow.keras.applications import EfficientNetB0
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+import numpy as np
+from sklearn.metrics import classification_report, confusion_matrix
+import matplotlib.pyplot as plt
+import seaborn as sns
 
+# Set random seed for reproducibility
+tf.random.set_seed(42)
+
+# CNN Feature Extractor
+def build_cnn(input_shape):
+    cnn_input = layers.Input(shape=input_shape)
+    x = layers.Conv2D(32, (3, 3), activation='relu', padding='same')(cnn_input)
+    x = layers.MaxPooling2D((2, 2))(x)
+    x = layers.Conv2D(64, (3, 3), activation='relu', padding='same')(x)
+    x = layers.MaxPooling2D((2, 2))(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Dropout(0.3)(x)  # Dropout for regularization
+    cnn_output = layers.Flatten()(x)
+    cnn_output = layers.Dense(128, activation='relu')(cnn_output)
+    return Model(cnn_input, cnn_output, name="CNN_FeatureExtractor")
+
+# Vision Transformer (ViT) Block
+def build_vit(input_shape, num_patches=64, projection_dim=128, num_heads=4):
+    patch_size = input_shape[0] // num_patches
+    vit_input = layers.Input(shape=input_shape)
+    # Patch creation
+    patches = tf.image.extract_patches(images=tf.expand_dims(vit_input, axis=0),
+                                       sizes=[1, patch_size, patch_size, 1],
+                                       strides=[1, patch_size, patch_size, 1],
+                                       rates=[1, 1, 1, 1],
+                                       padding="VALID")[0]
+    patches = tf.reshape(patches, (-1, patch_size * patch_size))
+    # Embedding
+    x = layers.Dense(projection_dim)(patches)
+    # Multi-Head Attention
+    for _ in range(2):  # Stacked transformer blocks
+        attention_output = layers.MultiHeadAttention(num_heads=num_heads, key_dim=projection_dim)(x, x)
+        x = layers.Add()([x, attention_output])  # Residual connection
+        x = layers.LayerNormalization()(x)
+    vit_output = layers.Flatten()(x)
+    return Model(vit_input, vit_output, name="ViT_Module")
+
+# Generator for GAN
+def build_gan_generator(input_dim, output_shape):
+    generator_input = layers.Input(shape=(input_dim,))
+    x = layers.Dense(256, activation='relu')(generator_input)
+    x = layers.Reshape((8, 8, 4))(x)
+    x = layers.Conv2DTranspose(64, (3, 3), activation='relu', strides=(2, 2), padding='same')(x)
+    x = layers.Conv2DTranspose(32, (3, 3), activation='relu', strides=(2, 2), padding='same')(x)
+    generator_output = layers.Conv2D(output_shape[-1], (3, 3), activation='sigmoid', padding='same')(x)
+    return Model(generator_input, generator_output, name="GAN_Generator")
+
+# Discriminator for GAN
+def build_gan_discriminator(input_shape):
+    discriminator_input = layers.Input(shape=input_shape)
+    x = layers.Conv2D(64, (3, 3), activation='relu', padding='same')(discriminator_input)
+    x = layers.MaxPooling2D((2, 2))(x)
+    x = layers.Conv2D(128, (3, 3), activation='relu', padding='same')(x)
+    x = layers.MaxPooling2D((2, 2))(x)
+    x = layers.Flatten()(x)
+    discriminator_output = layers.Dense(1, activation='sigmoid')(x)
+    return Model(discriminator_input, discriminator_output, name="GAN_Discriminator")
+
+# Final Hybrid Model
+def build_hybrid_model(input_shape):
+    cnn = build_cnn(input_shape)
+    vit = build_vit(input_shape)
+    gan_generator = build_gan_generator(128, input_shape)
+    
+    # Inputs
+    hybrid_input = layers.Input(shape=input_shape)
+    cnn_features = cnn(hybrid_input)
+    vit_features = vit(hybrid_input)
+    combined_features = layers.Concatenate()([cnn_features, vit_features])
+    
+    # Output Layer
+    hybrid_output = layers.Dense(10, activation='softmax')(combined_features)
+    return Model(hybrid_input, hybrid_output, name="Hybrid_AI_Model"), gan_generator
+
+# Data Augmentation and Loading CIFAR-10 Dataset
+def load_and_augment_data():
+    # Load CIFAR-10 dataset
+    (X_train, y_train), (X_test, y_test) = tf.keras.datasets.cifar10.load_data()
+    
+    # Normalize images
+    X_train, X_test = X_train / 255.0, X_test / 255.0
+    
+    # Data augmentation pipeline
+    datagen = ImageDataGenerator(
+        rotation_range=20,
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        horizontal_flip=True,
+        zoom_range=0.2
+    )
+    
+    return X_train, y_train, X_test, y_test, datagen
+
+# Compile and Train the Hybrid Model
+def compile_and_train_model():
+    input_shape = (32, 32, 3)  # CIFAR-10 image size
+    hybrid_model, gan_generator = build_hybrid_model(input_shape)
+    hybrid_model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+    hybrid_model.summary()
+    
+    # Load CIFAR-10 data and augment
+    X_train, y_train, X_test, y_test, datagen = load_and_augment_data()
+    
+    # Fit the model with augmented data
+    hybrid_model.fit(datagen.flow(X_train, y_train, batch_size=64),
+                     epochs=10,
+                     validation_data=(X_test, y_test))
+    
+    # Evaluate model
+    y_pred = hybrid_model.predict(X_test)
+    print("Classification Report:")
+    print(classification_report(y_test, np.argmax(y_pred, axis=1)))
+    
+    # Confusion Matrix
+    cm = confusion_matrix(y_test, np.argmax(y_pred, axis=1))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=np.arange(10), yticklabels=np.arange(10))
+    plt.title("Confusion Matrix")
+    plt.xlabel('Predicted')
+    plt.ylabel('True')
+    plt.show()
+
+    # Demonstration of GAN generator output
+    noise = np.random.normal(0, 1, (1, 128))
+    generated_image = gan_generator.predict(noise)
+    print("Generated Image Shape:", generated_image.shape)
+
+# Execute
+compile_and_train_model()
 
