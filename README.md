@@ -22469,3 +22469,4 @@ Once pushed, your code is now live on GitHub! You can share the repository link 
 This structure and code should provide a solid foundation for further optimization and experimentation in chip design optimization. Let me know if you’d like to discuss additional modifications or tests.
 
 
+pip install -r requirements.txt
