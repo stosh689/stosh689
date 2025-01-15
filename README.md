@@ -25797,3 +25797,159 @@ def compile_and_train_model():
 # Execute
 compile_and_train_model()
 
+
+
+
+from sklearn.model_selection import GridSearchCV
+from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
+
+# Define the model function for tuning
+def create_model():
+    hybrid_model, _ = build_hybrid_model(input_shape=(32, 32, 3))
+    hybrid_model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+    return hybrid_model
+
+# Wrap the model for KerasClassifier
+model = KerasClassifier(build_fn=create_model, epochs=10, batch_size=64, verbose=0)
+
+# Define hyperparameters to tune
+param_grid = {
+    'batch_size': [32, 64],
+    'epochs': [10, 20],
+    'optimizer': ['adam', 'rmsprop'],
+    'dropout_rate': [0.2, 0.3]
+}
+
+# Use GridSearchCV to tune hyperparameters
+grid = GridSearchCV(estimator=model, param_grid=param_grid, n_jobs=-1, cv=3)
+grid_result = grid.fit(X_train, y_train)
+
+# Print the best hyperparameters
+print(f"Best Hyperparameters: {grid_result.best_params_}")
+
+from tensorflow.keras.callbacks import LearningRateScheduler
+
+def step_decay(epoch):
+    initial_lr = 0.01
+    drop = 0.5
+    epochs_drop = 10
+    lr = initial_lr * (drop ** (epoch // epochs_drop))
+    return lr
+
+lr_scheduler = LearningRateScheduler(step_decay)
+
+
+
+# Save the trained model in TensorFlow SavedModel format
+hybrid_model.save("hybrid_model", save_format="tf")
+
+from fastapi import FastAPI
+import tensorflow as tf
+import numpy as np
+from pydantic import BaseModel
+
+app = FastAPI()
+
+# Load the trained model
+model = tf.keras.models.load_model('hybrid_model')
+
+class ImageRequest(BaseModel):
+    image: list
+
+@app.post("/predict/")
+async def predict(request: ImageRequest):
+    # Prepare the input image
+    img = np.array(request.image).reshape((1, 32, 32, 3)) / 255.0
+    prediction = model.predict(img)
+    class_idx = np.argmax(prediction, axis=1)[0]
+    return {"class_idx": class_idx}
+
+# Use an official Python runtime as a parent image
+FROM python:3.8-slim
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application code
+COPY . .
+
+# Expose port 8000
+EXPOSE 8000
+
+# Command to run the application
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+
+
+version: '3'
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - MODEL_PATH=/app/hybrid_model
+  training:
+    build: ./training
+    command: ["python", "train_model.py"]
+    volumes:
+      - .:/app
+
+from tensorflow.keras.callbacks import TensorBoard
+
+# Set up TensorBoard callback for real-time monitoring
+tensorboard_callback = TensorBoard(log_dir="./logs", histogram_freq=1)
+
+# Train the model with TensorBoard callback
+hybrid_model.fit(X_train, y_train, epochs=10, validation_data=(X_test, y_test), callbacks=[tensorboard_callback])
+
+# Example of retraining the model on new data
+new_data = # New dataset for fine-tuning
+hybrid_model.fit(new_data, epochs=5, batch_size=64)
+
+import tensorflow_model_optimization as tfmot
+
+# Apply pruning to the model
+pruning_schedule = tfmot.sparsity.keras.PolynomialDecay(
+    initial_sparsity=0.0,
+    final_sparsity=0.5,
+    begin_step=0,
+    end_step=1000
+)
+
+pruned_model = tfmot.sparsity.keras.prune_low_magnitude(hybrid_model, pruning_schedule=pruning_schedule)
+
+# Compile the pruned model
+pruned_model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+# Train pruned model
+pruned_model.fit(X_train, y_train, epochs=10)
+
+from sklearn.model_selection import GridSearchCV
+from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
+
+def create_model(optimizer='adam', dropout_rate=0.2):
+    hybrid_model, _ = build_hybrid_model(input_shape=(32, 32, 3), dropout_rate=dropout_rate)
+    hybrid_model.compile(optimizer=optimizer, loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+    return hybrid_model
+
+model = KerasClassifier(build_fn=create_model, epochs=10, batch_size=64, verbose=0)
+
+param_grid = {
+    'batch_size': [32, 64],
+    'epochs': [10, 20],
+    'optimizer': ['adam', 'rmsprop'],
+    'dropout_rate': [0.2, 0.3]
+}
+
+grid = GridSearchCV(estimator=model, param_grid=param_grid, n_jobs=-1, cv=3)
+grid_result = grid.fit(X_train, y_train)
+
+print(f"Best Hyperparameters: {grid_result.best_params_}")
+
+
