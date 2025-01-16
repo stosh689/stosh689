@@ -79,3 +79,27 @@ def simulate_training():
 # Running the simulation
 simulate_training()
 
+
+# Navigate to your local repository
+cd /Users/YourUsername/Documents/GitHub/stosh689-repository
+
+# Ensure you're on the main branch
+git checkout main
+
+# Rename the file locally
+mv realtime.py training_plan.py
+
+# Stage the renamed file
+git add training_plan.py
+
+# Remove the old file (optional)
+git rm realtime.py
+
+# Commit the changes
+git commit -m "Renamed realtime.py to training_plan.py"
+
+# Push the changes to GitHub
+git push origin main
+
+
+
