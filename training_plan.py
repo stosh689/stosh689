@@ -1,4 +1,4 @@
-# training_plan.py
+# training_plan
 
 import datetime
 
