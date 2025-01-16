@@ -1,3 +1,7 @@
+
+
+
+
 To align the code with the CIDAR DARPA Challenge, it is important to focus on depth estimation, sensor integration (e.g., LiDAR, radar), and improving real-time predictions for high-risk environments like disaster zones. Since depth estimation and real-time systems are central to the challenge, we will update the model with enhanced depth estimation, incorporate additional sensor data, and optimize the real-time inference pipeline.
 
 Here’s an updated version of the code that focuses on meeting the CIDAR DARPA Challenge goals. This includes enhancements such as:
