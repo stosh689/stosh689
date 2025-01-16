@@ -151,3 +151,24 @@ Acknowledgements
 - Clone this into your repository, replacing "yourusername" and "project-name" with your actual GitHub username and the name of the repository.
 - Ensure that the `requirements.txt` file includes all necessary dependencies (e.g., `flask`, `requests`, etc.).
 - Start the project and test the real-time data simulation and processing features.
+
+
+# Navigate to your local repository
+cd /Users/YourUsername/Documents/GitHub/stosh689-repository
+
+# Ensure you're on the main branch
+git checkout main
+
+# Add the files you want to stage (example: realtime.py)
+git add realtime.py
+
+# Commit the changes with a message
+git commit -m "Added realtime.py file to the repository"
+
+# Push the changes to GitHub
+git push origin main
+
+
+
+
+
