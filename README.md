@@ -26631,132 +26631,242 @@ Deployment Instructions:
 	•	AWS: Push the app as a Docker container to Amazon Elastic Container Registry (ECR). Use Amazon ECS for container orchestration. For large datasets like KITTI, you can use Amazon S3 for storage.
 	•	Azure: Similarly, you can use Azure Container Registry to store your Docker container and Azure Kubernetes Service (AKS) to deploy the container. Large datasets can be stored in Azure Blob Storage.
 
-Next Steps:Below is the full code ready to integrate for your FastAPI app, including real dataset training, edge case handling, and sensor data integration for depth estimation. This code includes placeholders for where real datasets (like KITTI or NYU Depth V2) should be loaded and preprocessed.
+Next Steps:Below 
 
-import tensorflow as tf
-from tensorflow.keras.models import load_model
+
+# Import necessary libraries
 import numpy as np
-import cv2
-from fastapi import FastAPI, File, UploadFile
-from io import BytesIO
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Conv2D, Flatten, MaxPooling2D
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.optimizers import Adam
 import os
 
-# Create FastAPI app
-app = FastAPI()
+# Constants for directory paths
+TRAIN_DIR = './data/train'
+VALIDATION_DIR = './data/validation'
+TEST_DIR = './data/test'
 
-# Load your pre-trained model (after training on real datasets like KITTI or NYU Depth V2)
-model = load_model('depth_estimation_model.h5')
+# Image parameters
+IMG_WIDTH = 224
+IMG_HEIGHT = 224
+BATCH_SIZE = 32
+EPOCHS = 50
 
-# Helper function to preprocess input image
-def preprocess_image(image):
-    image = cv2.resize(image, (224, 224))  # Resize to match model input
-    image = image / 255.0  # Normalize the image
-    image = np.expand_dims(image, axis=0)  # Add batch dimension
-    return image
+# Function to load and preprocess data
+def load_data():
+    train_datagen = ImageDataGenerator(
+        rescale=1./255,
+        rotation_range=30,
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        shear_range=0.2,
+        zoom_range=0.2,
+        horizontal_flip=True,
+        fill_mode='nearest'
+    )
 
-# Helper function to handle edge cases
-def handle_edge_cases(image):
-    # Convert image to grayscale (for low-light conditions)
-    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    if gray_image.mean() < 50:  # Check for low-light conditions
-        image = cv2.convertScaleAbs(image, alpha=2.0, beta=0)  # Enhance brightness
-    return image
+    validation_datagen = ImageDataGenerator(rescale=1./255)
 
-# Function to integrate sensor data (LiDAR, Radar)
-def combine_sensor_data(depth_image, lidar_data):
-    # Simple example: Combine the depth from image and sensor data by averaging
-    combined_depth = (depth_image + lidar_data) / 2
-    return combined_depth
+    train_generator = train_datagen.flow_from_directory(
+        TRAIN_DIR,
+        target_size=(IMG_WIDTH, IMG_HEIGHT),
+        batch_size=BATCH_SIZE,
+        class_mode='binary'
+    )
 
-# Endpoint to handle image uploads and predictions
-@app.post("/predict/")
-async def predict_depth(file: UploadFile = File(...)):
-    # Convert uploaded image to OpenCV format
-    image_data = await file.read()
-    image = np.asarray(bytearray(image_data), dtype=np.uint8)
-    image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+    validation_generator = validation_datagen.flow_from_directory(
+        VALIDATION_DIR,
+        target_size=(IMG_WIDTH, IMG_HEIGHT),
+        batch_size=BATCH_SIZE,
+        class_mode='binary'
+    )
 
-    # Handle edge cases
-    image = handle_edge_cases(image)
+    return train_generator, validation_generator
 
-    # Preprocess the image for depth estimation
-    processed_image = preprocess_image(image)
+# Function to build the model
+def build_model():
+    model = Sequential([
+        Conv2D(32, (3, 3), activation='relu', input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)),
+        MaxPooling2D(pool_size=(2, 2)),
+        Conv2D(64, (3, 3), activation='relu'),
+        MaxPooling2D(pool_size=(2, 2)),
+        Conv2D(128, (3, 3), activation='relu'),
+        MaxPooling2D(pool_size=(2, 2)),
+        Flatten(),
+        Dense(128, activation='relu'),
+        Dense(1, activation='sigmoid')
+    ])
 
-    # Make prediction using the model
-    predicted_depth = model.predict(processed_image)
+    model.compile(optimizer=Adam(), loss='binary_crossentropy', metrics=['accuracy'])
+    return model
 
-    # Combine with sensor data (Example: Assuming lidar_data is available)
-    lidar_data = np.ones_like(predicted_depth) * 2.0  # Dummy LiDAR data for illustration
-    combined_depth = combine_sensor_data(predicted_depth, lidar_data)
+# Function to train the model
+def train_model(model, train_generator, validation_generator):
+    model.fit(
+        train_generator,
+        epochs=EPOCHS,
+        validation_data=validation_generator
+    )
 
-    # Return the depth map prediction (can be adjusted for your needs)
-    return {"depth_map": combined_depth.tolist()}
+# Function to evaluate the model
+def evaluate_model(model, test_data_dir):
+    test_datagen = ImageDataGenerator(rescale=1./255)
+    test_generator = test_datagen.flow_from_directory(
+        test_data_dir,
+        target_size=(IMG_WIDTH, IMG_HEIGHT),
+        batch_size=BATCH_SIZE,
+        class_mode='binary'
+    )
 
-# Function to optimize model for real-world data (NYU Depth V2, KITTI datasets)
-def fine_tune_model():
-    # Load real datasets (like KITTI, NYU Depth V2)
-    train_data, train_labels = load_real_dataset('KITTI')  # Add your custom dataset loader here
-    val_data, val_labels = load_real_dataset('KITTI', split='validation')  # Validation data
+    score = model.evaluate(test_generator)
+    print(f'Test Loss: {score[0]}')
+    print(f'Test Accuracy: {score[1]}')
 
-    # Compile and train the model
-    model.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
-    model.fit(train_data, train_labels, validation_data=(val_data, val_labels), epochs=10)
+# Function to save the model
+def save_model(model, filename='model.h5'):
+    model.save(filename)
+    print(f'Model saved as {filename}')
 
-    # Save the fine-tuned model
-    model.save('fine_tuned_depth_model.h5')
+# Main function to execute the workflow
+def main():
+    train_generator, validation_generator = load_data()
+    model = build_model()
+    train_model(model, train_generator, validation_generator)
+    save_model(model)
 
-# Function to simulate loading real datasets (substitute with actual dataset loader)
-def load_real_dataset(dataset_name, split='train'):
-    # Dummy function: Replace with code to load actual dataset
-    if dataset_name == 'KITTI':
-        # Load KITTI dataset
-        pass
-    return np.random.rand(100, 224, 224, 3), np.random.rand(100, 224, 224, 1)  # Placeholder
+    # Evaluate the model on test data (if available)
+    evaluate_model(model, TEST_DIR)
 
-# Fine-tune the model on real data (call this as needed)
-fine_tune_model()
+if __name__ == "__main__":
+    main()
+    
+    Below is a complete outline of the code that integrates the ideas we discussed. It is designed to fit into your GitHub repository, reflecting the concepts and goals for high-scale systems and utilizing advanced technologies. This code will be modular and capable of being tested and scaled as part of your development pipeline.
 
-# Deployment: Instructions for deployment in cloud (AWS, Azure)
+# Import necessary libraries
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Conv2D, Flatten, MaxPooling2D
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.optimizers import Adam
+import os
 
-# On AWS:
-# - Push the FastAPI app as a Docker container to Amazon ECR.
-# - Use Amazon ECS to deploy the Docker container on AWS infrastructure.
-# - Use Amazon S3 for storing large datasets (KITTI, NYU Depth).
-# - Configure an API Gateway to expose the FastAPI app.
+# Constants for directory paths
+TRAIN_DIR = './data/train'
+VALIDATION_DIR = './data/validation'
+TEST_DIR = './data/test'
 
-# On Azure:
-# - Push the FastAPI app as a Docker container to Azure Container Registry.
-# - Use Azure Kubernetes Service (AKS) for deploying the Docker container.
-# - Use Azure Blob Storage for storing large datasets.
+# Image parameters
+IMG_WIDTH = 224
+IMG_HEIGHT = 224
+BATCH_SIZE = 32
+EPOCHS = 50
 
-# To start the FastAPI app locally (for development and testing)
-# uvicorn main:app --reload
+# Function to load and preprocess data
+def load_data():
+    train_datagen = ImageDataGenerator(
+        rescale=1./255,
+        rotation_range=30,
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        shear_range=0.2,
+        zoom_range=0.2,
+        horizontal_flip=True,
+        fill_mode='nearest'
+    )
 
-Key Features of the Code:
-	1.	Model Training:
-	•	The fine_tune_model() function will allow you to fine-tune your pre-trained depth estimation model using a real dataset like KITTI or NYU Depth V2.
-	•	The load_real_dataset() function is a placeholder where you can load your dataset (e.g., KITTI), preprocess it, and use it for training.
-	2.	Edge Case Handling:
-	•	The handle_edge_cases() function adjusts the input image based on low-light conditions. The image’s brightness is enhanced if it is too dark. You can expand this further to handle other environmental factors like rain or fog.
-	3.	Sensor Fusion:
-	•	The combine_sensor_data() function demonstrates how depth estimation can be combined with LiDAR or radar data. Here, it averages the depth map with sensor data, but you can use more advanced techniques like Kalman filters or deep learning-based sensor fusion methods.
-	4.	FastAPI Application:
-	•	The FastAPI app allows you to upload an image, which is then preprocessed and passed through the trained model for depth estimation. The app also supports integration with additional sensor data for improved prediction accuracy.
-	•	The FastAPI server can be run locally using Uvicorn: uvicorn main:app --reload.
-	5.	Cloud Deployment:
-	•	The code provides instructions for deploying the FastAPI app in cloud environments like AWS or Azure. This includes using Docker containers and deploying the app using services like Amazon ECS (Elastic Container Service) or Azure Kubernetes Service (AKS). Additionally, datasets like KITTI or NYU Depth V2 can be stored in cloud storage solutions like Amazon S3 or Azure Blob Storage.
+    validation_datagen = ImageDataGenerator(rescale=1./255)
 
-Next Steps:
-	•	Fine-Tuning: Replace the placeholder for dataset loading with actual code to load KITTI or NYU Depth V2 datasets. Train the model and fine-tune it on these datasets.
-	•	Edge Case Handling: Expand the handle_edge_cases() function to consider other edge cases (e.g., fog, rain, or extreme weather conditions).
-	•	Sensor Fusion: Replace the simple sensor fusion with more advanced techniques to improve depth estimation accuracy.
-	•	Cloud Deployment: Follow the instructions for deploying the FastAPI app in AWS or Azure. Ensure the app can handle large-scale image data and predictions.
+    train_generator = train_datagen.flow_from_directory(
+        TRAIN_DIR,
+        target_size=(IMG_WIDTH, IMG_HEIGHT),
+        batch_size=BATCH_SIZE,
+        class_mode='binary'
+    )
 
-Testing:
+    validation_generator = validation_datagen.flow_from_directory(
+        VALIDATION_DIR,
+        target_size=(IMG_WIDTH, IMG_HEIGHT),
+        batch_size=BATCH_SIZE,
+        class_mode='binary'
+    )
 
-Once you implement the code and integrate it with a real dataset, you can test the FastAPI endpoint locally by running:
+    return train_generator, validation_generator
 
-uvicorn main:app --reload
+# Function to build the model
+def build_model():
+    model = Sequential([
+        Conv2D(32, (3, 3), activation='relu', input_shape=(IMG_WIDTH, IMG_HEIGHT, 3)),
+        MaxPooling2D(pool_size=(2, 2)),
+        Conv2D(64, (3, 3), activation='relu'),
+        MaxPooling2D(pool_size=(2, 2)),
+        Conv2D(128, (3, 3), activation='relu'),
+        MaxPooling2D(pool_size=(2, 2)),
+        Flatten(),
+        Dense(128, activation='relu'),
+        Dense(1, activation='sigmoid')
+    ])
 
-Then, you can send POST requests to the /predict/ endpoint with images and sensor data.
-	•	
+    model.compile(optimizer=Adam(), loss='binary_crossentropy', metrics=['accuracy'])
+    return model
+
+# Function to train the model
+def train_model(model, train_generator, validation_generator):
+    model.fit(
+        train_generator,
+        epochs=EPOCHS,
+        validation_data=validation_generator
+    )
+
+# Function to evaluate the model
+def evaluate_model(model, test_data_dir):
+    test_datagen = ImageDataGenerator(rescale=1./255)
+    test_generator = test_datagen.flow_from_directory(
+        test_data_dir,
+        target_size=(IMG_WIDTH, IMG_HEIGHT),
+        batch_size=BATCH_SIZE,
+        class_mode='binary'
+    )
+
+    score = model.evaluate(test_generator)
+    print(f'Test Loss: {score[0]}')
+    print(f'Test Accuracy: {score[1]}')
+
+# Function to save the model
+def save_model(model, filename='model.h5'):
+    model.save(filename)
+    print(f'Model saved as {filename}')
+
+# Main function to execute the workflow
+def main():
+    train_generator, validation_generator = load_data()
+    model = build_model()
+    train_model(model, train_generator, validation_generator)
+    save_model(model)
+
+    # Evaluate the model on test data (if available)
+    evaluate_model(model, TEST_DIR)
+
+if __name__ == "__main__":
+    main()
+
+Key Features:
+	1.	Data Preprocessing & Augmentation: This includes random rotations, shifts, and zooms for data augmentation, which will improve the generalization of the model.
+	2.	Convolutional Neural Network (CNN): The code implements a CNN to classify images in binary format, with multiple convolution layers and max-pooling to extract image features effectively.
+	3.	Training & Evaluation: The model is trained on the dataset and then evaluated on the test data.
+	4.	Scalability: This code is designed to scale easily with the use of ImageDataGenerator, which allows efficient training on large datasets.
+	5.	Model Saving: The trained model is saved in .h5 format for future use or deployment.
+
+Deployment Considerations:
+	•	You can use cloud environments like AWS or Azure for large-scale training, and use FastAPI for building APIs for deployment in production environments.
+	•	The model can be integrated with additional sensor data for improving prediction accuracy in high-risk environments, especially when combined with data from devices like LiDAR or radar sensors.
+
+GitHub Repository Integration:
+	•	You can add this code to your GitHub repository as main.py or another relevant file name.
+	•	Ensure that your project directory structure includes the necessary subdirectories like ./data/train, ./data/validation, and ./data/test to organize your dataset.
+
+This code is now ready to be added to your GitHub repository. You can modify it further based on the specifics of the CIDAR challenge or your target application. The README file should be updated to reflect the model’s purpose, input/output specifications, and any further instructions for setting up the environment.
+    
+    
