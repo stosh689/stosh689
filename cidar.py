@@ -2001,3 +2001,29 @@ Summary:
 This program builds, trains, and saves a deep learning model (CNN) for image classification tasks. It loads training, validation, and test data from directories, preprocesses them, trains the model on the data, evaluates its performance, and saves the model for future use. It’s scalable and adaptable for various applications, such as disaster response, medical image analysis, or autonomous vehicles.
 
 
+
+# Navigate to your local repository
+cd /Users/YourUsername/Documents/GitHub/stosh689-repository
+
+# Ensure you're on the main branch
+git checkout main
+
+# Rename the file locally
+mv CIDAR.py new_name.py
+
+# Stage the renamed file
+git add new_name.py
+
+# Remove the old file (optional)
+git rm CIDAR.py
+
+# Commit the changes
+git commit -m "Renamed CIDAR.py to new_name.py"
+
+# Push the changes to GitHub
+git push origin main
+
+
+
+
+
