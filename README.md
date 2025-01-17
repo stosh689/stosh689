@@ -26633,6 +26633,7 @@ Deployment Instructions:
 
 Next Steps:Belows
 
+
 # Fetch the full history if the clone was shallow
 git fetch --unshallow
 
@@ -26640,5 +26641,6 @@ git fetch --unshallow
 git log --all
 
 # Optionally, if the log is still limited, increase the number of commits displayed
-git log --max-count=500000
+git log --max-count=50000
+
 
