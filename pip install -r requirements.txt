@@ -1,0 +1,19 @@
+## Files
+
+- `src/crisis_management.py`: Contains the logic for managing a crisis, combining ML predictions and ethical decisions.
+- `src/ethical_decision.py`: Implements a decision-making algorithm based on ethical criteria.
+- `src/resource_optimization.py`: Solves the resource allocation problem using linear programming.
+- `src/ml_model.py`: Trains and evaluates a logistic regression model using a sample healthcare crisis dataset.
+- `notebooks/exploration.ipynb`: A Jupyter notebook for data exploration and testing the system.
+
+## Usage
+
+1. Clone the repository:
+    ```
+    git clone https://github.com/yourusername/crisis-management.git
+    ```
+
+2. Prepare your data (ensure `healthcare_crisis_data.csv` is placed in the `data/` folder).
+
+3. Run the model:
+    - Use the `exploration.ipynb` notebook to experiment with the dataset, train the model, and test the crisis management system.
