@@ -16,3 +16,9 @@ env/
 
 # Ignore data files
 data/
+
+# .gitignore
+__pycache__/
+*.log
+*.zip
+.env
