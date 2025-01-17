@@ -3,3 +3,16 @@ __pycache__/
 *.pyo
 env/
 *.log
+
+# Ignore Python bytecode files
+__pycache__/
+*.pyc
+
+# Ignore Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore the environment directory (if you are using virtualenv)
+env/
+
+# Ignore data files
+data/
