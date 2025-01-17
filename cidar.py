@@ -2,25 +2,7 @@
 
 
 
-To align the code with the CIDAR DARPA Challenge, it is important to focus on depth estimation, sensor integration (e.g., LiDAR, radar), and improving real-time predictions for high-risk environments like disaster zones. Since depth estimation and real-time systems are central to the challenge, we will update the model with enhanced depth estimation, incorporate additional sensor data, and optimize the real-time inference pipeline.
-
-Here’s an updated version of the code that focuses on meeting the CIDAR DARPA Challenge goals. This includes enhancements such as:
-	1.	Depth Estimation: Improved with a deep learning model for depth prediction.
-	2.	Sensor Integration: Support for integrating additional sensor data (e.g., LiDAR).
-	3.	Real-time Inference: Optimized for real-time predictions, especially in disaster areas.
-
-# Importing necessary libraries
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
-import numpy as np
-import cv2
-import os
-from sklearn.model_selection import train_test_split
-import matplotlib.pyplot as plt
-
-# Data loading and preprocessing (Adjust according to dataset, e.g., KITTI or NYU Depth V2)
-def load_and_preprocess_data(image_dir, depth_dir):
+To 
     images = []
     depths = []
     
