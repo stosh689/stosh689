@@ -1,0 +1,28 @@
+# exploration.ipynb
+import pandas as pd
+from ml_model import prepare_data
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from crisis_management import train_ml_model, crisis_management_model
+
+# Load data and prepare it
+X, y = prepare_data()
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Train the machine learning model
+model = train_ml_model(X_train, y_train)
+
+# Evaluate the model
+accuracy, cm = evaluate_model(model, X_test, y_test)
+
+# Display accuracy and confusion matrix
+print(f"Accuracy: {accuracy * 100:.2f}%")
+print("Confusion Matrix:")
+print(cm)
+
+# Test the crisis management model with a sample crisis data
+crisis_data = {'urgency': 0.9, 'severity': 0.7}
+resource_constraints = {'staff': 200, 'ICU_beds': 150, 'ventilators': 100}
+print(crisis_management_model(crisis_data, model, resource_constraints))
