@@ -22,3 +22,6 @@ __pycache__/
 *.log
 *.zip
 .env
+
+# instruction files
+.github/instructions/
