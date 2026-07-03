@@ -13,8 +13,11 @@ stosh689-fork/
 │
 ├── scripts/ # Standalone utility scripts
 │ ├── translate.py # Google Translate API wrapper for multi-language translation
+│ ├── translate_requests.py # Google Translate web API (requests) for 15 languages
 │ ├── worldbank_fetch.py # Fetches development indicators from the World Bank API
-│ └── resource_manager.py # SQLite-based resource management (in progress)
+│ ├── resource_manager.py # SQLite-based resource management (CRUD + search)
+│ ├── ai_analysis.py # AI-based analysis (clustering, trends, correlation)
+│ └── dashboard.py # Multi-panel matplotlib dashboard for data visualization
 │
 ├── data/ # Downloaded and processed datasets
 │ ├── raw/ # Raw API responses and unprocessed data
@@ -40,18 +43,25 @@ stosh689-fork/
 │
 └── tests/ # Unit tests for scripts
 ├── test_translate.py
-└── test_worldbank.py
+├── test_translate_requests.py
+├── test_worldbank_fetch.py
+├── test_resource_manager.py
+├── test_ai_analysis.py
+└── test_dashboard.py
 ```
 
 ## Module Guide
 
 ### `scripts/`
 
-| Script                | Purpose                                                                                    | Status                            |
-| --------------------- | ------------------------------------------------------------------------------------------ | --------------------------------- |
-| `translate.py`        | Translates text into multiple languages using Google Translate API                         | ✅ Working                        |
-| `worldbank_fetch.py`  | Fetches World Development Indicators (e.g., energy use per capita) from the World Bank API | ✅ Working                        |
-| `resource_manager.py` | SQLite-based resource tracking and management                                              | ⚠️ Incomplete — has syntax errors |
+| Script                  | Purpose                                                                                                     | Status      |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------- | ----------- |
+| `translate.py`          | Translates text into multiple languages using Google Translate API                                          | ✅ Working  |
+| `translate_requests.py` | Translates text into 15 languages via the Google Translate web API                                          | ✅ Working  |
+| `worldbank_fetch.py`    | Fetches World Development Indicators (energy use, CO₂, renewables, GDP, population) from the World Bank API | ✅ Working  |
+| `resource_manager.py`   | SQLite-based resource tracking and management (CRUD + search + validation)                                  | ✅ Complete |
+| `ai_analysis.py`        | AI-based analysis: KMeans clustering, linear-regression trend detection, correlation matrix                 | ✅ Working  |
+| `dashboard.py`          | Multi-panel matplotlib dashboard (bar chart, scatter, correlation heatmap)                                  | ✅ Working  |
 
 ### `data/`
 
@@ -99,18 +109,57 @@ Matplotlib / exports ──► data/exports/
 
 ## Dependencies
 
-| Package            | Purpose                            |
-| ------------------ | ---------------------------------- |
-| `requests`         | HTTP requests to external APIs     |
-| `googletrans`      | Multi-language translation         |
-| `pandas`           | Data cleaning and manipulation     |
-| `matplotlib`       | Data visualization                 |
-| `sqlite3` (stdlib) | Local resource management database |
+| Package            | Purpose                             |
+| ------------------ | ----------------------------------- |
+| `requests`         | HTTP requests to external APIs      |
+| `googletrans`      | Multi-language translation          |
+| `pandas`           | Data cleaning and manipulation      |
+| `matplotlib`       | Data visualization                  |
+| `scikit-learn`     | Clustering, regression, AI analysis |
+| `numpy`            | Numerical operations                |
+| `sqlite3` (stdlib) | Local resource management database  |
 
 ## Future Plans
 
-- [ ] Fix syntax errors in `resource_manager.py`
-- [ ] Add unit tests for all scripts
-- [ ] Expand World Bank data fetching to additional indicators
-- [ ] Integrate AI-based analysis of fetched datasets
-- [ ] Build a dashboard for visualizing open data trends
+- [x] Fix syntax errors in `resource_manager.py`
+- [x] Add unit tests for all scripts (see `tests/`)
+- [x] Expand World Bank data fetching to additional indicators (`INDICATORS` catalogue, `fetch_multiple_indicators()`, `compare_indicators()`)
+- [x] Integrate AI-based analysis of fetched datasets (`scripts/ai_analysis.py` — clustering, trend detection, correlation)
+- [x] Build a dashboard for visualizing open data trends (`scripts/dashboard.py` — bar + scatter + heatmap panels)
+
+## Root-Level Python Files (Untracked / Experimental)
+
+These files live at the repo root and are **not** part of the documented `scripts/` package. They appear to be experimental healthcare-crisis-management and astronomy prototypes. They are documented here for visibility but have known issues (see scan findings).
+
+| File                       | Purpose                                                                                                                         | Status / Issues                                                                                                          |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `cidar.py`                 | Crisis-management model (LogReg + ethical decision + resource optimization)                                                     | ⚠️ Exact duplicate of `training_plan.py`; broken import `from ethical_decision import ...` (no such file)                |
+| `training_plan.py`         | Crisis-management model                                                                                                         | ⚠️ Exact duplicate of `cidar.py`; same broken import                                                                     |
+| `crisis_management .py`    | Full crisis-management pipeline (train from CSV, ethical scoring, LP resource optimization, `__main__`)                         | ⚠️ Filename has trailing space → breaks `ml_model.py` import; `__main__` reads missing `data/healthcare_crisis_data.csv` |
+| `realtime.py`              | `ethical_decision(weights, criteria)` — numpy dot-product ethical scorer                                                        | ⚠️ Filename mismatch — `cidar.py`/`training_plan.py` import `ethical_decision` (no `ethical_decision.py` exists)         |
+| `resource_optimization.py` | `optimize_resources(resource_constraints)` via `scipy.optimize.linprog`                                                         | ⚠️ Ignores input parameter; uses hardcoded values                                                                        |
+| `ml_model.py`              | `prepare_data()` + `evaluate_model()` for healthcare crisis dataset                                                             | ⚠️ Broken import `from crisis_management import train_ml_model` (space in filename); reads missing CSV                   |
+| `atomically correct.py`    | **Not valid Python** — markdown document describing an `intergalactic_communication` project skeleton with embedded code blocks | ⚠️ Filename has space; not executable; deps: numpy, scipy, matplotlib, astropy, sklearn, tensorflow                      |
+
+### Dependency graph (root files)
+
+```text
+ml_model.py
+  └─ from crisis_management import train_ml_model   ← BROKEN (filename has trailing space)
+
+cidar.py  ==  training_plan.py   (exact duplicates)
+  ├─ from ethical_decision import ethical_decision   ← BROKEN (file is realtime.py)
+  └─ from resource_optimization import optimize_resources   ← OK
+
+crisis_management .py   (self-contained: defines own ethical_decision + optimize_resources)
+realtime.py            (IS the ethical_decision module)
+resource_optimization.py
+```
+
+### Recommended cleanup (not yet performed)
+
+1. Rename `crisis_management .py` → `crisis_management.py` (remove trailing space).
+2. Rename `realtime.py` → `ethical_decision.py` (matches imports).
+3. Delete one of `cidar.py` / `training_plan.py` (exact duplicate).
+4. Rename `atomically correct.py` → `atomically_correct.md` (it is markdown, not Python).
+5. Fix `resource_optimization.py` to use its input parameter.

@@ -2,8 +2,6 @@
 
 This document collects all Python code examples from the project.
 
----
-
 ## 1. Multi-Language Translation (Google Translate API)
 
 Translates the word **"sampilin"** into ~60 languages using the `googletrans` library.
@@ -30,8 +28,6 @@ for lang in languages:
     print(f"{lang}: {translation.text}")
 ```
 
----
-
 ## 2. Translation Script Using `requests`
 
 Translates **"Hello, world!"** into 15 languages using the Google Translate web API via the `requests` library.
@@ -55,8 +51,6 @@ for lang in languages:
     else:
         print(f"{lang}: Error {response.status_code}")
 ```
-
----
 
 ## 3. World Bank Data Fetcher
 
@@ -110,8 +104,6 @@ if response.status_code == 200:
 else:
     print(f"API request failed with status code: {response.status_code}")
 ```
-
----
 
 ## 4. SQLite Resource Manager (Incomplete)
 
@@ -178,13 +170,29 @@ if __name__ == "__main__":
     # view_resources()
 ```
 
----
-
 ## Summary of Code Files
 
-| Script                  | Library Used                       | Status        | Purpose                                                 |
-| ----------------------- | ---------------------------------- | ------------- | ------------------------------------------------------- |
-| `translate.py`          | `googletrans`                      | ✅ Working    | Translate a word into ~60 languages                     |
-| `translate_requests.py` | `requests`                         | ✅ Working    | Translate "Hello, world!" into 15 languages             |
-| `worldbank_fetch.py`    | `requests`, `pandas`, `matplotlib` | ✅ Working    | Fetch and visualize energy use data from World Bank API |
-| `resource_manager.py`   | `sqlite3`                          | ⚠️ Incomplete | SQLite-based resource tracking (needs fixes)            |
+> **Note:** The four scripts above now live in [`scripts/`](./scripts/) and have been refactored for testability. `resource_manager.py` is now complete with full CRUD, search, and validation. Unit tests are in [`tests/`](./tests/) — run with `pytest tests/ -v`.
+
+| Script                          | Library Used                       | Status      | Purpose                                                     |
+| ------------------------------- | ---------------------------------- | ----------- | ----------------------------------------------------------- |
+| `scripts/translate.py`          | `googletrans`                      | ✅ Working  | Translate a word into ~60 languages                         |
+| `scripts/translate_requests.py` | `requests`                         | ✅ Working  | Translate "Hello, world!" into 15 languages                 |
+| `scripts/worldbank_fetch.py`    | `requests`, `pandas`, `matplotlib` | ✅ Working  | Fetch multiple indicators from World Bank API + compare     |
+| `scripts/resource_manager.py`   | `sqlite3`                          | ✅ Complete | SQLite-based resource tracking (CRUD + search + validation) |
+| `scripts/ai_analysis.py`        | `scikit-learn`, `numpy`, `pandas`  | ✅ Working  | KMeans clustering, trend detection, correlation matrix      |
+| `scripts/dashboard.py`          | `matplotlib`, `numpy`              | ✅ Working  | Multi-panel dashboard (bar + scatter + heatmap)             |
+
+## Root-Level Python Files (Experimental / Untracked)
+
+These files are **not** in `scripts/` — they are experimental prototypes at the repo root. See [`ARCHITECTURE.md`](./ARCHITECTURE.md) for full details and known issues.
+
+| File                       | Purpose                                                   | Status                                                 |
+| -------------------------- | --------------------------------------------------------- | ------------------------------------------------------ |
+| `cidar.py`                 | Crisis-management model (LogReg + ethical + resource opt) | ⚠️ Duplicate of `training_plan.py`; broken import      |
+| `training_plan.py`         | Crisis-management model                                   | ⚠️ Duplicate of `cidar.py`; broken import              |
+| `crisis_management .py`    | Full crisis pipeline (train + ethical + optimize)         | ⚠️ Filename has trailing space; reads missing CSV      |
+| `realtime.py`              | `ethical_decision()` scorer                               | ⚠️ Filename mismatch (should be `ethical_decision.py`) |
+| `resource_optimization.py` | `optimize_resources()` via LP                             | ⚠️ Ignores input param; hardcoded values               |
+| `ml_model.py`              | `prepare_data()` + `evaluate_model()`                     | ⚠️ Broken import; reads missing CSV                    |
+| `atomically correct.py`    | Markdown doc (intergalactic_communication skeleton)       | ⚠️ Not valid Python; filename has space                |
