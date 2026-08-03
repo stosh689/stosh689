@@ -719,3 +719,404 @@ if __name__=="__main__":
 
     )
 
+
+"""
+============================================================
+
+GLOBAL ECONOMIC DIGITAL TWIN
+
+An open-source computational economics laboratory.
+
+Combines:
+
+- Real-world economic data
+- Agent-based simulation
+- Innovation economics
+- AI analysis
+- Monte Carlo forecasting
+- Statistical testing
+
+Agents:
+
+Workers
+Companies
+Investors
+Government
+
+License:
+MIT
+
+============================================================
+"""
+
+
+# ============================================================
+# IMPORTS
+# ============================================================
+
+
+import numpy as np
+import pandas as pd
+import requests
+import matplotlib.pyplot as plt
+
+
+import statsmodels.api as sm
+
+
+from sklearn.ensemble import RandomForestRegressor
+
+from sklearn.model_selection import train_test_split
+
+from sklearn.metrics import mean_squared_error
+
+
+from statsmodels.stats.outliers_influence import (
+    variance_inflation_factor
+)
+
+
+
+# ============================================================
+# GLOBAL CONFIGURATION
+# ============================================================
+
+
+np.random.seed(42)
+
+
+YEARS = 50
+
+WORKERS = 10000
+
+COMPANIES = 1000
+
+INVESTORS = 100
+
+
+OUTPUT = (
+    "global_economic_results.csv"
+)
+
+
+
+# ============================================================
+# WORLD BANK DATA CONNECTOR
+# ============================================================
+
+
+class WorldBank:
+
+
+    API = (
+        "https://api.worldbank.org/v2"
+    )
+
+
+    def get_gdp(
+            self,
+            country="CAN"):
+
+
+        url=(
+
+            f"{self.API}/country/"
+            f"{country}/indicator/"
+            "NY.GDP.MKTP.CD"
+            "?format=json"
+
+        )
+
+
+        try:
+
+            response=requests.get(
+                url,
+                timeout=10
+            )
+
+            response.raise_for_status()
+
+            data=response.json()
+
+
+            value=(
+
+                data[1][0]["value"]
+
+                /
+                1_000_000_000
+
+            )
+
+
+            return value
+
+
+
+        except Exception:
+
+
+            print(
+                "World Bank unavailable."
+                " Using default GDP."
+            )
+
+
+            return 2000
+
+
+
+
+# ============================================================
+# AGENT 1: WORKER
+# ============================================================
+
+
+class Worker:
+
+
+    def __init__(self):
+
+
+        self.skill=np.random.uniform(
+            .2,
+            .9
+        )
+
+
+        self.income=np.random.uniform(
+
+            30000,
+            80000
+
+        )
+
+
+        self.employed=True
+
+
+
+    def train(self):
+
+
+        self.skill += .01
+
+
+        self.skill=min(
+
+            self.skill,
+            1
+
+        )
+
+
+
+    def productivity(self):
+
+
+        return (
+
+            self.skill *
+            self.income
+
+        )
+
+
+
+
+# ============================================================
+# AGENT 2: COMPANY
+# ============================================================
+
+
+class Company:
+
+
+    def __init__(self):
+
+
+        self.capital=np.random.uniform(
+
+            1e6,
+            1e9
+
+        )
+
+
+        self.innovation=np.random.uniform(
+
+            .1,
+            .8
+
+        )
+
+
+        self.workers=[]
+
+
+        self.revenue=0
+
+
+
+    def hire(
+            self,
+            worker):
+
+
+        self.workers.append(
+            worker
+        )
+
+
+
+    def research(self):
+
+
+        self.innovation += np.random.uniform(
+
+            0,
+            .01
+
+        )
+
+
+        self.innovation=min(
+
+            self.innovation,
+
+            1
+
+        )
+
+
+
+    def produce(self):
+
+
+        labor=sum(
+
+            w.productivity()
+
+            for w in self.workers
+
+        )
+
+
+        self.revenue=(
+
+            labor *
+
+            self.innovation
+
+        )
+
+
+        return self.revenue
+
+
+
+
+# ============================================================
+# AGENT 3: INVESTOR
+# ============================================================
+
+
+class Investor:
+
+
+    def __init__(self):
+
+
+        self.capital=np.random.uniform(
+
+            1e8,
+            1e10
+
+        )
+
+
+
+    def invest(
+            self,
+            company):
+
+
+        if company.innovation > .6:
+
+
+            company.capital += (
+
+                self.capital *
+                .001
+
+            )
+
+
+
+
+# ============================================================
+# AGENT 4: GOVERNMENT
+# ============================================================
+
+
+class Government:
+
+
+    def __init__(self):
+
+
+        self.education_budget=200e9
+
+        self.research_budget=100e9
+
+        self.infrastructure=0.5
+
+
+
+    def education_policy(
+            self,
+            workers):
+
+
+        for worker in workers:
+
+
+            worker.train()
+
+
+
+    def research_policy(
+            self,
+            companies):
+
+
+        for company in companies:
+
+
+            company.innovation += .005
+
+
+            company.innovation=min(
+
+                company.innovation,
+
+                1
+
+            )
+
+
+
+    def infrastructure_policy(self):
+
+
+        self.infrastructure += .01
+
+
+        self.infrastructure=min(
+
+            self.infrastructure,
+
+            1
+
+        )
