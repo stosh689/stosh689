@@ -1,0 +1,721 @@
+"""
+=========================================================
+GLOBAL INNOVATION ECONOMY LABORATORY
+
+Open-source computational economics simulator.
+
+Purpose:
+Explore how innovation, education, entrepreneurship,
+infrastructure, and sustainability influence economic
+growth under uncertainty.
+
+Features:
+- World Bank Open Data API
+- Monte Carlo simulation
+- Economic feedback loops
+- OLS regression + p-values
+- VIF multicollinearity testing
+- Machine learning analysis
+- Visualization
+- CSV export
+
+License: MIT
+
+=========================================================
+"""
+
+
+# =========================
+# IMPORTS
+# =========================
+
+import requests
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+import statsmodels.api as sm
+
+from sklearn.ensemble import RandomForestRegressor
+
+from sklearn.model_selection import train_test_split
+
+from sklearn.metrics import mean_squared_error
+
+from statsmodels.stats.outliers_influence import (
+    variance_inflation_factor
+)
+
+
+
+# =========================
+# CONFIGURATION
+# =========================
+
+
+np.random.seed(42)
+
+
+SIMULATIONS = 1000
+YEARS = 50
+
+COUNTRY = "CAN"
+
+OUTPUT_FILE = (
+    "innovation_economy_results.csv"
+)
+
+
+
+# =========================
+# WORLD BANK DATA API
+# =========================
+
+
+class WorldBank:
+
+
+    BASE = (
+        "https://api.worldbank.org/v2"
+    )
+
+
+    def get_indicator(
+        self,
+        country,
+        indicator,
+        start=2000,
+        end=2024
+    ):
+
+
+        url = (
+
+            f"{self.BASE}/country/"
+            f"{country}/indicator/"
+            f"{indicator}"
+            f"?date={start}:{end}"
+            f"&format=json"
+            f"&per_page=100"
+
+        )
+
+
+        try:
+
+            response = requests.get(
+                url,
+                timeout=10
+            )
+
+            response.raise_for_status()
+
+            data=response.json()
+
+
+        except Exception as error:
+
+            print(
+                "API Error:",
+                error
+            )
+
+            return None
+
+
+
+        if len(data)<2:
+
+            return None
+
+
+
+        records=[]
+
+
+        for item in data[1]:
+
+
+            records.append({
+
+                "year":
+                int(item["date"]),
+
+                "value":
+                item["value"]
+
+            })
+
+
+        return pd.DataFrame(records)
+
+
+
+# =========================
+# ECONOMIC MODEL
+# =========================
+
+
+class Economy:
+
+
+    def __init__(self,gdp):
+
+
+        self.gdp=gdp
+
+
+        self.innovation=np.random.uniform(
+            .30,.80
+        )
+
+        self.education=np.random.uniform(
+            .40,.90
+        )
+
+        self.entrepreneurship=np.random.uniform(
+            .30,.80
+        )
+
+        self.infrastructure=np.random.uniform(
+            .50,.90
+        )
+
+        self.sustainability=np.random.uniform(
+            .40,.90
+        )
+
+
+    def validate(self):
+
+
+        variables=[
+
+            self.innovation,
+            self.education,
+            self.entrepreneurship,
+            self.infrastructure,
+            self.sustainability
+
+        ]
+
+
+        for value in variables:
+
+            assert 0 <= value <= 1
+
+
+        assert self.gdp > 0
+
+
+
+    def productivity(self):
+
+
+        return (
+
+            self.innovation*.38 +
+
+            self.education*.25 +
+
+            self.entrepreneurship*.17 +
+
+            self.infrastructure*.12 +
+
+            self.sustainability*.08
+
+        )
+
+
+
+    def step(self):
+
+
+        self.validate()
+
+
+        uncertainty=np.random.normal(
+            1,
+            .015
+        )
+
+
+        growth=(
+
+            .02 +
+
+            self.productivity()
+            *
+            .05
+            *
+            uncertainty
+
+        )
+
+
+        self.gdp*=(
+            1+growth
+        )
+
+
+
+        # innovation feedback loop
+
+        self.innovation += (
+
+            self.education *
+            self.entrepreneurship *
+            .002
+
+        )
+
+
+        self.innovation=min(
+            self.innovation,
+            1
+        )
+
+
+        return self.gdp
+
+
+
+# =========================
+# MONTE CARLO ENGINE
+# =========================
+
+
+def simulate(
+        starting_gdp
+):
+
+
+    results=[]
+
+
+    for run in range(SIMULATIONS):
+
+
+        economy=Economy(
+            starting_gdp
+        )
+
+
+        history=[]
+
+
+        for year in range(YEARS):
+
+
+            history.append(
+                economy.step()
+            )
+
+
+        results.append({
+
+            "simulation":
+            run,
+
+            "innovation":
+            economy.innovation,
+
+            "education":
+            economy.education,
+
+            "entrepreneurship":
+            economy.entrepreneurship,
+
+            "infrastructure":
+            economy.infrastructure,
+
+            "sustainability":
+            economy.sustainability,
+
+            "final_GDP":
+            economy.gdp,
+
+            "growth_history":
+            history
+
+        })
+
+
+    return pd.DataFrame(results)
+
+
+
+# =========================
+# STATISTICS
+# =========================
+
+
+def regression(df):
+
+
+    features=[
+
+        "innovation",
+
+        "education",
+
+        "entrepreneurship",
+
+        "infrastructure",
+
+        "sustainability"
+
+    ]
+
+
+    X=df[features]
+
+    y=df["final_GDP"]
+
+
+    X=sm.add_constant(X)
+
+
+    model=sm.OLS(
+        y,
+        X
+    ).fit()
+
+
+
+    print(
+        model.summary()
+    )
+
+
+
+def vif_test(df):
+
+
+    X=df[
+
+        [
+
+        "innovation",
+
+        "education",
+
+        "entrepreneurship",
+
+        "infrastructure",
+
+        "sustainability"
+
+        ]
+
+    ]
+
+
+    vif=pd.DataFrame()
+
+
+    vif["variable"]=X.columns
+
+
+    vif["VIF"]=[
+
+        variance_inflation_factor(
+            X.values,
+            i
+        )
+
+        for i in range(
+            X.shape[1]
+        )
+
+    ]
+
+
+    print(
+        "\nVIF TEST"
+    )
+
+    print(vif)
+
+
+
+# =========================
+# MACHINE LEARNING
+# =========================
+
+
+def machine_learning(df):
+
+
+    features=[
+
+        "innovation",
+
+        "education",
+
+        "entrepreneurship",
+
+        "infrastructure",
+
+        "sustainability"
+
+    ]
+
+
+    X=df[features]
+
+    y=df.final_GDP
+
+
+
+    X_train,X_test,y_train,y_test=train_test_split(
+
+        X,
+        y,
+        test_size=.2,
+        random_state=42
+
+    )
+
+
+
+    model=RandomForestRegressor(
+
+        n_estimators=300,
+
+        random_state=42
+
+    )
+
+
+    model.fit(
+        X_train,
+        y_train
+    )
+
+
+    prediction=model.predict(
+        X_test
+    )
+
+
+    rmse=np.sqrt(
+
+        mean_squared_error(
+
+            y_test,
+
+            prediction
+
+        )
+
+    )
+
+
+    importance=pd.DataFrame({
+
+        "factor":
+        features,
+
+        "importance":
+        model.feature_importances_
+
+    })
+
+
+    print(
+        "\nRandom Forest RMSE:",
+        rmse
+    )
+
+
+    print(
+        importance.sort_values(
+            "importance",
+            ascending=False
+        )
+    )
+
+
+
+# =========================
+# VISUALIZATION
+# =========================
+
+
+def visualize(df):
+
+
+    plt.figure(figsize=(10,5))
+
+    plt.hist(
+        df.final_GDP,
+        bins=50
+    )
+
+
+    plt.title(
+        "Economic Future Distribution"
+    )
+
+
+    plt.xlabel(
+        "GDP"
+    )
+
+
+    plt.ylabel(
+        "Frequency"
+    )
+
+
+    plt.grid()
+
+    plt.show()
+
+
+
+# =========================
+# MAIN
+# =========================
+
+
+if __name__=="__main__":
+
+
+    print(
+        "Global Innovation Economy Lab"
+    )
+
+
+    wb=WorldBank()
+
+
+    gdp_data=wb.get_indicator(
+
+        COUNTRY,
+
+        "NY.GDP.MKTP.CD"
+
+    )
+
+
+
+    if gdp_data is not None:
+
+
+        latest=(
+
+            gdp_data
+            .dropna()
+            .iloc[0]
+            .value
+
+        )
+
+
+        starting_gdp=(
+
+            latest /
+            1_000_000_000
+
+        )
+
+
+    else:
+
+        starting_gdp=2000
+
+
+
+    print(
+
+        "Starting GDP:",
+        starting_gdp,
+        "Billion USD"
+
+    )
+
+
+
+    results=simulate(
+
+        starting_gdp
+
+    )
+
+
+
+    print(
+        results.describe()
+    )
+
+
+
+    print(
+        "\nBEST CASE"
+    )
+
+    print(
+
+        results.loc[
+            results.final_GDP.idxmax()
+        ]
+
+    )
+
+
+
+    print(
+        "\nWORST CASE"
+    )
+
+
+    print(
+
+        results.loc[
+            results.final_GDP.idxmin()
+        ]
+
+    )
+
+
+
+    regression(results)
+
+
+    vif_test(results)
+
+
+    machine_learning(results)
+
+
+
+    visualize(results)
+
+
+
+    results.drop(
+
+        columns=[
+            "growth_history"
+        ]
+
+    ).to_csv(
+
+        OUTPUT_FILE,
+
+        index=False
+
+    )
+
+
+
+    print(
+
+        "\nComplete."
+        "\nSaved:",
+        OUTPUT_FILE
+
+    )
+
