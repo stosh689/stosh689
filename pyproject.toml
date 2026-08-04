@@ -30388,3 +30388,1928 @@ class ModelMonitor:
 
 
 
+app/
+
+├── ai/
+
+│   ├── registry/
+│   │   └── model_store.py
+│   │
+│   ├── training/
+│   │   ├── trainer.py
+│   │   └── experiments.py
+│   │
+│   ├── inference/
+│   │   └── predictor.py
+│   │
+│   └── monitoring/
+│       └── drift.py
+
+
+models/
+
+└── registry/
+
+"""
+GEDT Model Registry
+"""
+
+from pathlib import Path
+
+import json
+
+
+
+class ModelStore:
+
+
+    def __init__(self):
+
+        self.path = Path(
+            "models/registry"
+        )
+
+        self.path.mkdir(
+            parents=True,
+            exist_ok=True
+        )
+
+
+
+    def register(
+
+        self,
+
+        name,
+
+        version,
+
+        metrics
+
+    ):
+
+
+        record = {
+
+            "name": name,
+
+            "version": version,
+
+            "metrics": metrics
+
+        }
+
+
+        file = self.path / (
+
+            f"{name}_{version}.json"
+
+        )
+
+
+        file.write_text(
+
+            json.dumps(
+                record,
+                indent=4
+            )
+
+        )
+
+
+        return record
+
+
+
+"""
+GEDT Training Engine
+"""
+
+from sklearn.ensemble import RandomForestClassifier
+
+
+
+class Trainer:
+
+
+    def train(
+
+        self,
+
+        X,
+
+        y
+
+    ):
+
+
+        model = RandomForestClassifier(
+
+            n_estimators=100,
+
+            random_state=42
+
+        )
+
+
+        model.fit(
+
+            X,
+
+            y
+
+        )
+
+
+        return model
+
+"""
+GEDT Experiment Tracking
+"""
+
+
+from datetime import datetime
+
+
+
+class ExperimentTracker:
+
+
+    def record(
+
+        self,
+
+        model,
+
+        metrics
+
+    ):
+
+
+        return {
+
+            "timestamp":
+
+            datetime.utcnow().isoformat(),
+
+
+            "model":
+
+            type(model).__name__,
+
+
+            "metrics":
+
+            metrics
+
+        }
+
+"""
+GEDT AI Predictor
+"""
+
+
+
+class Predictor:
+
+
+    def __init__(
+
+        self,
+
+        model
+
+    ):
+
+        self.model = model
+
+
+
+    def predict(
+
+        self,
+
+        data
+
+    ):
+
+
+        result = self.model.predict(
+
+            data
+
+        )
+
+
+        return {
+
+            "prediction":
+
+            int(result[0])
+
+        }
+
+
+"""
+GEDT Model Drift Detection
+"""
+
+
+class DriftMonitor:
+
+
+    def compare(
+
+        self,
+
+        baseline,
+
+        current
+
+    ):
+
+
+        difference = abs(
+
+            baseline -
+
+            current
+
+        )
+
+
+        return {
+
+            "drift":
+
+            difference
+
+        }
+
+"""
+GEDT Compute Detection
+"""
+
+
+def detect_device():
+
+    try:
+
+        import torch
+
+
+        if torch.cuda.is_available():
+
+            return "cuda"
+
+
+    except:
+
+        pass
+
+
+    return "cpu"
+
+app/
+
+├── streaming/
+│
+│   ├── broker.py
+│   ├── consumer.py
+│   └── producer.py
+│
+├── sensors/
+│
+│   ├── sensor.py
+│   ├── fusion.py
+│   └── validation.py
+│
+├── realtime/
+│
+│   └── processor.py
+│
+└── digital_twin/
+
+    └── updater.py
+
+"""
+GEDT Sensor Data Model
+"""
+
+from dataclasses import dataclass
+
+from datetime import datetime
+
+
+@dataclass
+class SensorReading:
+
+    sensor_id: str
+
+    sensor_type: str
+
+    value: float
+
+    timestamp: datetime
+
+"""
+GEDT Sensor Validation
+"""
+
+
+class SensorValidator:
+
+
+    def validate(
+
+        self,
+
+        reading
+
+    ):
+
+
+        if reading.value is None:
+
+            return False
+
+
+        return True
+
+"""
+GEDT Sensor Fusion
+"""
+
+
+class SensorFusion:
+
+
+    def combine(
+
+        self,
+
+        readings
+
+    ):
+
+
+        values = [
+
+            r.value
+
+            for r in readings
+
+        ]
+
+
+        return {
+
+            "combined_value":
+
+            sum(values)
+
+            /
+
+            len(values),
+
+
+            "sources":
+
+            len(values)
+
+        }
+
+
+"""
+GEDT Event Producer
+"""
+
+
+class EventProducer:
+
+
+    def __init__(self):
+
+        self.queue = []
+
+
+
+    def publish(
+
+        self,
+
+        event
+
+    ):
+
+
+        self.queue.append(
+
+            event
+
+        )
+
+
+        return {
+
+            "status":
+
+            "published"
+
+        }
+
+"""
+GEDT Event Consumer
+"""
+
+
+class EventConsumer:
+
+
+    def consume(
+
+        self,
+
+        queue
+
+    ):
+
+
+        events = queue.copy()
+
+
+        queue.clear()
+
+
+        return events
+
+"""
+GEDT Real-Time Processing
+"""
+
+
+from app.sensors.validation import SensorValidator
+
+from app.sensors.fusion import SensorFusion
+
+
+
+class RealTimeProcessor:
+
+
+    def __init__(self):
+
+        self.validator = SensorValidator()
+
+        self.fusion = SensorFusion()
+
+
+
+    def process(
+
+        self,
+
+        readings
+
+    ):
+
+
+        valid = [
+
+            r
+
+            for r in readings
+
+            if self.validator.validate(r)
+
+        ]
+
+
+        return self.fusion.combine(
+
+            valid
+
+        )
+
+"""
+GEDT Digital Twin Updater
+"""
+
+
+class DigitalTwinUpdater:
+
+
+    def update(
+
+        self,
+
+        state,
+
+        observation
+
+    ):
+
+
+        state.risk_level = (
+
+            state.risk_level +
+
+            observation[
+                "combined_value"
+            ]
+
+            *
+
+            0.01
+
+        )
+
+
+        return state
+
+
+SensorReading(
+    sensor_id="sensor_001",
+    sensor_type="temperature",
+    value=24.5
+)
+
+Sensor A → 24.5
+
+Sensor B → 25.1
+
+Sensor C → 24.8
+
+{
+ "combined_value":24.8,
+ "sources":3
+}
+
+Old State
+
+Risk = 0.20
+
+
+↓
+
+Updated State
+
+Risk = 0.448
+
+
+                 Live Data
+
+        Sensors | APIs | External Feeds
+
+                    ↓
+
+             Event Processing
+
+                    ↓
+
+             Sensor Fusion
+
+                    ↓
+
+             Digital Twin
+
+                    ↓
+
+              AI Inference
+
+                    ↓
+
+             Simulation Engine
+
+                    ↓
+
+              Dashboard
+
+
+
+app/
+
+├── realtime/
+
+│   ├── loop.py
+│   ├── triggers.py
+│   └── alerts.py
+
+├── decision/
+
+│   ├── engine.py
+│   └── rules.py
+
+└── monitoring/
+
+    └── events.py
+
+
+"""
+GEDT Event Triggers
+"""
+
+
+class TriggerEngine:
+
+
+    def evaluate(
+
+        self,
+
+        observation
+
+    ):
+
+
+        alerts = []
+
+
+        if observation["risk"] > 0.7:
+
+            alerts.append(
+
+                "HIGH_RISK"
+
+            )
+
+
+        if observation["confidence"] < 0.5:
+
+            alerts.append(
+
+                "LOW_MODEL_CONFIDENCE"
+
+            )
+
+
+        return alerts
+
+
+"""
+GEDT Decision Rules
+"""
+
+
+RULES = {
+
+
+    "HIGH_RISK":
+
+    "run_mitigation_simulation",
+
+
+    "LOW_MODEL_CONFIDENCE":
+
+    "request_more_data"
+
+}
+
+
+"""
+GEDT Decision Engine
+"""
+
+
+from app.decision.rules import RULES
+
+
+
+class DecisionEngine:
+
+
+    def decide(
+
+        self,
+
+        alerts
+
+    ):
+
+
+        actions = []
+
+
+        for alert in alerts:
+
+
+            if alert in RULES:
+
+                actions.append(
+
+                    RULES[alert]
+
+                )
+
+
+        return actions
+
+
+
+"""
+GEDT Autonomous Intelligence Loop
+"""
+
+
+from app.realtime.triggers import TriggerEngine
+
+from app.decision.engine import DecisionEngine
+
+
+
+class IntelligenceLoop:
+
+
+    def __init__(self):
+
+        self.trigger = TriggerEngine()
+
+        self.decision = DecisionEngine()
+
+
+
+    def process(
+
+        self,
+
+        observation
+
+    ):
+
+
+        alerts = self.trigger.evaluate(
+
+            observation
+
+        )
+
+
+        actions = self.decision.decide(
+
+            alerts
+
+        )
+
+
+        return {
+
+            "alerts":
+
+            alerts,
+
+
+            "actions":
+
+            actions
+
+        }
+
+
+
+"""
+GEDT Alert Manager
+"""
+
+
+class AlertManager:
+
+
+    def send(
+
+        self,
+
+        alerts
+
+    ):
+
+
+        if alerts:
+
+            return {
+
+                "status":
+
+                "alert_generated",
+
+                "alerts":
+
+                alerts
+
+            }
+
+
+        return {
+
+            "status":
+
+            "normal"
+
+        }
+
+
+
+observation = {
+
+    "risk":0.85,
+
+    "confidence":0.62
+
+}
+
+Observation
+
+ ↓
+
+Trigger Engine
+
+ ↓
+
+HIGH_RISK
+
+ ↓
+
+Decision Engine
+
+ ↓
+
+run_mitigation_simulation
+
+{
+ "alerts":[
+   "HIGH_RISK"
+ ],
+
+ "actions":[
+   "run_mitigation_simulation"
+ ]
+}
+
+deployment/
+
+├── docker/
+
+│   ├── Dockerfile.api
+│   ├── Dockerfile.dashboard
+│   └── Dockerfile.worker
+
+├── docker-compose.yml
+
+├── nginx/
+
+│   └── nginx.conf
+
+├── monitoring/
+
+│   ├── prometheus.yml
+│   └── grafana/
+
+└── ci/
+
+    └── github-actions.yml
+
+
+FROM python:3.11-slim
+
+
+WORKDIR /app
+
+
+COPY requirements.txt .
+
+
+RUN pip install --no-cache-dir \
+    -r requirements.txt
+
+
+COPY . .
+
+
+CMD [
+
+"uvicorn",
+
+"app.main:app",
+
+"--host",
+
+"0.0.0.0",
+
+"--port",
+
+"8000"
+
+]
+
+FROM python:3.11-slim
+
+
+WORKDIR /app
+
+
+COPY requirements.txt .
+
+
+RUN pip install --no-cache-dir \
+    -r requirements.txt
+
+
+COPY dashboard ./dashboard
+
+
+CMD [
+
+"streamlit",
+
+"run",
+
+"dashboard/app.py",
+
+"--server.address",
+
+"0.0.0.0"
+
+]
+
+version: "3.9"
+
+
+services:
+
+
+  api:
+
+    build:
+
+      dockerfile:
+
+        deployment/docker/Dockerfile.api
+
+    ports:
+
+      - "8000:8000"
+
+
+
+  dashboard:
+
+    build:
+
+      dockerfile:
+
+        deployment/docker/Dockerfile.dashboard
+
+    ports:
+
+      - "8501:8501"
+
+
+
+  database:
+
+    image:
+
+      postgres:16
+
+
+    environment:
+
+      POSTGRES_DB:
+
+        gedt
+
+
+      POSTGRES_USER:
+
+        gedt_user
+
+
+      POSTGRES_PASSWORD:
+
+        gedt_password
+
+
+    ports:
+
+      - "5432:5432"
+
+
+ENVIRONMENT=production
+
+DATABASE_URL=postgresql://gedt_user:gedt_password@database/gedt
+
+GEDT_SECRET_KEY=change-this-secret
+
+MODEL_PATH=models/registry/
+
+
+name: GEDT CI
+
+
+on:
+
+  push:
+
+    branches:
+
+      - main
+
+
+
+jobs:
+
+
+  test:
+
+
+    runs-on:
+
+      ubuntu-latest
+
+
+
+    steps:
+
+
+    - uses:
+
+        actions/checkout@v4
+
+
+
+    - name:
+
+        Install Python
+
+
+      uses:
+
+        actions/setup-python@v5
+
+
+
+      with:
+
+
+        python-version:
+
+          "3.11"
+
+
+
+    - run:
+
+        pip install -r requirements.txt
+
+
+
+    - run:
+
+        pytest
+
+
+"""
+GEDT Health Monitoring
+"""
+
+from fastapi import APIRouter
+
+
+router = APIRouter()
+
+
+
+@router.get("/health")
+
+def health():
+
+    return {
+
+        "status":
+
+        "healthy",
+
+        "service":
+
+        "GEDT"
+
+    }
+
+app/
+
+├── workers/
+
+│   ├── ai_worker.py
+│   ├── simulation_worker.py
+│   └── tasks.py
+
+
+├── queue/
+
+│   ├── redis_client.py
+│   └── broker.py
+
+
+├── monitoring/
+
+│   ├── metrics.py
+│   └── logging.py
+
+"""
+GEDT Redis Queue
+"""
+
+import redis
+
+
+class RedisClient:
+
+
+    def __init__(self):
+
+        self.client = redis.Redis(
+
+            host="localhost",
+
+            port=6379,
+
+            decode_responses=True
+
+        )
+
+
+
+    def publish(
+
+        self,
+
+        channel,
+
+        message
+
+    ):
+
+
+        return self.client.publish(
+
+            channel,
+
+            message
+
+        )
+
+
+"""
+GEDT Task Broker
+"""
+
+
+class TaskBroker:
+
+
+    def __init__(self):
+
+        self.tasks = []
+
+
+
+    def submit(
+
+        self,
+
+        task
+
+    ):
+
+        self.tasks.append(
+
+            task
+
+        )
+
+
+        return {
+
+            "queued":
+
+            True,
+
+            "task":
+
+            task
+
+        }
+
+
+
+    def next_task(self):
+
+        if self.tasks:
+
+            return self.tasks.pop(0)
+
+        return None
+
+
+"""
+GEDT AI Worker
+"""
+
+
+class AIWorker:
+
+
+    def execute(
+
+        self,
+
+        job
+
+    ):
+
+
+        result = {
+
+            "worker":
+
+            "ai",
+
+            "status":
+
+            "completed",
+
+            "input":
+
+            job
+
+        }
+
+
+        return result
+
+"""
+GEDT Simulation Worker
+"""
+
+
+class SimulationWorker:
+
+
+    def execute(
+
+        self,
+
+        scenario
+
+    ):
+
+
+        return {
+
+            "worker":
+
+            "simulation",
+
+            "scenario":
+
+            scenario,
+
+            "status":
+
+            "completed"
+
+        }
+
+"""
+GEDT Metrics
+"""
+
+
+class Metrics:
+
+
+    def __init__(self):
+
+        self.requests = 0
+
+        self.errors = 0
+
+
+
+    def request(self):
+
+        self.requests += 1
+
+
+
+    def error(self):
+
+        self.errors += 1
+
+
+
+    def report(self):
+
+        return {
+
+            "requests":
+
+            self.requests,
+
+
+            "errors":
+
+            self.errors
+
+        }
+
+"""
+GEDT Structured Logging
+"""
+
+
+import logging
+
+
+logger = logging.getLogger(
+
+    "GEDT"
+
+)
+
+
+logging.basicConfig(
+
+    level=logging.INFO
+
+)
+
+
+from app.workers.ai_worker import AIWorker
+
+
+worker = AIWorker()
+
+
+result = worker.execute(
+
+    {
+
+        "model":
+
+        "gedt_random_forest"
+
+    }
+
+)
+
+
+print(result)
+
+
+app/
+
+├── monitoring/
+
+│   ├── prometheus.py
+│   ├── tracing.py
+│   ├── alerts.py
+│   └── health.py
+
+
+├── resilience/
+
+│   ├── retry.py
+│   └── recovery.py
+
+
+deployment/
+
+└── monitoring/
+
+    ├── prometheus.yml
+
+    └── grafana/
+
+
+pip install prometheus-client
+
+"""
+GEDT Prometheus Metrics
+"""
+
+from prometheus_client import Counter
+from prometheus_client import Histogram
+
+
+
+REQUEST_COUNT = Counter(
+
+    "gedt_requests_total",
+
+    "Total GEDT requests"
+
+)
+
+
+REQUEST_TIME = Histogram(
+
+    "gedt_request_duration_seconds",
+
+    "GEDT request duration"
+
+)
+
+
+
+def record_request():
+
+    REQUEST_COUNT.inc()
+
+"""
+GEDT Metrics API
+"""
+
+from fastapi import APIRouter
+
+from prometheus_client import generate_latest
+
+
+router = APIRouter()
+
+
+
+@router.get("/metrics")
+
+def metrics():
+
+    return generate_latest()
+
+"""
+GEDT Trace System
+"""
+
+
+from datetime import datetime
+
+
+
+def create_trace(
+
+    operation
+
+):
+
+
+    return {
+
+        "operation":
+
+        operation,
+
+
+        "timestamp":
+
+        datetime.utcnow().isoformat()
+
+    }
+
+"""
+GEDT Alert Management
+"""
+
+
+class AlertEngine:
+
+
+    def check(
+
+        self,
+
+        metrics
+
+    ):
+
+
+        alerts = []
+
+
+        if metrics["errors"] > 10:
+
+            alerts.append(
+
+                "HIGH_ERROR_RATE"
+
+            )
+
+
+        return alerts
+
+"""
+GEDT Retry Utility
+"""
+
+
+import time
+
+
+
+def retry(
+
+    attempts=3
+
+):
+
+
+    def decorator(func):
+
+
+        def wrapper(*args, **kwargs):
+
+
+            for attempt in range(attempts):
+
+                try:
+
+                    return func(
+
+                        *args,
+
+                        **kwargs
+
+                    )
+
+
+                except Exception:
+
+                    time.sleep(1)
+
+
+            raise Exception(
+
+                "Operation failed"
+
+            )
+
+
+        return wrapper
+
+
+    return decorator
+
+"""
+GEDT Recovery Manager
+"""
+
+
+class RecoveryManager:
+
+
+    def restart_service(
+
+        self,
+
+        service
+
+    ):
+
+
+        return {
+
+            "service":
+
+            service,
+
+
+            "action":
+
+            "restart_requested"
+
+        }
+
+global:
+
+  scrape_interval: 15s
+
+
+scrape_configs:
+
+
+  - job_name: gedt
+
+    static_configs:
+
+      - targets:
+
+        - api:8000
+
+              Data Sources
+
+                   ↓
+
+          Streaming + Workers
+
+                   ↓
+
+              AI Engine
+
+                   ↓
+
+          Digital Twin Engine
+
+                   ↓
+
+             Decision Layer
+
+                   ↓
+
+             Dashboard
+
+
+                   ↑
+
+          Monitoring System
+
+          Metrics + Logs + Alerts
+
+
+
+app/
+
+├── governance/
+
+│   ├── audit.py
+│   ├── approvals.py
+│   ├── explainability.py
+│   └── compliance.py
+
+
+├── security/
+
+│   ├── rbac.py
+│   └── policies.py
+
+
+└── models/
+
+    └── approval.py
+
+
+"""
+GEDT Audit Records
+"""
+
+from datetime import datetime
+
+
+
+class AuditRecord:
+
+
+    def __init__(
+
+        self,
+
+        user,
+
+        action,
+
+        model,
+
+        result
+
+    ):
+
+
+        self.timestamp = datetime.utcnow()
+
+        self.user = user
+
+        self.action = action
+
+        self.model = model
+
+        self.result = result
+
+
+
+    def export(self):
+
+        return {
+
+            "timestamp":
+
+            self.timestamp.isoformat(),
+
+
+            "user":
+
+            self.user,
+
+
+            "action":
+
+            self.action,
+
+
+            "model":
+
+            self.model,
+
+
+            "result":
+
+            self.result
+
+        }
+
+
+"""
+GEDT RBAC
+"""
+
+
+PERMISSIONS = {
+
+
+    "admin":
+
+    [
+
+        "manage_users",
+
+        "approve_models",
+
+        "run_ai"
+
+    ],
+
+
+    "analyst":
+
+    [
+
+        "run_ai",
+
+        "view_reports"
+
+    ],
+
+
+    "viewer":
+
+    [
+
+        "view_reports"
+
+    ]
+
+}
+
+
+
+def allowed(
+
+    role,
+
+    permission
+
+):
+
+
+    return permission in PERMISSIONS.get(
+
+        role,
+
+        []
+
+    )
+
+"""
+GEDT Model Approval
+"""
+
+
+class ModelApproval:
+
+
+    def approve(
+
+        self,
+
+        model_name,
+
+        version
+
+    ):
+
+
+        return {
+
+            "model":
+
+            model_name,
+
+
+            "version":
+
+            version,
+
+
+            "status":
+
+            "approved"
+
+        }
+
+
+"""
+GEDT AI Explanation Record
+"""
+
+
+class Explanation:
+
+
+    def generate(
+
+        self,
+
+        features,
+
+        prediction
+
+    ):
+
+
+        return {
+
+            "prediction":
+
+            prediction,
+
+
+            "important_features":
+
+            features[:3]
+
+        }
+
+"""
+GEDT Compliance Reports
+"""
+
+
+class ComplianceReport:
+
+
+    def generate(
+
+        self,
+
+        audits
+
+    ):
+
+
+        return {
+
+            "total_events":
+
+            len(audits),
+
+
+            "audit_enabled":
+
+            True
+
+        }
+
+{
+ "model":"gedt_forecast_v1",
+ "input":"sensor_data"
+}
+1. User Permission
+
+        ↓
+
+2. Model Approval
+
+        ↓
+
+3. Run AI
+
+        ↓
+
+4. Generate Explanation
+
+        ↓
+
+5. Store Audit Record
+
+
+
+
+
+
+
+
