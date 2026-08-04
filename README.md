@@ -53,3 +53,56 @@ Interested in:
 ## Disclaimer
 
 This project and its contents are provided "as is" for educational and advocacy purposes. No warranty is expressed or implied. See individual code licenses and third-party API terms before use.
+
+
+# Global Economic Digital Twin (GEDT)
+
+## Artificial Intelligence Framework for Economic Simulation and Innovation Analysis
+
+GEDT is an open-source agent-based computational economics framework designed to explore how innovation, education, investment, and human capital influence economic evolution.
+
+## Features
+
+- Agent-based economic simulation
+- Monte Carlo experiments
+- Innovation modeling
+- Statistical analysis
+- Machine learning evaluation
+- Scenario comparison
+- Reproducible experiments
+
+## Architecture
+
+## Installation
+
+Clone repository:
+
+```bash
+git clone https://github.com/username/global-economic-digital-twin.git
+
+pip install -r requirements.txt
+
+python gedt.py
+
+gedt_results.csv
+gedt_sensitivity.csv
+
+---
+
+# 2. requirements.txt
+
+Create:
+
+```text
+requirements.txt
+
+numpy>=2.0
+pandas>=2.0
+scikit-learn>=1.5
+statsmodels>=0.14
+scipy>=1.12
+matplotlib>=3.9
+requests>=2.32
+pytest>=8.0
+
+
