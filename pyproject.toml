@@ -26280,4 +26280,489 @@ uvicorn app.main:app --reload
 
 pytest
 
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+
+pydantic==2.9.2
+pydantic-settings==2.5.2
+
+pytest==8.3.3
+httpx==0.27.2
+
+[project]
+name = "gedt-mvd"
+version = "0.1.0-alpha"
+description = "Global Engineering Digital Twin Minimum Viable Demonstrator"
+requires-python = ">=3.12"
+
+
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "pydantic-settings"
+]
+
+
+[tool.pytest.ini_options]
+
+testpaths = [
+    "tests"
+]
+
+
+[tool.ruff]
+
+line-length = 88
+
+
+[tool.mypy]
+
+python_version = "3.12"
+
+APP_NAME="GEDT MVD"
+
+VERSION="0.1.0-alpha"
+
+ENVIRONMENT="development"
+
+DEBUG=true
+
+FROM python:3.12-slim
+
+
+WORKDIR /app
+
+
+COPY requirements.txt .
+
+
+RUN pip install --no-cache-dir \
+    -r requirements.txt
+
+
+COPY . .
+
+
+EXPOSE 8000
+
+
+CMD [
+"uvicorn",
+"app.main:app",
+"--host",
+"0.0.0.0",
+"--port",
+"8000"
+]
+
+services:
+
+  gedt-api:
+
+    build: .
+
+    container_name: gedt-mvd
+
+    ports:
+
+      - "8000:8000"
+
+    environment:
+
+      - ENVIRONMENT=development
+
+      - DEBUG=true
+
+    restart: always
+
+
+# GEDT MVD
+
+## Global Engineering Digital Twin
+
+Minimum Viable Demonstrator
+
+
+## Version
+
+0.1.0-alpha
+
+
+## Overview
+
+GEDT MVD is an AI decision-support platform foundation.
+
+Current capabilities:
+
+- FastAPI backend
+- Configuration management
+- Structured logging
+- Health monitoring
+- Docker deployment
+
+
+## Installation
+
+
+Clone repository:
+
+
+```bash
+git clone <repository>
+cd gedt-mvd
+
+source .venv/bin/activate
+
+.venv\Scripts\activate
+
+pip install -r requirements.txt
+
+uvicorn app.main:app --reload
+
+pytest
+
+docker compose build
+
+docker compose up
+
+---
+
+# v0.1.0-alpha Completion Checklist
+
+| Component | Status |
+|---|---|
+| FastAPI Application | ✅ |
+| Configuration | ✅ |
+| Logging | ✅ |
+| Health API | ✅ |
+| Tests | ✅ |
+| Dependencies | ✅ |
+| Docker | ✅ |
+| Documentation | ✅ |
+
+---
+
+# Current Running System
+
+At this stage:
+
+```text
+User
+
+ ↓
+
+FastAPI
+
+ ↓
+
+GEDT Core
+
+ ↓
+
+Health Monitor
+
+ ↓
+
+Response
+
+
+GET /health
+
+{
+  "status": "healthy",
+  "application": "GEDT MVD",
+  "version": "0.1.0-alpha"
+}
+
+app/
+├── api/
+├── core/
+├── db/          # database engine and sessions
+├── models/      # SQLAlchemy ORM models
+├── schemas/     # Pydantic request/response models
+├── services/    # business logic
+└── main.py
+
+"""
+Database configuration for GEDT MVD.
+"""
+
+from collections.abc import Generator
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import Session
+from sqlalchemy.orm import sessionmaker
+
+DATABASE_URL = "sqlite:///./gedt.db"
+
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False},
+)
+
+SessionLocal = sessionmaker(
+    autoflush=False,
+    autocommit=False,
+    bind=engine,
+)
+
+
+class Base(DeclarativeBase):
+    """Base class for all ORM models."""
+
+
+def get_db() -> Generator[Session, None, None]:
+    """
+    FastAPI dependency.
+    """
+
+    db = SessionLocal()
+
+    try:
+        yield db
+    finally:
+        db.close()
+
+"""
+Prediction ORM model.
+"""
+
+from datetime import datetime
+
+from sqlalchemy import DateTime
+from sqlalchemy import Float
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
+
+from app.db.database import Base
+
+
+class Prediction(Base):
+    """
+    Stores prediction history.
+    """
+
+    __tablename__ = "predictions"
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        index=True,
+    )
+
+    model_name: Mapped[str] = mapped_column(
+        String(100),
+    )
+
+    prediction: Mapped[float] = mapped_column(
+        Float,
+    )
+
+    confidence: Mapped[float] = mapped_column(
+        Float,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow,
+    )
+
+"""
+Prediction business logic.
+"""
+
+from sqlalchemy.orm import Session
+
+from app.models.prediction import Prediction
+from app.schemas.prediction import PredictionCreate
+
+
+class PredictionService:
+
+    @staticmethod
+    def create(
+        db: Session,
+        prediction: PredictionCreate,
+    ) -> Prediction:
+
+        record = Prediction(
+            model_name=prediction.model_name,
+            prediction=prediction.prediction,
+            confidence=prediction.confidence,
+        )
+
+        db.add(record)
+        db.commit()
+        db.refresh(record)
+
+        return record
+
+    @staticmethod
+    def list(
+        db: Session,
+    ) -> list[Prediction]:
+
+        return db.query(Prediction).all()
+
+"""
+Prediction API schemas.
+"""
+
+from datetime import datetime
+
+from pydantic import BaseModel
+
+
+class PredictionCreate(BaseModel):
+
+    model_name: str
+
+    prediction: float
+
+    confidence: float
+
+
+class PredictionResponse(PredictionCreate):
+
+    id: int
+
+    created_at: datetime
+
+    model_config = {
+        "from_attributes": True
+    }
+
+"""
+Prediction API.
+"""
+
+from fastapi import APIRouter
+from fastapi import Depends
+
+from sqlalchemy.orm import Session
+
+from app.db.database import get_db
+from app.schemas.prediction import PredictionCreate
+from app.schemas.prediction import PredictionResponse
+from app.services.prediction_service import PredictionService
+
+router = APIRouter(
+    prefix="/predictions",
+    tags=["Predictions"],
+)
+
+
+@router.post(
+    "/",
+    response_model=PredictionResponse,
+)
+def create_prediction(
+    prediction: PredictionCreate,
+    db: Session = Depends(get_db),
+):
+
+    return PredictionService.create(
+        db,
+        prediction,
+    )
+
+
+@router.get(
+    "/",
+    response_model=list[PredictionResponse],
+)
+def list_predictions(
+    db: Session = Depends(get_db),
+):
+
+    return PredictionService.list(db)
+
+
+
+DATABASE_URL = "sqlite:///./gedt.db"
+
+Model changes
+      ↓
+Generate migration
+      ↓
+Review migration
+      ↓
+Apply migration
+      ↓
+Update database schema
+
+API
+ ↓
+Service
+ ↓
+Repository
+ ↓
+Database
+
+
+
+✓ Starts
+
+✓ Passes tests
+
+✓ Docker builds
+
+✓ Health endpoint works
+
+✓ Logging works
+
+✓ Configuration loads
+
+✓ Documentation exists
+
+
+
+gedt-mvd/
+
+app/
+
+tests/
+
+deployment/
+
+docs/
+
+pyproject.toml
+
+Dockerfile
+
+README.md
+
+
+Database
+
+↓
+
+Models
+
+↓
+
+API
+
+↓
+
+ML
+
+↓
+
+Simulation
+
+↓
+
+Dashboard
+
+
+
+
+
+
 
