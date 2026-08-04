@@ -163,3 +163,31 @@ resource_optimization.py
 3. Delete one of `cidar.py` / `training_plan.py` (exact duplicate).
 4. Rename `atomically correct.py` → `atomically_correct.md` (it is markdown, not Python).
 5. Fix `resource_optimization.py` to use its input parameter.
+
+
+              Data Sources
+
+                   ↓
+
+          Streaming Infrastructure
+
+                   ↓
+
+        AI Processing Framework
+
+        ↓             ↓             ↓
+
+    Vision       Deep Learning    ML Models
+
+        ↓             ↓             ↓
+
+            Decision Intelligence
+
+                   ↓
+
+             Digital Twin
+
+                   ↓
+
+              Dashboard
+
