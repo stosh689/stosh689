@@ -1635,5 +1635,633 @@ Copyright (c) 2026 Global Economic Digital Twin Project
 
 
 
+gedt.py
 
+pip install numpy pandas scikit-learn statsmodels matplotlib scipy
+
+python gedt.py
+
+"""
+=============================================================
+GLOBAL ECONOMIC DIGITAL TWIN (GEDT) v2.0
+
+Single-file research prototype
+
+Features:
+- Agent-based economic simulation
+- Workers
+- Companies
+- Investors
+- Government
+- Innovation dynamics
+- Monte Carlo experiments
+- Statistical regression
+- P-values
+- Confidence intervals
+- Machine learning analysis
+- Sensitivity testing
+- CSV export
+
+License: MIT
+=============================================================
+"""
+
+
+import numpy as np
+import pandas as pd
+import random
+import logging
+
+import statsmodels.api as sm
+
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import (
+    mean_absolute_error,
+    mean_squared_error,
+    r2_score
+)
+
+
+# ============================================================
+# CONFIGURATION
+# ============================================================
+
+SEED = 42
+
+np.random.seed(SEED)
+random.seed(SEED)
+
+
+YEARS = 25
+SIMULATIONS = 100
+
+WORKERS = 1000
+COMPANIES = 100
+INVESTORS = 20
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(levelname)s: %(message)s"
+)
+
+
+# ============================================================
+# AGENTS
+# ============================================================
+
+
+class Worker:
+
+    def __init__(self):
+
+        self.skill = random.uniform(
+            0.3,
+            0.9
+        )
+
+        self.income = random.randint(
+            30000,
+            90000
+        )
+
+
+    def train(self):
+
+        self.skill = min(
+            1,
+            self.skill + 0.01
+        )
+
+
+    def productivity(self):
+
+        return (
+            self.skill *
+            self.income
+        )
+
+
+
+class Company:
+
+    def __init__(self):
+
+        self.capital=random.uniform(
+            1e6,
+            1e9
+        )
+
+        self.innovation=random.uniform(
+            .2,
+            .8
+        )
+
+        self.workers=[]
+
+
+    def research(self):
+
+        self.innovation=min(
+            1,
+            self.innovation +
+            random.uniform(
+                0,
+                .01
+            )
+        )
+
+
+    def output(self):
+
+        labor=sum(
+            w.productivity()
+            for w in self.workers
+        )
+
+        return (
+            labor *
+            self.innovation
+        )
+
+
+
+class Investor:
+
+    def __init__(self):
+
+        self.capital=random.uniform(
+            1e7,
+            1e9
+        )
+
+
+    def invest(
+        self,
+        company
+    ):
+
+        if company.innovation > .6:
+
+            company.capital += (
+                self.capital *
+                .001
+            )
+
+
+
+class Government:
+
+    def stimulate(
+        self,
+        workers,
+        companies
+    ):
+
+        for worker in workers:
+
+            worker.train()
+
+
+        for company in companies:
+
+            company.innovation=min(
+                1,
+                company.innovation+
+                .005
+            )
+
+
+
+# ============================================================
+# ECONOMIC DIGITAL TWIN ENGINE
+# ============================================================
+
+
+class EconomicDigitalTwin:
+
+
+    def __init__(
+        self,
+        innovation_rate=0.05
+    ):
+
+        self.gdp=2000
+
+        self.innovation_rate=innovation_rate
+
+
+        self.workers=[
+            Worker()
+            for _ in range(WORKERS)
+        ]
+
+
+        self.companies=[
+            Company()
+            for _ in range(COMPANIES)
+        ]
+
+
+        self.investors=[
+            Investor()
+            for _ in range(INVESTORS)
+        ]
+
+
+        self.government=Government()
+
+
+
+    def assign_workers(self):
+
+        for worker in self.workers:
+
+            company=random.choice(
+                self.companies
+            )
+
+            company.workers.append(
+                worker
+            )
+
+
+
+    def simulate_year(self):
+
+
+        self.government.stimulate(
+            self.workers,
+            self.companies
+        )
+
+
+        for company in self.companies:
+
+            company.research()
+
+
+
+        for investor in self.investors:
+
+            investor.invest(
+                random.choice(
+                    self.companies
+                )
+            )
+
+
+        innovation=np.mean(
+            [
+                c.innovation
+                for c in self.companies
+            ]
+        )
+
+
+        growth=(
+
+            0.02 +
+
+            innovation *
+            self.innovation_rate
+
+        )
+
+
+        noise=np.random.normal(
+            1,
+            .01
+        )
+
+
+        self.gdp *= (
+            1 +
+            growth *
+            noise
+        )
+
+
+        return {
+
+            "GDP":
+            self.gdp,
+
+            "Innovation":
+            innovation
+
+        }
+
+
+
+
+    def run(self):
+
+        self.assign_workers()
+
+        history=[]
+
+
+        for year in range(YEARS):
+
+            history.append(
+                self.simulate_year()
+            )
+
+
+        return history
+
+
+
+# ============================================================
+# MONTE CARLO SIMULATION
+# ============================================================
+
+
+def run_simulations(
+    innovation_rate=.05
+):
+
+
+    results=[]
+
+
+    for i in range(
+        SIMULATIONS
+    ):
+
+
+        model=EconomicDigitalTwin(
+            innovation_rate
+        )
+
+
+        output=model.run()
+
+
+        final=output[-1]
+
+
+        results.append({
+
+            "simulation":
+            i,
+
+            "final_GDP":
+            final["GDP"],
+
+            "innovation":
+            final["Innovation"]
+
+        })
+
+
+        logging.info(
+            f"Simulation {i+1}/{SIMULATIONS}"
+        )
+
+
+    return pd.DataFrame(
+        results
+    )
+
+
+
+# ============================================================
+# STATISTICAL ANALYSIS
+# ============================================================
+
+
+def regression(results):
+
+
+    X=sm.add_constant(
+        results[
+            ["innovation"]
+        ]
+    )
+
+
+    y=results[
+        "final_GDP"
+    ]
+
+
+    model=sm.OLS(
+        y,
+        X
+    ).fit()
+
+
+    print(
+        model.summary()
+    )
+
+
+    return model
+
+
+
+
+# ============================================================
+# MACHINE LEARNING
+# ============================================================
+
+
+def machine_learning(results):
+
+
+    X=results[
+        ["innovation"]
+    ]
+
+    y=results[
+        "final_GDP"
+    ]
+
+
+    X_train,X_test,y_train,y_test=train_test_split(
+
+        X,
+        y,
+        test_size=.2,
+        random_state=42
+
+    )
+
+
+    model=RandomForestRegressor(
+        n_estimators=200,
+        random_state=42
+    )
+
+
+    model.fit(
+        X_train,
+        y_train
+    )
+
+
+    prediction=model.predict(
+        X_test
+    )
+
+
+    print("\nMachine Learning Results")
+
+    print(
+        "MAE:",
+        mean_absolute_error(
+            y_test,
+            prediction
+        )
+    )
+
+
+    print(
+        "RMSE:",
+        np.sqrt(
+            mean_squared_error(
+                y_test,
+                prediction
+            )
+        )
+    )
+
+
+    print(
+        "R2:",
+        r2_score(
+            y_test,
+            prediction
+        )
+    )
+
+
+
+# ============================================================
+# SENSITIVITY ANALYSIS
+# ============================================================
+
+
+def sensitivity():
+
+    scenarios={
+
+        "Low Innovation":
+        .02,
+
+        "Baseline":
+        .05,
+
+        "High Innovation":
+        .10
+
+    }
+
+
+    results=[]
+
+
+    for name,value in scenarios.items():
+
+        data=run_simulations(
+            value
+        )
+
+
+        results.append({
+
+            "Scenario":
+            name,
+
+            "Average GDP":
+            data.final_GDP.mean()
+
+        })
+
+
+    return pd.DataFrame(
+        results
+    )
+
+
+
+# ============================================================
+# MAIN
+# ============================================================
+
+
+if __name__=="__main__":
+
+
+    print(
+        "\nStarting GEDT Simulation\n"
+    )
+
+
+    results=run_simulations()
+
+
+    results.to_csv(
+        "gedt_results.csv",
+        index=False
+    )
+
+
+    print(
+        "\nSummary:"
+    )
+
+
+    print(
+        results.describe()
+    )
+
+
+    print(
+        "\nRegression Analysis"
+    )
+
+
+    regression(
+        results
+    )
+
+
+    print(
+        "\nMachine Learning"
+    )
+
+
+    machine_learning(
+        results
+    )
+
+
+    print(
+        "\nSensitivity Analysis"
+    )
+
+
+    sensitivity_results=sensitivity()
+
+
+    print(
+        sensitivity_results
+    )
+
+
+    sensitivity_results.to_csv(
+        "gedt_sensitivity.csv",
+        index=False
+    )
+
+
+    print(
+        "\nGEDT Complete"
+    )
+
+gedt.py
 
