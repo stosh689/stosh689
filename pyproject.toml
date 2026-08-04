@@ -29115,6 +29115,223 @@ POST /simulation/monte-carlo
 
 
 
+gedt-mvd/
 
+dashboard/
+
+├── app.py
+├── api_client.py
+├── charts.py
+└── components/
+    └── metrics.py
+
+
+streamlit
+plotly
+requests
+
+"""
+GEDT Dashboard API Client
+"""
+
+import requests
+
+
+BASE_URL = "http://localhost:8000"
+
+
+
+def get_predictions():
+
+    response = requests.get(
+
+        f"{BASE_URL}/predictions"
+
+    )
+
+    return response.json()
+
+
+
+def run_simulation():
+
+    response = requests.post(
+
+        f"{BASE_URL}/simulation/monte-carlo"
+
+    )
+
+    return response.json()
+
+"""
+GEDT Dashboard Metrics
+"""
+
+
+def confidence_average(predictions):
+
+    if not predictions:
+
+        return 0
+
+
+    values = [
+
+        item["confidence"]
+
+        for item in predictions
+
+    ]
+
+
+    return sum(values) / len(values)
+
+"""
+GEDT Visualization
+"""
+
+import plotly.express as px
+
+
+
+def confidence_chart(data):
+
+    figure = px.line(
+
+        data,
+
+        x="id",
+
+        y="confidence",
+
+        title="Prediction Confidence"
+
+    )
+
+
+    return figure
+
+"""
+GEDT Dashboard
+"""
+
+import streamlit as st
+
+from api_client import (
+    get_predictions,
+    run_simulation
+)
+
+from components.metrics import (
+    confidence_average
+)
+
+
+
+st.set_page_config(
+
+    page_title="GEDT",
+
+    layout="wide"
+
+)
+
+
+st.title(
+    "GEDT Decision Intelligence Dashboard"
+)
+
+
+
+st.sidebar.header(
+    "Controls"
+)
+
+
+
+if st.sidebar.button(
+    "Run Simulation"
+):
+
+    result = run_simulation()
+
+    st.subheader(
+        "Simulation Recommendation"
+    )
+
+
+    st.json(result)
+
+
+
+st.header(
+    "Prediction History"
+)
+
+
+
+predictions = get_predictions()
+
+
+
+if predictions:
+
+    st.metric(
+
+        "Average Confidence",
+
+        round(
+
+            confidence_average(
+
+                predictions
+
+            ),
+
+            3
+
+        )
+
+    )
+
+
+    st.dataframe(
+
+        predictions
+
+    )
+
+
+else:
+
+    st.info(
+
+        "No predictions available"
+
+    )
+
+uvicorn app.main:app --reload
+
+streamlit run dashboard/app.py
+
+http://localhost:8501
+
+User opens dashboard
+
+        ↓
+
+Views AI predictions
+
+        ↓
+
+Runs scenarios
+
+        ↓
+
+Reviews outcomes
+
+        ↓
+
+Makes informed decision
 
 
