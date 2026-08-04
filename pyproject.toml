@@ -33427,6 +33427,1267 @@ class ExperimentTracker:
 
 
 
+              Trained Models
+
+                    ↓
+
+            Benchmark Runner
+
+                    ↓
+
+        ┌───────────┼───────────┐
+
+        ↓           ↓           ↓
+
+   Accuracy     Speed       Reliability
+
+        ↓           ↓           ↓
+
+        └───────────┼───────────┘
+
+                    ↓
+
+            Evaluation Report
+
+                    ↓
+
+          Model Registry Update
+
+
+
+app/
+
+├── benchmarking/
+
+│   ├── runner.py
+│   ├── classification.py
+│   ├── vision.py
+│   ├── depth.py
+│   └── report.py
+
+
+reports/
+
+├── benchmark_results/
+
+└── model_cards/
+
+
+"""
+GEDT Benchmark Runner
+"""
+
+import time
+
+
+
+class BenchmarkRunner:
+
+
+    def run(
+
+        self,
+
+        model,
+
+        inputs
+
+    ):
+
+
+        start = time.time()
+
+
+        outputs = model.predict(
+
+            inputs
+
+        )
+
+
+        elapsed = time.time() - start
+
+
+        return {
+
+
+            "latency_seconds":
+
+            elapsed,
+
+
+            "samples":
+
+            len(inputs),
+
+
+            "outputs":
+
+            outputs
+
+        }
+
+
+"""
+GEDT Classification Metrics
+"""
+
+from sklearn.metrics import (
+
+    accuracy_score,
+
+    precision_score,
+
+    recall_score,
+
+    f1_score
+
+)
+
+
+
+def evaluate(
+
+    predictions,
+
+    labels
+
+):
+
+
+    return {
+
+
+        "accuracy":
+
+        accuracy_score(
+
+            labels,
+
+            predictions
+
+        ),
+
+
+        "precision":
+
+        precision_score(
+
+            labels,
+
+            predictions,
+
+            average="weighted"
+
+        ),
+
+
+        "recall":
+
+        recall_score(
+
+            labels,
+
+            predictions,
+
+            average="weighted"
+
+        ),
+
+
+        "f1":
+
+        f1_score(
+
+            labels,
+
+            predictions,
+
+            average="weighted"
+
+        )
+
+    }
+
+
+"""
+GEDT Vision Evaluation
+"""
+
+
+class VisionBenchmark:
+
+
+    def evaluate(
+
+        self,
+
+        detections
+
+    ):
+
+
+        return {
+
+
+            "objects_detected":
+
+            len(detections),
+
+
+            "status":
+
+            "complete"
+
+        }
+
+
+"""
+GEDT Depth Evaluation
+"""
+
+
+def depth_error(
+
+    prediction,
+
+    ground_truth
+
+):
+
+
+    errors = []
+
+
+    for p,g in zip(
+
+        prediction,
+
+        ground_truth
+
+    ):
+
+        errors.append(
+
+            abs(p-g)
+
+        )
+
+
+    return {
+
+
+        "mean_absolute_error":
+
+        sum(errors)/len(errors)
+
+    }
+
+"""
+GEDT Benchmark Report
+"""
+
+import json
+
+
+
+def create_report(
+
+    results,
+
+    filename="report.json"
+
+):
+
+
+    with open(
+
+        filename,
+
+        "w"
+
+    ) as file:
+
+
+        json.dump(
+
+            results,
+
+            file,
+
+            indent=4
+
+        )
+
+
+    return filename
+
+{
+ "model":
+ "GEDT_Vision_v1",
+
+ "accuracy":
+ 0.94,
+
+ "precision":
+ 0.92,
+
+ "recall":
+ 0.91,
+
+ "f1":
+ 0.915,
+
+ "latency_ms":
+ 48,
+
+ "status":
+ "approved"
+}
+
+Model Name
+
+Version
+
+Training Dataset
+
+Performance Metrics
+
+Known Limitations
+
+Approval Status
+
+Deployment Date
+
+
+deployment/
+
+├── kubernetes/
+
+│   ├── namespace.yaml
+│   ├── api-deployment.yaml
+│   ├── worker-deployment.yaml
+│   ├── service.yaml
+│   └── ingress.yaml
+
+
+├── security/
+
+│   ├── secrets.yaml
+│   └── network-policy.yaml
+
+
+├── testing/
+
+│   ├── load_test.py
+│   └── failure_test.py
+
+
+apiVersion: v1
+kind: Namespace
+
+metadata:
+
+  name: gedt
+
+apiVersion: apps/v1
+
+kind: Deployment
+
+
+metadata:
+
+  name: gedt-api
+
+
+  namespace: gedt
+
+
+
+spec:
+
+  replicas: 3
+
+
+  selector:
+
+    matchLabels:
+
+      app: gedt-api
+
+
+  template:
+
+    metadata:
+
+      labels:
+
+        app: gedt-api
+
+
+    spec:
+
+      containers:
+
+      - name: api
+
+        image: gedt/api:1.0.5
+
+
+        ports:
+
+        - containerPort: 8000
+
+
+apiVersion: apps/v1
+
+kind: Deployment
+
+
+metadata:
+
+  name: gedt-ai-worker
+
+
+spec:
+
+  replicas: 2
+
+
+  template:
+
+    spec:
+
+      containers:
+
+      - name: worker
+
+        image: gedt/worker:1.0.5
+
+
+
+"""
+GEDT Load Test
+"""
+
+import time
+
+
+
+def simulate_requests(
+
+    count
+
+):
+
+
+    start = time.time()
+
+
+    for i in range(count):
+
+        pass
+
+
+    return {
+
+        "requests":
+
+        count,
+
+
+        "duration":
+
+        time.time()-start
+
+    }
+
+"""
+GEDT Resilience Test
+"""
+
+
+class FailureTest:
+
+
+    def simulate_database_failure(self):
+
+
+        return {
+
+            "event":
+
+            "database_failure",
+
+
+            "recovery":
+
+            "automatic"
+
+        }
+
+                GEDT v1.0.5
+
+        AI Platform Architecture
+
+                  ↓
+
+          Deployment Candidate
+
+                  ↓
+
+        Production Validation
+
+                  ↓
+
+          Real-World Operation
+
+
+app/
+
+├── security/
+
+│   ├── encryption.py
+│   ├── secrets.py
+│   ├── permissions.py
+│   └── security_audit.py
+
+
+├── governance/
+
+│   └── integrity.py
+
+
+deployment/
+
+├── secrets/
+
+│   └── vault_config.yaml
+
+└── security/
+
+    └── policy.md
+
+"""
+GEDT Secrets Manager
+"""
+
+import os
+
+
+
+def get_secret(
+
+    name
+
+):
+
+
+    value = os.getenv(
+
+        name
+
+    )
+
+
+    if value is None:
+
+        raise Exception(
+
+            f"Missing secret: {name}"
+
+        )
+
+
+    return value
+
+
+"""
+GEDT Encryption Layer
+"""
+
+from cryptography.fernet import Fernet
+
+
+
+class Encryptor:
+
+
+    def __init__(self, key):
+
+        self.engine = Fernet(
+
+            key
+
+        )
+
+
+
+    def encrypt(
+
+        self,
+
+        data
+
+    ):
+
+
+        return self.engine.encrypt(
+
+            data.encode()
+
+        )
+
+
+
+    def decrypt(
+
+        self,
+
+        token
+
+    ):
+
+
+        return self.engine.decrypt(
+
+            token
+
+        ).decode()
+
+
+"""
+GEDT Permission Control
+"""
+
+
+class PermissionManager:
+
+
+    def check(
+
+        self,
+
+        user_role,
+
+        action
+
+    ):
+
+
+        permissions = {
+
+
+            "admin":
+
+            [
+
+            "all"
+
+            ],
+
+
+            "analyst":
+
+            [
+
+            "run_ai",
+
+            "view"
+
+            ],
+
+
+            "viewer":
+
+            [
+
+            "view"
+
+            ]
+
+        }
+
+
+        return (
+
+            action in permissions.get(
+
+                user_role,
+
+                []
+
+            )
+
+            or
+
+            "all" in permissions.get(
+
+                user_role,
+
+                []
+
+            )
+
+        )
+
+
+"""
+GEDT Audit Integrity
+"""
+
+import hashlib
+
+
+
+def create_hash(
+
+    record
+
+):
+
+
+    return hashlib.sha256(
+
+        str(record).encode()
+
+    ).hexdigest()
+
+def test_permission():
+
+    manager = PermissionManager()
+
+
+    assert manager.check(
+
+        "admin",
+
+        "run_ai"
+
+    )
+
+gedt/
+
+├── README.md
+
+├── LICENSE
+
+├── CONTRIBUTING.md
+
+├── SECURITY.md
+
+
+├── app/
+
+│   ├── api/
+
+│   ├── ai/
+
+│   ├── database/
+
+│   ├── digital_twin/
+
+│   ├── decision/
+
+│   ├── governance/
+
+│   ├── monitoring/
+
+│   ├── realtime/
+
+│   ├── security/
+
+│   └── simulation/
+
+
+├── dashboard/
+
+
+├── datasets/
+
+│   └── README.md
+
+
+├── models/
+
+│   └── README.md
+
+
+├── tests/
+
+
+├── deployment/
+
+│   ├── docker/
+
+│   ├── kubernetes/
+
+│   └── monitoring/
+
+
+├── docs/
+
+│   ├── architecture.md
+
+│   ├── installation.md
+
+│   ├── api.md
+
+│   ├── governance.md
+
+│   └── research.md
+
+
+├── requirements.txt
+
+├── docker-compose.yml
+
+└── .github/
+
+    └── workflows/
+
+# GEDT
+## Global Environmental Decision Twin
+
+GEDT is an AI-driven decision intelligence platform combining:
+
+- Real-time data processing
+- Machine learning
+- Computer vision
+- Digital twins
+- Simulation
+- Governance
+- Explainable AI
+
+
+## Architecture
+
+Data Sources
+     |
+     v
+AI Processing
+     |
+     v
+Digital Twin
+     |
+     v
+Simulation Engine
+     |
+     v
+Decision Intelligence
+
+
+## Features
+
+✅ Real-time ingestion
+
+✅ AI model pipeline
+
+✅ Digital twin simulation
+
+✅ Model governance
+
+✅ Security framework
+
+✅ Monitoring
+
+
+## Installation
+
+Clone:
+
+git clone https://github.com/example/gedt
+
+
+Install:
+
+pip install -r requirements.txt
+
+
+Run:
+
+uvicorn app.main:app --reload
+
+
+## Testing
+
+pytest
+
+
+## License
+
+MIT
+
+Requirements
+
+↓
+
+Environment Setup
+
+↓
+
+Database Setup
+
+↓
+
+Model Setup
+
+↓
+
+Running GEDT
+
+Step 1
+
+Load environmental data
+
+
+↓
+
+Step 2
+
+Run AI analysis
+
+
+↓
+
+Step 3
+
+Update digital twin
+
+
+↓
+
+Step 4
+
+Run simulations
+
+
+↓
+
+Step 5
+
+Generate recommendation
+
+
+↓
+
+Step 6
+
+Display dashboard
+
+
+Step 1
+
+Load environmental data
+
+
+↓
+
+Step 2
+
+Run AI analysis
+
+
+↓
+
+Step 3
+
+Update digital twin
+
+
+↓
+
+Step 4
+
+Run simulations
+
+
+↓
+
+Step 5
+
+Generate recommendation
+
+
+↓
+
+Step 6
+
+Display dashboard
+
+docs/
+
+├── research/
+
+│   ├── whitepaper.md
+
+│   ├── methodology.md
+
+│   ├── experiments.md
+
+│   ├── benchmarks.md
+
+│   ├── limitations.md
+
+│   └── future_work.md
+
+
+results/
+
+├── experiments/
+
+├── benchmarks/
+
+└── figures/
+
+
+
+# GEDT Research Methodology
+
+## Objective
+
+Evaluate the ability of an AI decision intelligence platform
+to integrate:
+
+- real-time data
+- machine learning
+- simulation
+- digital twins
+- governance
+
+
+## Research Questions
+
+1. How accurately can GEDT predict system states?
+
+2. How quickly can GEDT process new information?
+
+3. Can simulation improve decision quality?
+
+4. How effectively can governance controls track AI decisions?
+
+
+## Evaluation Areas
+
+- Accuracy
+- Latency
+- Scalability
+- Reliability
+- Explainability
+
+
+experiment:
+
+  name: gedt_baseline
+
+
+dataset:
+
+  name: validation_dataset
+
+
+model:
+
+  architecture: neural_network
+
+
+training:
+
+  epochs: 50
+
+  batch_size: 32
+
+
+evaluation:
+
+  metrics:
+
+    - accuracy
+
+    - latency
+
+    - reliability
+
+
+{
+ "experiment":
+ "GEDT_baseline",
+
+ "dataset":
+ "dataset_name",
+
+ "model":
+ "model_version",
+
+ "metrics":
+ {
+   "accuracy":0.0,
+
+   "latency_ms":0,
+
+   "reliability":0
+ },
+
+ "notes":
+ ""
+}
+
+
+Traditional ML
+
+        vs
+
+Deep Learning
+
+        vs
+
+GEDT Integrated Pipeline
+
+
+
+
+
+
+
+experiments/
+
+├── run_experiment.py
+
+├── baseline.py
+
+├── gedt_model.py
+
+├── evaluation.py
+
+
+visualization/
+
+├── charts.py
+
+├── dashboard.py
+
+
+results/
+
+├── metrics/
+
+├── plots/
+
+└── reports/
+
+
+"""
+GEDT Experiment Runner
+"""
+
+from datetime import datetime
+
+
+
+class Experiment:
+
+
+    def __init__(self, name):
+
+        self.name = name
+
+
+
+    def run(self, model, data):
+
+
+        result = model.evaluate(
+
+            data
+
+        )
+
+
+        return {
+
+            "experiment":
+
+            self.name,
+
+
+            "timestamp":
+
+            datetime.utcnow().isoformat(),
+
+
+            "results":
+
+            result
+
+        }
+
+
+"""
+GEDT Baseline Model
+"""
+
+
+class BaselineModel:
+
+
+    def predict(
+
+        self,
+
+        data
+
+    ):
+
+
+        return [
+
+            0
+
+            for _ in data
+
+        ]
+
+
+"""
+GEDT Evaluation Engine
+"""
+
+
+class Evaluation:
+
+
+    def compare(
+
+        self,
+
+        baseline,
+
+        gedt
+
+    ):
+
+
+        return {
+
+
+            "baseline":
+
+            baseline,
+
+
+            "gedt":
+
+            gedt,
+
+
+            "improvement":
+
+            gedt - baseline
+
+        }
+
+
+
 
 
 
