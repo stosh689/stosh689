@@ -1,0 +1,1125 @@
+docs/
+
+├── introduction.md
+├── architecture.md
+├── installation.md
+├── methodology.md
+├── experiments.md
+├── validation.md
+├── limitations.md
+└── api_reference.md
+
+
+WHITEPAPER.md
+
+Global Economic Digital Twin:
+An Open Computational Framework for Modeling Innovation, Human Capital, and Economic Systems
+
+⸻
+
+Abstract
+
+GEDT is an open-source computational framework designed to explore interactions between innovation, human capital, investment, institutions, and economic networks through agent-based simulation and artificial intelligence methods.
+
+The platform combines:
+
+* agent-based modeling
+* machine learning
+* optimization methods
+* uncertainty analysis
+* network science
+
+to create a reproducible environment for studying complex economic systems.
+
+Research Questions
+
+GEDT investigates:
+
+1. How does innovation investment influence simulated productivity?
+2. How do education improvements affect economic resilience?
+3. How do network structures influence economic outcomes?
+4. How sensitive are results to model assumptions?
+
+datasets/
+
+├── synthetic/
+│   ├── population.csv
+│   └── companies.csv
+│
+├── economic/
+│   ├── gdp.csv
+│   ├── education.csv
+│   └── innovation.csv
+│
+└── README.md
+
+Dataset:
+Economic Indicators
+
+Source:
+Public statistical databases
+
+Purpose:
+Model calibration and validation
+
+License:
+According to original provider terms
+
+{
+"id":"GEDT-2026-0001",
+
+"model_version":"11.0",
+
+"agents":100000,
+
+"years":50,
+
+"seed":42,
+
+"parameters":{
+
+"innovation":0.05,
+
+"education":0.03
+
+},
+
+"outputs":{
+
+"GDP_growth":0.041
+
+}
+
+}
+
+ Advanced Statistical Reporting
+
+Every experiment produces:
+
+Descriptive statistics
+
+* mean
+* median
+* variance
+* confidence intervals
+
+Model statistics
+
+* regression coefficients
+* p-values
+* effect sizes
+* uncertainty intervals
+
+Validation
+
+* MAE
+* RMSE
+* R²
+* robustness checks
+
+.github/
+
+├── workflows/
+
+│   ├── tests.yml
+
+│   ├── documentation.yml
+
+│   └── release.yml
+
+
+Code Change
+
+     ↓
+
+Automated Tests
+
+     ↓
+
+Documentation Build
+
+     ↓
+
+Version Tag
+
+     ↓
+
+Public Release
+
+git clone GEDT
+
+pip install -e .
+
+gedt run experiment.yaml
+
+Experiment Complete
+
+ID:
+GEDT-2026-0001
+
+
+Final GDP:
+XXXX
+
+
+Innovation Index:
+XXXX
+
+
+Confidence Interval:
+XXXX
+
+
+Report:
+GEDT_Report.pdf
+
+Final Scientific Safeguards
+
+The release should explicitly state:
+
+* Models are exploratory.
+* Simulations depend on assumptions.
+* Results require validation against empirical evidence.
+* The platform supports research, not automatic policy decisions.
+
+This increases credibility and prevents overclaiming.
+
+
+Final Scientific Safeguards
+
+The release should explicitly state:
+
+* Models are exploratory.
+* Simulations depend on assumptions.
+* Results require validation against empirical evidence.
+* The platform supports research, not automatic policy decisions.
+
+This increases credibility and prevents overclaiming.
+
+global-economic-digital-twin/
+
+├── examples/
+│
+│   ├── innovation_growth/
+│   │   ├── experiment.yaml
+│   │   └── run.py
+│   │
+│   ├── education_policy/
+│   │   ├── experiment.yaml
+│   │   └── run.py
+│   │
+│   └── resilience_test/
+│       ├── experiment.yaml
+│       └── run.py
+│
+├── visualization/
+│
+│   ├── charts.py
+│   └── dashboards.py
+│
+├── benchmarks/
+│
+│   ├── speed_test.py
+│   └── accuracy_test.py
+│
+└── results/
+
+
+examples/innovation_growth/experiment.yaml
+
+
+experiment:
+
+  name:
+    innovation_growth_test
+
+
+model:
+
+  population:
+    100000
+
+
+  years:
+    50
+
+
+parameters:
+
+  innovation:
+    0.05
+
+
+  education:
+    0.04
+
+
+  infrastructure:
+    0.03
+
+
+simulation:
+
+  iterations:
+    1000
+
+
+seed:
+
+  42
+
+examples/innovation_growth/run.py
+
+import yaml
+import pandas as pd
+
+from gedt.core.economy import Economy
+
+
+
+def load_config():
+
+    with open(
+        "experiment.yaml"
+    ) as file:
+
+        return yaml.safe_load(
+            file
+        )
+
+
+
+def run():
+
+    config=load_config()
+
+
+    results=[]
+
+
+    for i in range(
+
+        config["simulation"]["iterations"]
+
+    ):
+
+
+        model=Economy(
+
+            config["parameters"]
+
+        )
+
+
+        output=model.simulate()
+
+
+        results.append(
+            output
+        )
+
+
+    df=pd.DataFrame(
+        results
+    )
+
+
+    df.to_csv(
+        "results.csv",
+        index=False
+    )
+
+
+    print(
+        "Experiment complete"
+    )
+
+
+
+if __name__=="__main__":
+
+    run()
+
+visualization/charts.py
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+
+
+def plot_growth(
+    file
+):
+
+
+    data=pd.read_csv(
+        file
+    )
+
+
+    plt.figure(
+        figsize=(10,5)
+    )
+
+
+    plt.plot(
+        data["GDP"]
+    )
+
+
+    plt.title(
+        "GEDT Economic Growth Simulation"
+    )
+
+
+    plt.xlabel(
+        "Simulation"
+    )
+
+
+    plt.ylabel(
+        "GDP Output"
+    )
+
+
+    plt.savefig(
+        "GDP_growth.png"
+    )
+
+
+benchmarks/speed_test.py
+
+import time
+
+from gedt.run import run_experiment
+
+
+
+def benchmark():
+
+
+    start=time.time()
+
+
+    result=run_experiment()
+
+
+    runtime=time.time()-start
+
+
+    return {
+
+        "runtime_seconds":
+        runtime,
+
+
+        "status":
+        "complete"
+
+    }
+
+
+
+if __name__=="__main__":
+
+    print(
+        benchmark()
+    )
+
+analysis/compare.py
+
+import pandas as pd
+
+
+
+def compare(
+    files
+):
+
+
+    results=[]
+
+
+    for file in files:
+
+
+        data=pd.read_csv(
+            file
+        )
+
+
+        results.append({
+
+            "file":
+            file,
+
+
+            "mean_GDP":
+            data.GDP.mean(),
+
+
+            "final_GDP":
+            data.GDP.iloc[-1]
+
+        })
+
+
+    return pd.DataFrame(
+        results
+    )
+
+
+
+if __name__=="__main__":
+
+    print(
+
+        compare(
+            [
+            "innovation/results.csv",
+            "education/results.csv"
+            ]
+        )
+
+    )
+
+results/
+
+├── results.csv
+
+├── summary.json
+
+├── figures/
+
+│   ├── GDP_growth.png
+
+│   └── innovation_curve.png
+
+
+└── report.pdf
+
+Research Questions
+
+GEDT demonstrations:
+
+Experiment A
+
+Innovation Investment Scenario
+
+Question:
+How does increased innovation capacity affect long-term simulated productivity?
+
+⸻
+
+Experiment B
+
+Human Capital Scenario
+
+Question:
+How does education investment influence workforce productivity?
+
+⸻
+
+Experiment C
+
+Economic Resilience Scenario
+
+Question:
+How do network structures influence recovery after simulated shocks?
+
+
+global-economic-digital-twin/
+
+├── docs/
+│   ├── methodology.md
+│   ├── model_card.md
+│   ├── api.md
+│   └── tutorials.md
+│
+├── notebooks/
+│   ├── 01_introduction.ipynb
+│   ├── 02_calibration.ipynb
+│   ├── 03_simulation.ipynb
+│   ├── 04_validation.ipynb
+│   └── 05_results.ipynb
+│
+├── api/
+│   ├── routes.py
+│   └── database.py
+│
+├── collaboration/
+│   ├── experiment_registry.py
+│   └── provenance.py
+│
+└── governance/
+    ├── CONTRIBUTING.md
+    └── CODE_OF_CONDUCT.md
+
+docs/model_card.md
+
+# GEDT Model Card
+
+## Model Name
+
+Global Economic Digital Twin
+
+## Purpose
+
+Computational exploration of economic systems using
+agent-based modeling, artificial intelligence,
+and statistical analysis.
+
+## Inputs
+
+- Innovation parameters
+- Education parameters
+- Infrastructure parameters
+- Network structures
+
+## Outputs
+
+- Simulated productivity
+- Growth indicators
+- Resilience metrics
+
+## Limitations
+
+The model is a simulation framework.
+Outputs depend on assumptions,
+calibration quality, and available data.
+
+## Recommended Use
+
+Research, education, experimentation,
+and scenario analysis.
+
+collaboration/provenance.py
+
+import hashlib
+import json
+from datetime import datetime
+
+
+
+class ProvenanceTracker:
+
+
+    def create_record(
+        self,
+        dataset,
+        source,
+        version
+    ):
+
+
+        identifier = hashlib.sha256(
+
+            dataset.encode()
+
+        ).hexdigest()[:16]
+
+
+        record={
+
+            "id":
+            identifier,
+
+
+            "dataset":
+            dataset,
+
+
+            "source":
+            source,
+
+
+            "version":
+            version,
+
+
+            "created":
+            str(datetime.now())
+
+        }
+
+
+        with open(
+            "data_registry.json",
+            "a"
+        ) as file:
+
+            file.write(
+                json.dumps(record)
+                + "\n"
+            )
+
+
+        return record
+
+collaboration/experiment_registry.py
+
+import sqlite3
+import json
+
+
+
+class ExperimentRegistry:
+
+
+    def __init__(
+        self,
+        database="gedt_experiments.db"
+    ):
+
+        self.conn=sqlite3.connect(
+            database
+        )
+
+
+        self.conn.execute(
+
+        """
+
+        CREATE TABLE IF NOT EXISTS experiments(
+
+        id TEXT,
+
+        parameters TEXT,
+
+        results TEXT
+
+        )
+
+        """
+
+        )
+
+
+
+    def save(
+        self,
+        experiment_id,
+        parameters,
+        results
+    ):
+
+
+        self.conn.execute(
+
+        "INSERT INTO experiments VALUES (?,?,?)",
+
+        (
+
+        experiment_id,
+
+        json.dumps(parameters),
+
+        json.dumps(results)
+
+        )
+
+        )
+
+
+        self.conn.commit()
+
+api/routes.py
+
+from fastapi import FastAPI
+
+
+app=FastAPI(
+
+title="GEDT Research API",
+
+description=
+"API for computational economic experiments"
+
+)
+
+
+
+@app.get("/")
+def home():
+
+    return {
+
+        "system":
+        "GEDT",
+
+        "version":
+        "13.0"
+
+    }
+
+
+
+@app.get("/experiments")
+def experiments():
+
+    return {
+
+        "status":
+        "database connected"
+
+    }
+
+Clone Repository
+
+        ↓
+
+Install Environment
+
+        ↓
+
+Open Notebook
+
+        ↓
+
+Load Dataset
+
+        ↓
+
+Calibrate Model
+
+        ↓
+
+Run Simulation
+
+        ↓
+
+Validate Results
+
+        ↓
+
+Generate Report
+
+        ↓
+
+Publish Experiment ID
+
+CONTRIBUTING.md
+
+# Contributing to GEDT
+
+## Development Process
+
+1. Create branch
+2. Add tests
+3. Document changes
+4. Submit pull request
+
+## Requirements
+
+- Reproducible experiments
+- Clear documentation
+- Automated tests
+- Transparent assumptions
+
+
+                 USERS / RESEARCHERS
+
+                         |
+                         v
+
+                  API GATEWAY
+
+                         |
+        --------------------------------
+
+        |              |              |
+
+        v              v              v
+
+ Simulation       Experiment      Data
+ Scheduler        Manager         Service
+
+        |
+        v
+
+ =====================================
+
+        Distributed Compute Layer
+
+        |             |              |
+
+        v             v              v
+
+      CPU           GPU            HPC
+
+      Node          Node           Cluster
+
+ =====================================
+
+        |
+        v
+
+ Results + Analytics Database
+
+        |
+        v
+
+ Research Dashboard + Reports
+
+orchestration/scheduler.py
+
+"""
+GEDT Distributed Experiment Scheduler
+"""
+
+import uuid
+import queue
+import datetime
+
+
+
+class ExperimentScheduler:
+
+
+    def __init__(self):
+
+        self.jobs=queue.Queue()
+
+
+
+    def submit(
+        self,
+        experiment
+    ):
+
+
+        job_id=str(
+            uuid.uuid4()
+        )
+
+
+        job={
+
+            "id":
+            job_id,
+
+            "experiment":
+            experiment,
+
+            "created":
+            str(
+                datetime.datetime.now()
+            ),
+
+            "status":
+            "queued"
+
+        }
+
+
+        self.jobs.put(
+            job
+        )
+
+
+        return job_id
+
+
+
+    def next_job(self):
+
+        if not self.jobs.empty():
+
+            return self.jobs.get()
+
+        return None
+
+workers/worker.py
+
+import time
+
+
+
+class SimulationWorker:
+
+
+    def __init__(
+        self,
+        worker_id
+    ):
+
+        self.worker_id=worker_id
+
+
+
+    def execute(
+        self,
+        job
+    ):
+
+
+        print(
+
+            "Worker",
+
+            self.worker_id,
+
+            "running",
+
+            job["id"]
+
+        )
+
+
+        time.sleep(1)
+
+
+        return {
+
+            "job":
+
+            job["id"],
+
+
+            "status":
+
+            "completed"
+
+        }
+
+monitoring/system_monitor.py
+
+import psutil
+import datetime
+
+
+
+def system_status():
+
+
+    return {
+
+        "timestamp":
+        str(datetime.datetime.now()),
+
+
+        "cpu":
+        psutil.cpu_percent(),
+
+
+        "memory":
+        psutil.virtual_memory()
+        .percent
+
+
+    }
+
+validation/evaluation_service.py
+
+import numpy as np
+
+
+
+class EvaluationService:
+
+
+    def evaluate(
+        self,
+        observed,
+        simulated
+    ):
+
+
+        error=np.mean(
+
+            np.abs(
+
+                observed -
+
+                simulated
+
+            )
+
+        )
+
+
+        return {
+
+            "MAE":
+            float(error),
+
+
+            "score":
+            float(
+                1/(1+error)
+            )
+
+        }
+
+scenarios/
+
+innovation_acceleration.yaml
+
+name:
+  Innovation Acceleration
+
+
+description:
+  Increase innovation investment
+  and evaluate productivity changes.
+
+
+parameters:
+
+  innovation:
+    baseline: 0.05
+
+    experimental: 0.10
+
+
+  years:
+    50
+
+security/access.py
+
+import hashlib
+
+
+
+def create_api_key(
+    user
+):
+
+
+    return hashlib.sha256(
+
+        user.encode()
+
+    ).hexdigest()
+
+Docker
+   |
+   v
+Kubernetes Cluster
+   |
+   +---- API Pods
+   |
+   +---- Simulation Workers
+   |
+   +---- Database
+   |
+   +---- Dashboard
+
+v1-v4
+Simulation Foundation
+
+v5-v8
+AI + Networks + Scaling
+
+v9-v10
+Scientific Validation
+
+v11-v13
+Open Research Ecosystem
+
+v14
+Enterprise Infrastructure
+
+
+
+
