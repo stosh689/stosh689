@@ -34687,6 +34687,303 @@ class Evaluation:
         }
 
 
+"""
+GEDT Result Visualization
+"""
+
+import matplotlib.pyplot as plt
+
+
+
+def plot_metrics(
+
+    metrics
+
+):
+
+
+    names = list(
+
+        metrics.keys()
+
+    )
+
+
+    values = list(
+
+        metrics.values()
+
+    )
+
+
+    plt.bar(
+
+        names,
+
+        values
+
+    )
+
+
+    plt.title(
+
+        "GEDT Performance"
+
+    )
+
+
+    plt.savefig(
+
+        "results/performance.png"
+
+    )
+
+demo/
+
+├── sample_data/
+
+├── run_demo.py
+
+├── demo_results/
+
+└── README.md
+
+Load Data
+    
+ ↓
+
+Run AI Models
+
+ ↓
+
+Update Digital Twin
+
+ ↓
+
+Simulate Outcomes
+
+ ↓
+
+Generate Report
+
+                 Input Data
+
+      Images | Sensors | Environmental Data
+
+                    ↓
+
+             GEDT Processing Core
+
+                    ↓
+
+        ┌───────────┼───────────┐
+
+        ↓           ↓           ↓
+
+    AI Models   Digital Twin   Simulation
+
+        ↓           ↓           ↓
+
+        └───────────┼───────────┘
+
+                    ↓
+
+             Decision Engine
+
+                    ↓
+
+          Explainable Output
+
+                    ↓
+
+             Dashboard Report
+
+
+
+demo/
+
+├── run_demo.py
+
+├── demo_config.yaml
+
+├── sample_data/
+
+│   ├── sensor_data.csv
+
+│   └── scenario.json
+
+
+├── outputs/
+
+│   ├── report.json
+
+│   └── visualization.png
+
+
+
+scenario:
+
+  name: disaster_response_demo
+
+
+pipeline:
+
+  vision: true
+
+  sensor_fusion: true
+
+  simulation: true
+
+  governance: true
+
+
+output:
+
+  format: json
+
+
+"""
+GEDT Demonstration Runner
+"""
+
+
+from datetime import datetime
+
+
+
+class GEDTDemo:
+
+
+    def run(self):
+
+
+        data = {
+
+
+            "sensor_count":
+
+            25,
+
+
+            "risk_factor":
+
+            0.45
+
+        }
+
+
+        prediction = {
+
+
+            "risk_score":
+
+            0.72,
+
+
+            "confidence":
+
+            0.91
+
+        }
+
+
+        decision = {
+
+
+            "recommendation":
+
+            "allocate_resources"
+
+
+        }
+
+
+        return {
+
+
+            "timestamp":
+
+            datetime.utcnow().isoformat(),
+
+
+            "input":
+
+            data,
+
+
+            "prediction":
+
+            prediction,
+
+
+            "decision":
+
+            decision
+
+        }
+
+
+
+if __name__ == "__main__":
+
+
+    demo = GEDTDemo()
+
+
+    result = demo.run()
+
+
+    print(result)
+
+{
+ "input":
+ {
+   "sensor_count":25,
+   "risk_factor":0.45
+ },
+
+ "prediction":
+ {
+   "risk_score":0.72,
+   "confidence":0.91
+ },
+
+ "decision":
+ {
+   "recommendation":
+   "allocate_resources"
+ }
+}
+
+
+docs/
+
+├── Getting Started
+
+├── Architecture
+
+├── AI Models
+
+├── Digital Twin
+
+├── Governance
+
+├── Deployment
+
+├── Research Methodology
+
+└── Future Roadmap
+
+git clone GEDT
+
+pip install -r requirements.txt
+
+python demo/run_demo.py
+
+A new user should be able to clone GEDT, run the demo, observe the AI pipeline, inspect decisions, and understand the system architecture.
+
+
+
 
 
 
