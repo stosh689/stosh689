@@ -29334,4 +29334,255 @@ Reviews outcomes
 
 Makes informed decision
 
+dashboard/
+
+├── app.py
+├── api_client.py
+├── charts.py
+├── reports.py
+└── components/
+
+    ├── metrics.py
+    ├── prediction_view.py
+    └── simulation_view.py
+
+
+"""
+GEDT Prediction Visualization
+"""
+
+import pandas as pd
+
+import streamlit as st
+
+
+def show_predictions(predictions):
+
+    if not predictions:
+
+        st.warning(
+            "No prediction data available"
+        )
+
+        return
+
+
+    dataframe = pd.DataFrame(
+        predictions
+    )
+
+
+    st.subheader(
+        "Prediction History"
+    )
+
+
+    st.dataframe(
+        dataframe
+    )
+
+
+    st.line_chart(
+
+        dataframe[
+            "confidence"
+        ]
+
+    )
+
+
+"""
+GEDT Simulation Visualization
+"""
+
+import pandas as pd
+
+import streamlit as st
+
+
+
+def show_simulation(results):
+
+    if not results:
+
+        return
+
+
+    recommendation = results.get(
+        "recommendation"
+    )
+
+
+    summary = results.get(
+        "summary"
+    )
+
+
+    st.subheader(
+        "Recommended Scenario"
+    )
+
+
+    st.json(
+        recommendation
+    )
+
+
+    st.subheader(
+        "Simulation Summary"
+    )
+
+
+    st.metric(
+
+        "Average Score",
+
+        round(
+
+            summary[
+                "average_score"
+            ],
+
+            3
+
+        )
+
+    )
+
+"""
+GEDT Report Generator
+"""
+
+import pandas as pd
+
+
+
+def export_predictions(
+    predictions
+):
+
+    dataframe = pd.DataFrame(
+        predictions
+    )
+
+
+    return dataframe.to_csv(
+        index=False
+    )
+
+
+
+"""
+GEDT Intelligence Dashboard
+"""
+
+import streamlit as st
+
+
+from api_client import (
+    get_predictions,
+    run_simulation
+)
+
+
+from components.prediction_view import (
+    show_predictions
+)
+
+
+from components.simulation_view import (
+    show_simulation
+)
+
+
+from reports import (
+    export_predictions
+)
+
+
+
+st.set_page_config(
+
+    page_title="GEDT",
+
+    layout="wide"
+
+)
+
+
+st.title(
+    "GEDT Intelligence Platform"
+)
+
+
+
+predictions = get_predictions()
+
+
+
+show_predictions(
+
+    predictions
+
+)
+
+
+
+st.divider()
+
+
+
+if st.button(
+    "Run Scenario Analysis"
+):
+
+    simulation = run_simulation()
+
+    show_simulation(
+
+        simulation
+
+    )
+
+
+
+if predictions:
+
+    csv = export_predictions(
+        predictions
+    )
+
+
+    st.download_button(
+
+        "Export Predictions",
+
+        csv,
+
+        "gedt_predictions.csv"
+
+    )
+
+                 User
+
+                  ↓
+
+          Streamlit Dashboard
+
+                  ↓
+
+              FastAPI
+
+          ↙             ↘
+
+        AI              Simulation
+
+          ↓              ↓
+
+        Database ← Reports
+
+
+
+
+
 
