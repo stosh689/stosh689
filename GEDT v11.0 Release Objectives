@@ -2966,6 +2966,305 @@ That trajectory is consistent with how successful scientific software ecosystems
 
 
 
+gedt/
+
+├── src/
+│   └── gedt/
+│       ├── core/
+│       ├── simulation/
+│       ├── agents/
+│       ├── models/
+│       ├── statistics/
+│       ├── validation/
+│       ├── api/
+│       └── visualization/
+│
+├── tests/
+├── docs/
+├── examples/
+├── notebooks/
+├── datasets/
+├── benchmarks/
+│
+├── README.md
+├── LICENSE
+├── pyproject.toml
+├── Dockerfile
+└── CITATION.cff
+
+git clone <repository>
+
+cd gedt
+
+python -m venv venv
+
+pip install -r requirements.txt
+
+python example.py
+
+
+
+def simulate(
+    agents: int,
+    years: int,
+    seed: int = 42
+) -> dict:
+    """
+    Run economic simulation.
+
+    Parameters
+    ----------
+    agents:
+        Number of simulated agents.
+
+    years:
+        Simulation duration.
+
+    seed:
+        Random seed.
+
+    Returns
+    -------
+    Simulation results.
+    """
+
+test_agents.py
+test_statistics.py
+test_optimizer.py
+test_networks.py
+
+Data → Calibration → Simulation → Report
+
+Model:
+Agent Productivity Simulation
+
+Assumption:
+Productivity changes based on skill accumulation.
+
+Input:
+Education investment
+
+Output:
+Productivity index
+
+Limitation:
+Does not represent all real-world factors.
+
+benchmarks/
+
+├── baseline/
+├── historical/
+├── stress_tests/
+└── performance/
+
+Experiment ID:
+GEDT-001
+
+Dataset:
+dataset_v1
+
+Parameters:
+config.yaml
+
+Seed:
+42
+
+Output:
+results.json
+
+Build Status
+
+Tests Passing
+
+Coverage
+
+License
+
+Python Version
+
+Push Code
+
+↓
+
+Install
+
+↓
+
+Run Tests
+
+↓
+
+Run Linter
+
+↓
+
+Build Package
+
+↓
+
+Report
+
+gedt.core
+    Stable
+
+gedt.experimental
+    Research preview
+
+gedt.contrib
+    Community extensions
+
+configs/
+
+├── default.yaml
+├── benchmark.yaml
+├── large_scale.yaml
+└── research.yaml
+
+simulation:
+
+  population_size: 10000
+
+  years: 50
+
+  random_seed: 42
+
+
+model:
+
+  innovation_rate: 0.05
+
+  education_factor: 0.10
+
+
+output:
+
+  format: json
+
+gedt simulate --config configs/default.yaml
+
+import argparse
+
+
+def main():
+
+    parser = argparse.ArgumentParser(
+        description="GEDT Simulation Engine"
+    )
+
+    parser.add_argument(
+        "--config"
+    )
+
+    args = parser.parse_args()
+
+    print(
+        "Running:",
+        args.config
+    )
+
+
+if __name__ == "__main__":
+    main()
+
+results/
+
+experiment_001/
+
+├── config.yaml
+├── metrics.json
+├── logs.txt
+├── figures/
+└── metadata.json
+
+{
+ "experiment_id": "GEDT-001",
+ "version": "1.0",
+ "seed": 42,
+ "date": "2026-08-03",
+ "status": "completed"
+}
+
+.github/
+
+└── workflows/
+
+    └── test.yml
+
+Developer Push
+
+      ↓
+
+Install Dependencies
+
+      ↓
+
+Run Tests
+
+      ↓
+
+Run Linter
+
+      ↓
+
+Build Package
+
+      ↓
+
+Generate Report
+
+pyproject.toml
+
+[project]
+
+name="gedt"
+
+version="1.0.0"
+
+description=
+"Global Economic Digital Twin Research Platform"
+
+requires-python=">=3.10"
+
+python -m build
+
+benchmark_001
+
+Scenario:
+
+Innovation investment increase
+
+Population:
+
+10,000 agents
+
+Duration:
+
+25 years
+
+Runs:
+
+1,000 Monte Carlo iterations
+
+Outputs:
+
+- productivity
+- resilience
+- uncertainty
+- runtime
+
+paper/
+
+├── methodology.md
+├── experiments.md
+├── results.md
+├── limitations.md
+└── references.bib
+
+SECURITY.md
+
+Can a researcher with no prior knowledge clone GEDT, install it, run an experiment, understand the assumptions, reproduce the results, and extend the model?
+
+If the answer is yes, GEDT is ready for a legitimate v1.0 open-source research release.
 
 
 
