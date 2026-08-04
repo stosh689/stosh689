@@ -106,3 +106,42 @@ requests>=2.32
 pytest>=8.0
 
 
+# GEDT
+
+Global Experimental Digital Twin Framework
+
+
+## Overview
+
+GEDT is an open-source computational research platform
+for simulation, validation, optimization, and scenario analysis.
+
+
+## Features
+
+- Agent-based simulation
+- Monte Carlo experiments
+- Statistical validation
+- Calibration tools
+- Benchmark workflows
+- Research reporting
+
+
+## Installation
+
+pip install -e .
+
+
+## Quick Start
+
+python examples/basic_simulation.py
+
+
+## Documentation
+
+/docs
+
+
+## License
+
+MIT
