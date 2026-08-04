@@ -26866,5 +26866,2255 @@ docker compose up --build
 
 
 
+gedt-mvd/
+
+app/
+    api/
+    core/
+    db/
+    models/
+    repositories/
+    services/
+    ml/
+    simulation/
+    dashboard/
+
+tests/
+
+docs/
+
+deployment/
+
+.github/
+
+v0.1 Foundation
+
+↓
+
+v0.2 Database
+
+↓
+
+v0.3 Machine Learning
+
+↓
+
+v0.4 Simulation
+
+↓
+
+v0.5 Dashboard
+
+↓
+
+v0.6 Security
+
+↓
+
+v1.0 Stable Release
+
+gedt-mvd/
+
+app/
+├── main.py
+├── database.py
+├── models.py
+├── schemas.py
+├── repository.py
+└── routes.py
+
+tests/
+└── test_predictions.py
+
+requirements.txt
+
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+pytest
+httpx
+
+"""
+GEDT Database Layer
+"""
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import DeclarativeBase
+
+
+DATABASE_URL = "sqlite:///./gedt.db"
+
+
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={
+        "check_same_thread": False
+    }
+)
+
+
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+
+def get_db():
+
+    db = SessionLocal()
+
+    try:
+        yield db
+
+    finally:
+        db.close()
+
+"""
+GEDT Database Models
+"""
+
+from datetime import datetime
+
+from sqlalchemy import Integer
+from sqlalchemy import Float
+from sqlalchemy import String
+from sqlalchemy import DateTime
+
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
+
+from database import Base
+
+
+
+class Prediction(Base):
+
+    __tablename__ = "predictions"
+
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True
+    )
+
+
+    model_name: Mapped[str] = mapped_column(
+        String(100)
+    )
+
+
+    prediction_value: Mapped[float] = mapped_column(
+        Float
+    )
+
+
+    confidence: Mapped[float] = mapped_column(
+        Float
+    )
+
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+"""
+GEDT API Schemas
+"""
+
+from datetime import datetime
+
+from pydantic import BaseModel
+
+
+
+class PredictionCreate(BaseModel):
+
+    model_name: str
+
+    prediction_value: float
+
+    confidence: float
+
+
+
+class PredictionResponse(PredictionCreate):
+
+    id: int
+
+    created_at: datetime
+
+
+    class Config:
+
+        from_attributes = True
+
+"""
+GEDT Repository Layer
+"""
+
+from sqlalchemy.orm import Session
+
+from models import Prediction
+
+from schemas import PredictionCreate
+
+
+
+class PredictionRepository:
+
+
+    def create(
+        self,
+        db: Session,
+        data: PredictionCreate
+    ):
+
+
+        record = Prediction(
+
+            model_name=data.model_name,
+
+            prediction_value=data.prediction_value,
+
+            confidence=data.confidence
+
+        )
+
+
+        db.add(record)
+
+        db.commit()
+
+        db.refresh(record)
+
+
+        return record
+
+
+
+    def get_all(
+        self,
+        db: Session
+    ):
+
+
+        return db.query(
+            Prediction
+        ).all()
+
+
+
+prediction_repository = PredictionRepository()
+
+"""
+GEDT Prediction API
+"""
+
+from fastapi import APIRouter
+from fastapi import Depends
+
+from sqlalchemy.orm import Session
+
+
+from database import get_db
+
+from schemas import (
+    PredictionCreate,
+    PredictionResponse
+)
+
+from repository import prediction_repository
+
+
+
+router = APIRouter()
+
+
+
+@router.post(
+    "/predictions",
+    response_model=PredictionResponse
+)
+def create_prediction(
+    prediction: PredictionCreate,
+    db: Session = Depends(get_db)
+):
+
+    return prediction_repository.create(
+        db,
+        prediction
+    )
+
+
+
+@router.get(
+    "/predictions",
+    response_model=list[PredictionResponse]
+)
+def get_predictions(
+    db: Session = Depends(get_db)
+):
+
+    return prediction_repository.get_all(
+        db
+    )
+
+
+"""
+GEDT MVD Application
+"""
+
+from fastapi import FastAPI
+
+from database import Base
+from database import engine
+
+from routes import router
+
+
+
+Base.metadata.create_all(
+    bind=engine
+)
+
+
+app = FastAPI(
+
+    title="GEDT MVD",
+
+    version="0.2.0-alpha"
+
+)
+
+
+
+app.include_router(
+    router
+)
+
+
+
+@app.get("/")
+def root():
+
+    return {
+
+        "system":
+        "GEDT MVD",
+
+        "status":
+        "running",
+
+        "version":
+        "0.2.0-alpha"
+
+    }
+
+
+pip install -r requirements.txt
+
+uvicorn app.main:app --reload
+
+http://localhost:8000/docs
+
+{
+  "model_name": "risk_model_v1",
+  "prediction_value": 0.82,
+  "confidence": 0.91
+}
+{
+  "id":1,
+  "model_name":"risk_model_v1",
+  "prediction_value":0.82,
+  "confidence":0.91,
+  "created_at":"2026-..."
+}
+
+
+git add .
+
+git commit -m "GEDT v0.2.0-alpha database persistence layer"
+
+git tag v0.2.0-alpha
+
+
+gedt-mvd/
+
+app/
+
+├── core/
+│   └── config.py
+│
+├── db/
+│   ├── database.py
+│   └── migrations/
+│
+├── models/
+│   └── prediction.py
+│
+├── repositories/
+│   └── prediction_repository.py
+│
+├── schemas/
+│   └── prediction.py
+│
+├── api/
+│   └── predictions.py
+│
+└── main.py
+
+
+tests/
+
+└── test_predictions.py
+
+
+.env.example
+alembic.ini
+
+fastapi
+uvicorn
+
+sqlalchemy
+alembic
+
+pydantic
+pydantic-settings
+
+python-dotenv
+
+pytest
+httpx
+
+psycopg2-binary
+
+"""
+GEDT Configuration
+"""
+
+from pydantic_settings import BaseSettings
+
+
+class Settings(BaseSettings):
+
+    app_name: str = "GEDT MVD"
+
+    version: str = "0.2.1-alpha"
+
+    database_url: str = (
+        "sqlite:///./gedt.db"
+    )
+
+
+    class Config:
+
+        env_file = ".env"
+
+
+
+settings = Settings()
+
+
+"""
+GEDT Database Connection
+"""
+
+from sqlalchemy import create_engine
+
+from sqlalchemy.orm import sessionmaker
+
+from sqlalchemy.orm import DeclarativeBase
+
+from app.core.config import settings
+
+
+
+connect_args = {}
+
+
+if settings.database_url.startswith(
+    "sqlite"
+):
+
+    connect_args = {
+        "check_same_thread": False
+    }
+
+
+
+engine = create_engine(
+
+    settings.database_url,
+
+    connect_args=connect_args
+
+)
+
+
+
+SessionLocal = sessionmaker(
+
+    autocommit=False,
+
+    autoflush=False,
+
+    bind=engine
+
+)
+
+
+
+class Base(DeclarativeBase):
+
+    pass
+
+
+
+def get_db():
+
+    db = SessionLocal()
+
+    try:
+
+        yield db
+
+    finally:
+
+        db.close()
+
+
+"""
+GEDT Prediction Database Model
+"""
+
+from datetime import datetime
+
+
+from sqlalchemy import String
+from sqlalchemy import Float
+from sqlalchemy import DateTime
+
+
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
+
+
+from app.db.database import Base
+
+
+
+class Prediction(Base):
+
+
+    __tablename__ = "predictions"
+
+
+
+    id: Mapped[int] = mapped_column(
+
+        primary_key=True
+
+    )
+
+
+    model_name: Mapped[str] = mapped_column(
+
+        String(100)
+
+    )
+
+
+    prediction_value: Mapped[float] = mapped_column(
+
+        Float
+
+    )
+
+
+    confidence: Mapped[float] = mapped_column(
+
+        Float
+
+    )
+
+
+    created_at: Mapped[datetime] = mapped_column(
+
+        DateTime,
+
+        default=datetime.utcnow
+
+    )
+
+
+"""
+GEDT Prediction Repository
+"""
+
+
+from sqlalchemy.orm import Session
+
+
+from app.models.prediction import Prediction
+
+
+from app.schemas.prediction import PredictionCreate
+
+
+
+class PredictionRepository:
+
+
+
+    def create(
+
+        self,
+
+        db: Session,
+
+        data: PredictionCreate
+
+    ):
+
+
+        prediction = Prediction(
+
+            **data.model_dump()
+
+        )
+
+
+        db.add(prediction)
+
+        db.commit()
+
+        db.refresh(prediction)
+
+
+        return prediction
+
+
+
+
+    def list(
+
+        self,
+
+        db: Session
+
+    ):
+
+
+        return db.query(
+
+            Prediction
+
+        ).all()
+
+
+
+prediction_repository = PredictionRepository()
+
+APP_NAME=GEDT MVD
+
+VERSION=0.2.1-alpha
+
+DATABASE_URL=sqlite:///./gedt.db
+
+pip install alembic
+
+alembic init migrations
+
+
+alembic revision --autogenerate -m "create predictions table"
+
+alembic upgrade head
+
+"""
+GEDT Database Tests
+"""
+
+
+def test_prediction_structure():
+
+    data = {
+
+        "model_name":
+        "test_model",
+
+        "prediction_value":
+        0.75,
+
+        "confidence":
+        0.90
+
+    }
+
+
+    assert data["confidence"] > 0
+
+    assert data["prediction_value"] <= 1
+
+Receive Data
+
+      ↓
+
+Validate Input
+
+      ↓
+
+Store Information
+
+      ↓
+
+Retrieve History
+
+      ↓
+
+Prepare for AI Models
+
+
+app/ml/
+
+├── model_registry.py
+├── feature_pipeline.py
+├── training.py
+├── inference.py
+└── metrics.py
+
+app/
+
+├── ml/
+│   ├── __init__.py
+│   ├── model_registry.py
+│   ├── feature_pipeline.py
+│   ├── training.py
+│   ├── inference.py
+│   └── metrics.py
+
+tests/
+
+└── test_ml.py
+
+numpy
+pandas
+scikit-learn
+joblib
+
+"""
+GEDT Model Registry
+
+Tracks trained models and versions.
+"""
+
+from dataclasses import dataclass
+from datetime import datetime
+
+
+@dataclass
+class ModelInfo:
+
+    name: str
+
+    version: str
+
+    path: str
+
+    created: str
+
+
+
+class ModelRegistry:
+
+
+    def __init__(self):
+
+        self.models = {}
+
+
+
+    def register(
+
+        self,
+
+        name: str,
+
+        version: str,
+
+        path: str
+
+    ):
+
+
+        model = ModelInfo(
+
+            name=name,
+
+            version=version,
+
+            path=path,
+
+            created=datetime.utcnow()
+            .isoformat()
+
+        )
+
+
+        self.models[name] = model
+
+
+        return model
+
+
+
+    def get(
+
+        self,
+
+        name: str
+
+    ):
+
+
+        return self.models.get(name)
+
+
+
+registry = ModelRegistry()
+
+
+
+"""
+GEDT Feature Engineering
+"""
+
+import numpy as np
+
+
+
+class FeaturePipeline:
+
+
+    def transform(
+
+        self,
+
+        values: list[float]
+
+    ):
+
+
+        array = np.array(values)
+
+
+        return array.reshape(
+            1,
+            -1
+        )
+
+
+"""
+GEDT Training Pipeline
+"""
+
+from sklearn.linear_model import LogisticRegression
+
+import joblib
+
+
+
+class TrainingPipeline:
+
+
+
+    def train(
+
+        self,
+
+        X,
+
+        y,
+
+        output_path: str
+
+    ):
+
+
+        model = LogisticRegression()
+
+
+        model.fit(
+
+            X,
+
+            y
+
+        )
+
+
+        joblib.dump(
+
+            model,
+
+            output_path
+
+        )
+
+
+        return model
+
+
+"""
+GEDT Inference Engine
+"""
+
+import joblib
+
+
+
+class InferenceEngine:
+
+
+
+    def __init__(
+
+        self,
+
+        model_path: str
+
+    ):
+
+        self.model = joblib.load(
+            model_path
+        )
+
+
+
+    def predict(
+
+        self,
+
+        features
+
+    ):
+
+
+        prediction = self.model.predict(
+
+            features
+
+        )
+
+
+        probability = self.model.predict_proba(
+
+            features
+
+        )
+
+
+        return {
+
+            "prediction":
+            int(prediction[0]),
+
+            "confidence":
+            float(
+                max(probability[0])
+            )
+
+        }
+
+
+"""
+GEDT Model Evaluation
+"""
+
+from sklearn.metrics import accuracy_score
+
+
+
+def evaluate(
+
+    y_true,
+
+    y_pred
+
+):
+
+
+    return {
+
+        "accuracy":
+
+        accuracy_score(
+
+            y_true,
+
+            y_pred
+
+        )
+
+    }
+
+
+"""
+GEDT ML Tests
+"""
+
+
+from app.ml.feature_pipeline import FeaturePipeline
+
+
+
+def test_feature_pipeline():
+
+
+    pipeline = FeaturePipeline()
+
+
+    result = pipeline.transform(
+
+        [1,2,3]
+
+    )
+
+
+    assert result.shape == (
+
+        1,
+
+        3
+
+    )
+
+
+gedt-mvd/
+
+app/
+
+├── ml/
+│   ├── dataset.py
+│   ├── train_model.py
+│   ├── inference_service.py
+│   └── artifacts/
+
+├── api/
+│   └── ml_routes.py
+
+scripts/
+
+└── train.py
+
+models/
+
+└── saved_models/
+
+
+"""
+GEDT Dataset Utilities
+"""
+
+from sklearn.datasets import load_iris
+
+from sklearn.model_selection import train_test_split
+
+
+
+class DatasetLoader:
+
+
+    def load(self):
+
+        dataset = load_iris()
+
+
+        X_train, X_test, y_train, y_test = train_test_split(
+
+            dataset.data,
+
+            dataset.target,
+
+            test_size=0.2,
+
+            random_state=42
+
+        )
+
+
+        return (
+
+            X_train,
+
+            X_test,
+
+            y_train,
+
+            y_test
+
+        )
+
+"""
+GEDT Model Training
+"""
+
+from pathlib import Path
+
+import joblib
+
+from sklearn.ensemble import RandomForestClassifier
+
+
+from app.ml.dataset import DatasetLoader
+
+
+
+MODEL_PATH = Path(
+
+    "models/saved_models/gedt_model.pkl"
+
+)
+
+
+
+def train():
+
+
+    loader = DatasetLoader()
+
+
+    X_train, _, y_train, _ = loader.load()
+
+
+
+    model = RandomForestClassifier(
+
+        n_estimators=100,
+
+        random_state=42
+
+    )
+
+
+    model.fit(
+
+        X_train,
+
+        y_train
+
+    )
+
+
+    MODEL_PATH.parent.mkdir(
+
+        parents=True,
+
+        exist_ok=True
+
+    )
+
+
+    joblib.dump(
+
+        model,
+
+        MODEL_PATH
+
+    )
+
+
+    return MODEL_PATH
+
+
+
+if __name__ == "__main__":
+
+    print(
+
+        train()
+
+    )
+
+
+"""
+GEDT AI Inference Service
+"""
+
+import joblib
+
+import numpy as np
+
+
+
+class InferenceService:
+
+
+    def __init__(
+
+        self,
+
+        model_path
+
+    ):
+
+        self.model = joblib.load(
+
+            model_path
+
+        )
+
+
+
+    def predict(
+
+        self,
+
+        features:list[float]
+
+    ):
+
+
+        data = np.array(
+
+            features
+
+        ).reshape(
+
+            1,
+
+            -1
+
+        )
+
+
+        prediction = self.model.predict(
+
+            data
+
+        )
+
+
+        confidence = max(
+
+            self.model.predict_proba(
+
+                data
+
+            )[0]
+
+        )
+
+
+        return {
+
+            "prediction":
+
+            int(prediction[0]),
+
+
+            "confidence":
+
+            float(confidence)
+
+        }
+
+
+"""
+GEDT ML API
+"""
+
+from fastapi import APIRouter
+
+
+from app.ml.inference_service import InferenceService
+
+
+
+router = APIRouter(
+
+    prefix="/ml",
+
+    tags=["Machine Learning"]
+
+)
+
+
+
+service = InferenceService(
+
+    "models/saved_models/gedt_model.pkl"
+
+)
+
+
+
+@router.post("/predict")
+
+def predict(
+
+    features:list[float]
+
+):
+
+
+    return service.predict(
+
+        features
+
+    )
+
+from app.api.ml_routes import router as ml_router
+
+
+app.include_router(
+
+    ml_router
+
+)
+
+python -m app.ml.train_model
+
+models/saved_models/gedt_model.pkl
+
+POST /ml/predict
+
+[
+5.1,
+3.5,
+1.4,
+0.2
+]
+
+{
+"prediction":0,
+"confidence":0.98
+}
+
+app/
+
+├── services/
+│   └── prediction_service.py
+
+├── api/
+│   └── ml_routes.py
+
+├── schemas/
+│   └── prediction.py
+
+├── models/
+│   └── prediction.py
+
+"""
+GEDT Prediction Record
+"""
+
+from datetime import datetime
+
+from sqlalchemy import String
+from sqlalchemy import Float
+from sqlalchemy import DateTime
+
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
+
+from app.db.database import Base
+
+
+class Prediction(Base):
+
+    __tablename__ = "predictions"
+
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True
+    )
+
+
+    model_name: Mapped[str] = mapped_column(
+        String(100)
+    )
+
+
+    model_version: Mapped[str] = mapped_column(
+        String(50)
+    )
+
+
+    prediction_value: Mapped[float] = mapped_column(
+        Float
+    )
+
+
+    confidence: Mapped[float] = mapped_column(
+        Float
+    )
+
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+"""
+GEDT Prediction Storage Service
+"""
+
+from sqlalchemy.orm import Session
+
+from app.models.prediction import Prediction
+
+
+class PredictionService:
+
+
+    def save_prediction(
+
+        self,
+
+        db: Session,
+
+        model_name: str,
+
+        model_version: str,
+
+        prediction_value: float,
+
+        confidence: float
+
+    ):
+
+
+        record = Prediction(
+
+            model_name=model_name,
+
+            model_version=model_version,
+
+            prediction_value=prediction_value,
+
+            confidence=confidence
+
+        )
+
+
+        db.add(record)
+
+        db.commit()
+
+        db.refresh(record)
+
+
+        return record
+
+
+
+prediction_service = PredictionService()
+
+
+"""
+GEDT Machine Learning API
+"""
+
+from fastapi import APIRouter
+from fastapi import Depends
+
+from sqlalchemy.orm import Session
+
+from app.db.database import get_db
+
+from app.ml.inference_service import InferenceService
+
+from app.services.prediction_service import prediction_service
+
+
+router = APIRouter(
+    prefix="/ml",
+    tags=["Machine Learning"]
+)
+
+
+service = InferenceService(
+    "models/saved_models/gedt_model.pkl"
+)
+
+
+
+@router.post("/predict")
+def predict(
+
+    features: list[float],
+
+    db: Session = Depends(get_db)
+
+):
+
+
+    result = service.predict(
+        features
+    )
+
+
+    stored = prediction_service.save_prediction(
+
+        db=db,
+
+        model_name="gedt_random_forest",
+
+        model_version="0.3.2-alpha",
+
+        prediction_value=result["prediction"],
+
+        confidence=result["confidence"]
+
+    )
+
+
+    return {
+
+        "prediction_id": stored.id,
+
+        "prediction": result["prediction"],
+
+        "confidence": result["confidence"],
+
+        "model":
+
+        "gedt_random_forest"
+
+    }
+
+
+"""
+Prediction History API
+"""
+
+from fastapi import APIRouter
+from fastapi import Depends
+
+from sqlalchemy.orm import Session
+
+from app.db.database import get_db
+
+from app.models.prediction import Prediction
+
+
+router = APIRouter(
+    prefix="/predictions",
+    tags=["Predictions"]
+)
+
+
+
+@router.get("/")
+def history(
+
+    db: Session = Depends(get_db)
+
+):
+
+
+    return db.query(
+        Prediction
+    ).all()
+
+python -m app.ml.train_model
+
+uvicorn app.main:app --reload
+
+[
+5.1,
+3.5,
+1.4,
+0.2
+]
+
+{
+ "prediction_id":1,
+ "prediction":0,
+ "confidence":0.98,
+ "model":"gedt_random_forest"
+}
+
+/predictions/
+
+[
+ {
+  "id":1,
+  "model_name":"gedt_random_forest",
+  "model_version":"0.3.2-alpha",
+  "prediction_value":0,
+  "confidence":0.98
+ }
+]
+
+Current Capability
+
+GEDT can now:
+
+1. Train a model.
+2. Save the model.
+3. Load the model.
+4. Receive input data.
+5. Generate predictions.
+6. Store predictions.
+7. Retrieve historical AI decisions.
+
+This is the first point where GEDT behaves like an actual AI service.
+
+⸻
+
+Next Milestone
+
+GEDT v0.4.0-alpha
+
+Simulation & Digital Twin Engine
+
+Next we add:
+
+* scenario objects
+* simulation engine
+* environmental variables
+* resource constraints
+* decision scoring
+* optimization layer
+
+This moves GEDT from:
+
+“AI prediction system”
+
+to:
+
+“AI decision-support system.”
+
+
+
+app/
+
+├── simulation/
+│   ├── __init__.py
+│   ├── state.py
+│   ├── scenario.py
+│   ├── engine.py
+│   ├── metrics.py
+│   └── optimizer.py
+
+├── schemas/
+│   └── simulation.py
+
+├── api/
+│   └── simulation.py
+
+"""
+GEDT Digital Twin State
+"""
+
+from dataclasses import dataclass
+
+
+@dataclass
+class DigitalTwinState:
+    """
+    Represents current system conditions.
+    """
+
+    population: int
+
+    resources: float
+
+    demand: float
+
+    risk_level: float
+
+
+
+"""
+GEDT Simulation Scenario
+"""
+
+from dataclasses import dataclass
+
+
+@dataclass
+class Scenario:
+
+    name: str
+
+    resource_change: float
+
+    demand_change: float
+
+    risk_change: float
+
+
+"""
+GEDT Simulation Engine
+"""
+
+from app.simulation.state import DigitalTwinState
+from app.simulation.scenario import Scenario
+
+
+
+class SimulationEngine:
+
+
+    def run(
+
+        self,
+
+        state: DigitalTwinState,
+
+        scenario: Scenario
+
+    ):
+
+
+        new_resources = (
+
+            state.resources
+
+            +
+
+            scenario.resource_change
+
+        )
+
+
+        new_demand = (
+
+            state.demand
+
+            *
+
+            (1 + scenario.demand_change)
+
+        )
+
+
+        new_risk = (
+
+            state.risk_level
+
+            +
+
+            scenario.risk_change
+
+        )
+
+
+        return {
+
+            "resources":
+
+            new_resources,
+
+
+            "demand":
+
+            new_demand,
+
+
+            "risk":
+
+            new_risk
+
+        }
+
+
+"""
+GEDT Simulation Metrics
+"""
+
+
+def calculate_score(
+
+    resources: float,
+
+    demand: float,
+
+    risk: float
+
+):
+
+
+    availability = (
+
+        resources /
+
+        max(demand, 1)
+
+    )
+
+
+    score = (
+
+        availability
+
+        -
+
+        risk
+
+    )
+
+
+    return max(
+
+        0,
+
+        min(
+
+            score,
+
+            1
+
+        )
+
+    )
+
+
+"""
+GEDT Scenario Optimizer
+"""
+
+
+class ScenarioOptimizer:
+
+
+    def choose_best(
+
+        self,
+
+        scenarios
+
+    ):
+
+
+        return max(
+
+            scenarios,
+
+            key=lambda x:
+
+            x["score"]
+
+        )
+
+"""
+GEDT Simulation API
+"""
+
+from fastapi import APIRouter
+
+from app.simulation.state import DigitalTwinState
+
+from app.simulation.scenario import Scenario
+
+from app.simulation.engine import SimulationEngine
+
+from app.simulation.metrics import calculate_score
+
+
+
+router = APIRouter(
+
+    prefix="/simulation",
+
+    tags=["Simulation"]
+
+)
+
+
+
+engine = SimulationEngine()
+
+
+
+@router.post("/run")
+
+def run_simulation():
+
+
+    state = DigitalTwinState(
+
+        population=100000,
+
+        resources=50000,
+
+        demand=45000,
+
+        risk_level=0.2
+
+    )
+
+
+    scenario = Scenario(
+
+        name="resource_upgrade",
+
+        resource_change=10000,
+
+        demand_change=-0.1,
+
+        risk_change=-0.05
+
+    )
+
+
+    result = engine.run(
+
+        state,
+
+        scenario
+
+    )
+
+
+    result["score"] = calculate_score(
+
+        result["resources"],
+
+        result["demand"],
+
+        result["risk"]
+
+    )
+
+
+    return result
+
+from app.api.simulation import router as simulation_router
+
+
+app.include_router(
+    simulation_router
+)
+
+/simulation/run
+
+{
+ "resources":60000,
+ "demand":40500,
+ "risk":0.15,
+ "score":1.0
+}
+
+One State
+   ↓
+One Scenario
+   ↓
+One Result
+
+
+Current State
+
+      ↓
+
+Scenario Generator
+
+      ↓
+
+100+ Possible Futures
+
+      ↓
+
+Simulation Engine
+
+      ↓
+
+Risk / Reward Analysis
+
+      ↓
+
+Best Decision
+
+"""
+GEDT Scenario Generator
+"""
+
+import random
+
+from app.simulation.scenario import Scenario
+
+
+class ScenarioGenerator:
+    """
+    Creates possible future scenarios.
+    """
+
+    def generate(
+        self,
+        count: int = 10
+    ):
+
+        scenarios = []
+
+        for i in range(count):
+
+            scenarios.append(
+
+                Scenario(
+
+                    name=f"scenario_{i}",
+
+                    resource_change=random.uniform(
+                        -10000,
+                        20000
+                    ),
+
+                    demand_change=random.uniform(
+                        -0.2,
+                        0.3
+                    ),
+
+                    risk_change=random.uniform(
+                        -0.1,
+                        0.2
+                    )
+
+                )
+
+            )
+
+        return scenarios
+
+
+"""
+GEDT Monte Carlo Simulation
+"""
+
+from app.simulation.engine import SimulationEngine
+from app.simulation.metrics import calculate_score
+
+
+class MonteCarloSimulator:
+
+
+    def __init__(self):
+
+        self.engine = SimulationEngine()
+
+
+
+    def run(
+
+        self,
+
+        state,
+
+        scenarios
+
+    ):
+
+        results = []
+
+
+        for scenario in scenarios:
+
+            outcome = self.engine.run(
+
+                state,
+
+                scenario
+
+            )
+
+
+            outcome["score"] = calculate_score(
+
+                outcome["resources"],
+
+                outcome["demand"],
+
+                outcome["risk"]
+
+            )
+
+
+            outcome["scenario"] = scenario.name
+
+
+            results.append(
+
+                outcome
+
+            )
+
+
+        return results
+
+"""
+GEDT Decision Evaluation
+"""
+
+
+class DecisionEvaluator:
+
+
+    def rank(
+
+        self,
+
+        results
+
+    ):
+
+        return sorted(
+
+            results,
+
+            key=lambda x:
+
+            x["score"],
+
+            reverse=True
+
+        )
+
+"""
+GEDT Simulation Reports
+"""
+
+
+class SimulationReport:
+
+
+    def summarize(
+
+        self,
+
+        results
+
+    ):
+
+
+        scores = [
+
+            r["score"]
+
+            for r in results
+
+        ]
+
+
+        return {
+
+            "scenarios":
+
+            len(results),
+
+
+            "best_score":
+
+            max(scores),
+
+
+            "average_score":
+
+            sum(scores) / len(scores)
+
+        }
+
+
+from app.simulation.scenario_generator import ScenarioGenerator
+
+from app.simulation.monte_carlo import MonteCarloSimulator
+
+from app.simulation.evaluator import DecisionEvaluator
+
+from app.simulation.report import SimulationReport
+
+
+@router.post("/monte-carlo")
+def monte_carlo():
+
+
+    state = DigitalTwinState(
+
+        population=100000,
+
+        resources=50000,
+
+        demand=45000,
+
+        risk_level=0.2
+
+    )
+
+
+    generator = ScenarioGenerator()
+
+    scenarios = generator.generate(100)
+
+
+    simulator = MonteCarloSimulator()
+
+    results = simulator.run(
+
+        state,
+
+        scenarios
+
+    )
+
+
+    evaluator = DecisionEvaluator()
+
+    ranked = evaluator.rank(
+
+        results
+
+    )
+
+
+    report = SimulationReport()
+
+    return {
+
+        "recommendation":
+
+        ranked[0],
+
+
+        "summary":
+
+        report.summarize(
+
+            results
+
+        )
+
+    }
+
+
+POST /simulation/monte-carlo
+
+{
+  "recommendation": {
+    "scenario": "scenario_42",
+    "resources": 67420,
+    "demand": 39100,
+    "risk": 0.09,
+    "score": 1.0
+  },
+
+  "summary": {
+    "scenarios":100,
+    "best_score":1.0,
+    "average_score":0.71
+  }
+}
+
+
+
+
 
 
