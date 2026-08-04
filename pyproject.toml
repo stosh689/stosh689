@@ -29585,4 +29585,806 @@ if predictions:
 
 
 
+app/
+
+├── security/
+│   ├── auth.py
+│   ├── jwt.py
+│   ├── permissions.py
+│
+├── audit/
+│   ├── logger.py
+│   └── models.py
+│
+├── users/
+│   ├── models.py
+│   └── schemas.py
+
+
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+
+"""
+GEDT User Model
+"""
+
+from sqlalchemy import String
+
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
+
+from app.db.database import Base
+
+
+class User(Base):
+
+    __tablename__ = "users"
+
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True
+    )
+
+
+    username: Mapped[str] = mapped_column(
+        String(100),
+        unique=True
+    )
+
+
+    password_hash: Mapped[str] = mapped_column(
+        String(255)
+    )
+
+
+    role: Mapped[str] = mapped_column(
+        String(50),
+        default="user"
+    )
+
+"""
+GEDT Authentication Utilities
+"""
+
+from passlib.context import CryptContext
+
+
+password_context = CryptContext(
+    schemes=["bcrypt"],
+    deprecated="auto"
+)
+
+
+
+def hash_password(password: str):
+
+    return password_context.hash(
+        password
+    )
+
+
+
+def verify_password(
+
+    plain,
+
+    hashed
+
+):
+
+    return password_context.verify(
+
+        plain,
+
+        hashed
+
+    )
+
+"""
+GEDT JWT Handler
+"""
+
+from datetime import datetime
+from datetime import timedelta
+
+from jose import jwt
+
+
+SECRET_KEY = "CHANGE_THIS_IN_ENV"
+
+ALGORITHM = "HS256"
+
+
+
+def create_token(
+
+    username: str
+
+):
+
+    payload = {
+
+        "sub": username,
+
+        "exp":
+
+        datetime.utcnow()
+
+        +
+
+        timedelta(hours=8)
+
+    }
+
+
+    return jwt.encode(
+
+        payload,
+
+        SECRET_KEY,
+
+        algorithm=ALGORITHM
+
+    )
+
+"""
+GEDT Permissions
+"""
+
+
+ROLES = {
+
+    "admin": [
+
+        "read",
+
+        "write",
+
+        "manage"
+
+    ],
+
+
+    "analyst": [
+
+        "read",
+
+        "write"
+
+    ],
+
+
+    "user": [
+
+        "read"
+
+    ]
+
+}
+
+
+
+def has_permission(
+
+    role,
+
+    permission
+
+):
+
+
+    return permission in ROLES.get(
+
+        role,
+
+        []
+
+    )
+
+
+"""
+GEDT Audit Logger
+"""
+
+from datetime import datetime
+
+
+
+def audit_event(
+
+    user,
+
+    action,
+
+    resource
+
+):
+
+
+    return {
+
+        "timestamp":
+
+        datetime.utcnow().isoformat(),
+
+
+        "user":
+
+        user,
+
+
+        "action":
+
+        action,
+
+
+        "resource":
+
+        resource
+
+    }
+
+{
+ "timestamp":"2026-08-04T12:00:00",
+ "user":"analyst",
+ "action":"run_simulation",
+ "resource":"scenario_42"
+}
+
+
+
+app/
+
+├── security/
+│   ├── dependencies.py
+│   ├── oauth.py
+│   └── settings.py
+
+├── api/
+│   ├── auth.py
+│   └── protected.py
+
+├── users/
+│   ├── repository.py
+│   └── service.py
+
+└── audit/
+    └── models.py
+
+
+"""
+GEDT Security Configuration
+"""
+
+import os
+
+
+SECRET_KEY = os.getenv(
+    "GEDT_SECRET_KEY",
+    "development-secret-change-me"
+)
+
+
+ALGORITHM = "HS256"
+
+
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
+
+"""
+GEDT OAuth Utilities
+"""
+
+from datetime import datetime, timedelta
+
+from jose import jwt
+
+from app.security.settings import (
+    SECRET_KEY,
+    ALGORITHM,
+    ACCESS_TOKEN_EXPIRE_MINUTES
+)
+
+
+def create_access_token(
+    username: str,
+    role: str
+):
+
+    expires = datetime.utcnow() + timedelta(
+
+        minutes=ACCESS_TOKEN_EXPIRE_MINUTES
+
+    )
+
+
+    payload = {
+
+        "sub": username,
+
+        "role": role,
+
+        "exp": expires
+
+    }
+
+
+    return jwt.encode(
+
+        payload,
+
+        SECRET_KEY,
+
+        algorithm=ALGORITHM
+
+    )
+
+"""
+GEDT Protected Routes
+"""
+
+from fastapi import Depends
+from fastapi import HTTPException
+from fastapi.security import OAuth2PasswordBearer
+
+from jose import jwt
+
+from app.security.settings import (
+    SECRET_KEY,
+    ALGORITHM
+)
+
+
+oauth2_scheme = OAuth2PasswordBearer(
+
+    tokenUrl="/auth/login"
+
+)
+
+
+
+def current_user(
+
+    token: str = Depends(oauth2_scheme)
+
+):
+
+    try:
+
+        payload = jwt.decode(
+
+            token,
+
+            SECRET_KEY,
+
+            algorithms=[ALGORITHM]
+
+        )
+
+
+        return {
+
+            "username":
+
+            payload["sub"],
+
+
+            "role":
+
+            payload["role"]
+
+        }
+
+
+    except Exception:
+
+        raise HTTPException(
+
+            status_code=401,
+
+            detail="Invalid authentication"
+
+        )
+
+"""
+GEDT Authentication API
+"""
+
+from fastapi import APIRouter
+
+from pydantic import BaseModel
+
+from app.security.oauth import create_access_token
+
+
+router = APIRouter(
+
+    prefix="/auth",
+
+    tags=["Authentication"]
+
+)
+
+
+
+class LoginRequest(BaseModel):
+
+    username: str
+
+    password: str
+
+
+
+@router.post("/login")
+def login(
+
+    user: LoginRequest
+
+):
+
+    # Demo user validation
+    # Replace with database lookup
+
+    if user.password != "gedt-demo":
+
+        return {
+
+            "error":
+
+            "invalid credentials"
+
+        }
+
+
+    token = create_access_token(
+
+        username=user.username,
+
+        role="analyst"
+
+    )
+
+
+    return {
+
+        "access_token": token,
+
+        "token_type": "bearer"
+
+    }
+
+
+"""
+GEDT Protected API Example
+"""
+
+from fastapi import APIRouter
+from fastapi import Depends
+
+from app.security.dependencies import current_user
+
+
+router = APIRouter(
+
+    prefix="/secure",
+
+    tags=["Security"]
+
+)
+
+
+
+@router.get("/status")
+def secure_status(
+
+    user = Depends(current_user)
+
+):
+
+
+    return {
+
+        "system":
+
+        "GEDT",
+
+
+        "authorized_user":
+
+        user
+
+    }
+
+
+from app.api.auth import router as auth_router
+
+from app.api.protected import router as secure_router
+
+
+app.include_router(
+    auth_router
+)
+
+
+app.include_router(
+    secure_router
+)
+
+uvicorn app.main:app --reload
+
+/auth/login
+
+{
+ "username":"admin",
+ "password":"gedt-demo"
+}
+
+
+{
+ "access_token":"eyJ...",
+ "token_type":"bearer"
+}
+
+
+Authorization: Bearer <token>
+
+GET /secure/status
+
+{
+ "system":"GEDT",
+ "authorized_user":{
+   "username":"admin",
+   "role":"analyst"
+ }
+}
+
+                 Data Sources
+
+        Sensors | Images | APIs | Streams
+
+                    ↓
+
+             Data Ingestion Layer
+
+                    ↓
+
+          Feature / AI Processing
+
+        ↙             ↓              ↘
+
+ Computer Vision   Deep Learning   Forecasting
+
+        ↘             ↓              ↙
+
+             Decision Intelligence
+
+                    ↓
+
+              Digital Twin
+
+                    ↓
+
+             Recommendation
+
+app/
+
+├── ai/
+│
+│   ├── vision/
+│   │   ├── preprocessing.py
+│   │   ├── models.py
+│   │   └── inference.py
+│
+│   ├── deep_learning/
+│   │   ├── trainer.py
+│   │   ├── models.py
+│   │   └── inference.py
+│
+│   ├── monitoring/
+│   │   └── performance.py
+│
+├── streaming/
+│   ├── events.py
+│   └── pipeline.py
+
+"""
+GEDT Event Model
+"""
+
+from dataclasses import dataclass
+
+from datetime import datetime
+
+
+
+@dataclass
+class DataEvent:
+
+    source: str
+
+    timestamp: datetime
+
+    payload: dict
+
+
+"""
+GEDT Streaming Pipeline
+"""
+
+
+class StreamingPipeline:
+
+
+    def __init__(self):
+
+        self.events = []
+
+
+
+    def ingest(
+
+        self,
+
+        event
+
+    ):
+
+        self.events.append(
+
+            event
+
+        )
+
+
+        return {
+
+            "status":
+
+            "received",
+
+            "source":
+
+            event.source
+
+        }
+
+
+"""
+GEDT Vision Processing
+"""
+
+import numpy as np
+
+
+
+def normalize_image(
+
+    image
+
+):
+
+
+    image = np.array(
+
+        image
+
+    )
+
+
+    return image / 255.0
+
+"""
+GEDT Vision Models
+"""
+
+
+class VisionModel:
+
+
+    def predict(
+
+        self,
+
+        image
+
+    ):
+
+
+        return {
+
+            "classification":
+
+            "unknown",
+
+            "confidence":
+
+            0.0
+
+        }
+
+"""
+GEDT Neural Network Interface
+"""
+
+
+class NeuralModel:
+
+
+    def train(
+
+        self,
+
+        data
+
+    ):
+
+        pass
+
+
+
+    def predict(
+
+        self,
+
+        input_data
+
+    ):
+
+
+        return {
+
+            "output":
+
+            None
+
+        }
+
+
+"""
+GEDT Model Monitoring
+"""
+
+
+class ModelMonitor:
+
+
+    def evaluate(
+
+        self,
+
+        predictions,
+
+        actuals
+
+    ):
+
+
+        correct = 0
+
+
+        for p, a in zip(
+
+            predictions,
+
+            actuals
+
+        ):
+
+            if p == a:
+
+                correct += 1
+
+
+
+        return {
+
+            "accuracy":
+
+            correct /
+
+            len(actuals)
+
+        }
+
+
 
