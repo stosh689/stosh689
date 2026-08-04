@@ -2072,6 +2072,2198 @@ if __name__ == "__main__":
 
 
 
+python gedt_v11_digital_twin.py
+
+
+GEDT v11 Digital Twin Demo
+
+Twin State:
+{
+ timestamp: "...",
+ state:
+ {
+  population:10000,
+  technology_index:0.75,
+  innovation_rate:0.08
+ }
+}
+
+Events:
+[
+ Event(
+  name='simulation_update'
+ )
+]
+
+
+
+
+src/gedt/digital_twin/gedt_v11_digital_twin.py
+
+
+git add .
+git commit -m "Add GEDT v11 digital twin core"
+git push
+
+
+Single Simulation
+
+        ↓
+
+Experiment Scheduler
+
+        ↓
+
+Parallel Workers
+
+        ↓
+
+Results Aggregation
+
+        ↓
+
+AI Optimization
+
+
+
+gedt_v11_distributed_engine.py
+
+
+
+"""
+GEDT v11.0 Distributed Simulation Engine
+
+Features:
+- Parallel experiment execution
+- Monte Carlo simulation runner
+- Result aggregation
+- Resource monitoring foundation
+"""
+
+
+from dataclasses import dataclass
+from concurrent.futures import ProcessPoolExecutor
+import time
+import random
+import statistics
+
+
+
+# ==========================================================
+# EXPERIMENT CONFIGURATION
+# ==========================================================
+
+
+@dataclass
+class ExperimentConfig:
+
+    population: int
+
+    years: int
+
+    innovation_rate: float
+
+    seed: int
+
+
+
+# ==========================================================
+# SIMULATION CORE
+# ==========================================================
+
+
+class SimulationEngine:
+
+
+    def run(
+        self,
+        config: ExperimentConfig
+    ):
+
+        random.seed(
+            config.seed
+        )
+
+
+        productivity = 0.5
+
+
+        history=[]
+
+
+        for year in range(
+            config.years
+        ):
+
+            change = (
+
+                config.innovation_rate
+
+                *
+
+                random.random()
+
+            )
+
+
+            productivity += change
+
+
+            productivity=min(
+                productivity,
+                1.0
+            )
+
+
+            history.append(
+                productivity
+            )
+
+
+        return {
+
+            "final_productivity":
+            productivity,
+
+            "history":
+            history,
+
+            "population":
+            config.population
+
+        }
+
+
+
+# ==========================================================
+# PARALLEL WORKER
+# ==========================================================
+
+
+def run_experiment(
+    config
+):
+
+    engine = SimulationEngine()
+
+    return engine.run(
+        config
+    )
+
+
+
+# ==========================================================
+# DISTRIBUTED SCHEDULER
+# ==========================================================
+
+
+class ExperimentScheduler:
+
+
+    def __init__(
+        self,
+        workers=None
+    ):
+
+        self.workers=workers
+
+
+
+    def execute(
+        self,
+        experiments
+    ):
+
+
+        start=time.time()
+
+
+        with ProcessPoolExecutor(
+            max_workers=self.workers
+        ) as executor:
+
+
+            results=list(
+
+                executor.map(
+
+                    run_experiment,
+
+                    experiments
+
+                )
+
+            )
+
+
+        runtime=time.time()-start
+
+
+        return {
+
+            "results":
+            results,
+
+            "runtime_seconds":
+            runtime
+
+        }
+
+
+
+# ==========================================================
+# ANALYSIS ENGINE
+# ==========================================================
+
+
+class ResultAnalyzer:
+
+
+    def summarize(
+        self,
+        results
+    ):
+
+
+        values=[
+
+            r["final_productivity"]
+
+            for r in results
+
+        ]
+
+
+        return {
+
+            "mean":
+            statistics.mean(values),
+
+            "maximum":
+            max(values),
+
+            "minimum":
+            min(values),
+
+            "runs":
+            len(values)
+
+        }
+
+
+
+# ==========================================================
+# DEMO
+# ==========================================================
+
+
+def demo():
+
+
+    experiments=[]
+
+
+    for i in range(20):
+
+        experiments.append(
+
+            ExperimentConfig(
+
+                population=100000,
+
+                years=50,
+
+                innovation_rate=0.05,
+
+                seed=i
+
+            )
+
+        )
+
+
+    scheduler=ExperimentScheduler()
+
+
+    output=scheduler.execute(
+        experiments
+    )
+
+
+    analyzer=ResultAnalyzer()
+
+
+    summary=analyzer.summarize(
+
+        output["results"]
+
+    )
+
+
+    print(
+        "GEDT v11 Distributed Engine"
+    )
+
+
+    print(
+        "Runtime:",
+        output["runtime_seconds"]
+    )
+
+
+    print(
+        "Summary:",
+        summary
+    )
+
+
+
+if __name__=="__main__":
+
+    demo()
+
+
+
+                 GEDT v11
+
+                    |
+
+          Digital Twin Layer
+
+                    |
+
+          AI Prediction Layer
+
+                    |
+
+       Distributed Simulation Engine
+
+                    |
+
+          Optimization Framework
+
+                    |
+
+            Research Reports
+
+
+gedt_v11_autonomous_runtime.py
+
+
+
+Observe → Simulate → Predict → Optimize → Update Twin → Repeat
+
+
+
+Digital Twin State
+
+        ↓
+
+AI Analysis
+
+        ↓
+
+Experiment Generation
+
+        ↓
+
+Distributed Simulation
+
+        ↓
+
+Result Evaluation
+
+        ↓
+
+Twin Update
+
+        ↓
+
+Repeat
+
+
+
+
+gedt_v11_autonomous_runtime.py
+
+
+
+"""
+GEDT v11.0 Autonomous Digital Twin Runtime
+
+Integrated Systems:
+- Digital Twin State
+- Autonomous Research Agent
+- Simulation Engine
+- Experiment Scheduler
+- Optimization Loop
+
+Prototype Runtime
+"""
+
+
+from dataclasses import dataclass, field
+from concurrent.futures import ProcessPoolExecutor
+import random
+import statistics
+import datetime
+
+
+
+# ==========================================================
+# DIGITAL TWIN
+# ==========================================================
+
+
+@dataclass
+class TwinState:
+
+    data: dict = field(
+        default_factory=dict
+    )
+
+    timestamp: str = ""
+
+
+
+    def update(
+        self,
+        values
+    ):
+
+        self.data.update(
+            values
+        )
+
+        self.timestamp = (
+            datetime.datetime.utcnow()
+            .isoformat()
+        )
+
+
+
+# ==========================================================
+# SIMULATION MODEL
+# ==========================================================
+
+
+@dataclass
+class SimulationConfig:
+
+    population: int
+
+    years: int
+
+    innovation: float
+
+    seed: int
+
+
+
+class SimulationEngine:
+
+
+    def run(
+        self,
+        config
+    ):
+
+        random.seed(
+            config.seed
+        )
+
+
+        productivity = 0.5
+
+
+        for _ in range(
+            config.years
+        ):
+
+            productivity += (
+
+                random.random()
+
+                *
+
+                config.innovation
+
+            )
+
+
+            productivity=min(
+                productivity,
+                1.0
+            )
+
+
+        return {
+
+            "productivity":
+            productivity,
+
+            "population":
+            config.population
+
+        }
+
+
+
+# ==========================================================
+# DISTRIBUTED EXECUTION
+# ==========================================================
+
+
+def simulation_worker(
+    config
+):
+
+    return SimulationEngine().run(
+        config
+    )
+
+
+
+class Scheduler:
+
+
+    def execute(
+        self,
+        configs
+    ):
+
+
+        with ProcessPoolExecutor() as pool:
+
+            return list(
+
+                pool.map(
+
+                    simulation_worker,
+
+                    configs
+
+                )
+
+            )
+
+
+
+# ==========================================================
+# AUTONOMOUS RESEARCH AGENT
+# ==========================================================
+
+
+class ResearchAgent:
+
+
+    def analyze(
+        self,
+        twin
+    ):
+
+        return {
+
+            "target":
+            "increase productivity",
+
+            "current":
+            twin.data.get(
+                "productivity",
+                0
+            )
+
+        }
+
+
+
+    def create_experiments(
+        self
+    ):
+
+        experiments=[]
+
+
+        for i in range(10):
+
+            experiments.append(
+
+                SimulationConfig(
+
+                    population=100000,
+
+                    years=50,
+
+                    innovation=
+
+                    random.uniform(
+                        0.01,
+                        0.10
+                    ),
+
+                    seed=i
+
+                )
+
+            )
+
+
+        return experiments
+
+
+
+# ==========================================================
+# OPTIMIZATION
+# ==========================================================
+
+
+class Optimizer:
+
+
+    def select_best(
+        self,
+        results
+    ):
+
+        return max(
+
+            results,
+
+            key=lambda x:
+            x["productivity"]
+
+        )
+
+
+
+# ==========================================================
+# AUTONOMOUS RUNTIME
+# ==========================================================
+
+
+class GEDTRuntime:
+
+
+    def __init__(self):
+
+        self.twin=TwinState()
+
+        self.agent=ResearchAgent()
+
+        self.scheduler=Scheduler()
+
+        self.optimizer=Optimizer()
+
+
+
+    def cycle(
+        self
+    ):
+
+
+        analysis=self.agent.analyze(
+            self.twin
+        )
+
+
+        experiments=(
+
+            self.agent
+            .create_experiments()
+
+        )
+
+
+        results=self.scheduler.execute(
+            experiments
+        )
+
+
+        best=self.optimizer.select_best(
+            results
+        )
+
+
+        self.twin.update(
+
+            {
+
+                "productivity":
+                best["productivity"],
+
+                "last_cycle":
+                analysis
+
+            }
+
+        )
+
+
+        return {
+
+            "best_result":
+            best,
+
+            "twin_state":
+            self.twin.data
+
+        }
+
+
+
+# ==========================================================
+# RUN DEMO
+# ==========================================================
+
+
+if __name__=="__main__":
+
+
+    runtime=GEDTRuntime()
+
+
+    for cycle in range(5):
+
+        result=runtime.cycle()
+
+
+        print(
+            "\nGEDT Cycle:",
+            cycle + 1
+        )
+
+
+        print(
+            result
+        )
+
+
+
+                GEDT v11
+
+                    |
+        --------------------------
+        |            |           |
+   Digital Twin      AI     Distributed Compute
+
+        \            |           /
+
+             Autonomous Runtime
+
+                    |
+
+          Self-improving Research Loop
+
+
+                GEDT v11
+
+                    |
+
+             FastAPI Service
+
+                    |
+
+        -----------------------
+
+        |                     |
+
+  Experiment DB        Simulation Engine
+
+        |                     |
+
+        -------- AI Layer -----
+
+                    |
+
+             Results Dashboard
+
+
+
+src/gedt/
+
+├── api/
+│   ├── server.py
+│   └── routes.py
+│
+├── database/
+│   ├── models.py
+│   └── storage.py
+│
+├── experiments/
+│   └── tracker.py
+│
+├── deployment/
+│   └── docker.py
+
+
+pip install fastapi uvicorn
+
+
+
+
+gedt_v11_api.py
+
+
+
+"""
+GEDT v11 API Service
+"""
+
+from fastapi import FastAPI
+from datetime import datetime
+
+
+app = FastAPI(
+
+    title="GEDT v11 API",
+
+    version="11.0.0"
+
+)
+
+
+
+experiments=[]
+
+
+
+@app.get("/")
+def home():
+
+    return {
+
+        "system":
+        "GEDT v11",
+
+        "status":
+        "online",
+
+        "time":
+        datetime.utcnow()
+
+    }
+
+
+
+@app.post("/experiment")
+def create_experiment(
+    config:dict
+):
+
+    experiment={
+
+        "id":
+        len(experiments)+1,
+
+        "config":
+        config,
+
+        "created":
+        datetime.utcnow()
+
+    }
+
+
+    experiments.append(
+        experiment
+    )
+
+
+    return experiment
+
+
+
+@app.get("/experiments")
+def list_experiments():
+
+    return experiments
+
+
+
+uvicorn gedt_v11_api:app --reload
+
+
+
+
+http://127.0.0.1:8000
+
+
+{
+"system":"GEDT v11",
+"status":"online"
+}
+
+
+gedt_experiment_tracker.py
+
+import json
+from datetime import datetime
+
+
+
+class ExperimentTracker:
+
+
+    def __init__(
+        self,
+        file="experiments.json"
+    ):
+
+        self.file=file
+
+
+
+    def save(
+        self,
+        experiment
+    ):
+
+        record={
+
+            "timestamp":
+            datetime.utcnow().isoformat(),
+
+            "experiment":
+            experiment
+
+        }
+
+
+        with open(
+            self.file,
+            "a"
+        ) as f:
+
+            f.write(
+                json.dumps(record)
+                + "\n"
+            )
+
+
+JSON Storage
+
+
+PostgreSQL
+
+        ↓
+
+TimescaleDB
+
+        ↓
+
+Distributed Research Database
+
+
+FROM python:3.11
+
+
+WORKDIR /gedt
+
+
+COPY . .
+
+
+RUN pip install fastapi uvicorn
+
+
+CMD [
+
+"uvicorn",
+
+"gedt_v11_api:app",
+
+"--host",
+
+"0.0.0.0"
+
+]
+
+
+
+
+docker build -t gedt-v11 .
+
+
+
+
+
+docker run -p 8000:8000 gedt-v11
+
+
+
+API Starts
+
+↓
+
+Experiment Submitted
+
+↓
+
+Simulation Executes
+
+↓
+
+Results Stored
+
+↓
+
+AI Evaluates
+
+↓
+
+Twin Updates
+
+↓
+
+Report Generated
+
+
+                 User/API
+
+                    |
+
+             FastAPI Gateway
+
+                    |
+
+        +-----------+-----------+
+
+        |                       |
+
+ Digital Twin             Experiment DB
+
+        |                       |
+
+        +-----------+-----------+
+
+                    |
+
+            Autonomous Runtime
+
+                    |
+
+            AI Optimization
+
+                    |
+
+             Research Output
+
+gedt_v11_production_server.py
+
+
+
+pip install fastapi uvicorn
+
+"""
+GEDT v11.0 Production Server
+
+Combined:
+- FastAPI API
+- Digital Twin State
+- Experiment Tracking
+- Simulation Engine
+- Autonomous Optimization
+- Results Storage
+
+Prototype Deployment Layer
+"""
+
+from fastapi import FastAPI
+from dataclasses import dataclass, field
+from datetime import datetime
+from concurrent.futures import ProcessPoolExecutor
+import random
+import json
+import uuid
+
+
+# ==========================================================
+# DIGITAL TWIN
+# ==========================================================
+
+
+@dataclass
+class TwinState:
+
+    values: dict = field(
+        default_factory=dict
+    )
+
+    timestamp: str = ""
+
+
+
+    def update(
+        self,
+        data
+    ):
+
+        self.values.update(
+            data
+        )
+
+        self.timestamp = (
+            datetime.utcnow()
+            .isoformat()
+        )
+
+
+
+# ==========================================================
+# SIMULATION ENGINE
+# ==========================================================
+
+
+@dataclass
+class SimulationConfig:
+
+    population: int
+
+    years: int
+
+    innovation_rate: float
+
+    seed: int
+
+
+
+def run_simulation(
+    config
+):
+
+    random.seed(
+        config.seed
+    )
+
+    productivity = 0.5
+
+
+    history=[]
+
+
+    for _ in range(
+        config.years
+    ):
+
+        productivity += (
+
+            random.random()
+
+            *
+
+            config.innovation_rate
+
+        )
+
+
+        productivity=min(
+            productivity,
+            1.0
+        )
+
+
+        history.append(
+            productivity
+        )
+
+
+    return {
+
+        "productivity":
+        productivity,
+
+        "population":
+        config.population,
+
+        "history":
+        history
+
+    }
+
+
+
+# ==========================================================
+# EXPERIMENT DATABASE
+# ==========================================================
+
+
+class ExperimentStorage:
+
+
+    def __init__(
+        self,
+        file="gedt_results.json"
+    ):
+
+        self.file=file
+
+
+
+    def save(
+        self,
+        data
+    ):
+
+        with open(
+            self.file,
+            "a"
+        ) as f:
+
+            f.write(
+
+                json.dumps(data)
+
+                +
+
+                "\n"
+
+            )
+
+
+
+# ==========================================================
+# AUTONOMOUS OPTIMIZER
+# ==========================================================
+
+
+class Optimizer:
+
+
+    def choose_best(
+        self,
+        results
+    ):
+
+        return max(
+
+            results,
+
+            key=lambda x:
+
+            x["productivity"]
+
+        )
+
+
+
+# ==========================================================
+# GEDT RUNTIME
+# ==========================================================
+
+
+class GEDTRuntime:
+
+
+    def __init__(self):
+
+        self.twin=TwinState()
+
+        self.storage=ExperimentStorage()
+
+        self.optimizer=Optimizer()
+
+
+
+    def execute(
+        self,
+        runs=10
+    ):
+
+
+        configs=[]
+
+
+        for i in range(
+            runs
+        ):
+
+            configs.append(
+
+                SimulationConfig(
+
+                    population=100000,
+
+                    years=50,
+
+                    innovation_rate=
+
+                    random.uniform(
+                        0.01,
+                        0.1
+                    ),
+
+                    seed=i
+
+                )
+
+            )
+
+
+        with ProcessPoolExecutor() as pool:
+
+            results=list(
+
+                pool.map(
+
+                    run_simulation,
+
+                    configs
+
+                )
+
+            )
+
+
+        best=self.optimizer.choose_best(
+            results
+        )
+
+
+        self.twin.update(
+
+            {
+
+                "productivity":
+
+                best["productivity"],
+
+
+                "population":
+
+                best["population"]
+
+            }
+
+        )
+
+
+        output={
+
+            "experiment_id":
+            str(uuid.uuid4()),
+
+
+            "timestamp":
+            datetime.utcnow()
+            .isoformat(),
+
+
+            "best_result":
+            best,
+
+
+            "twin_state":
+            self.twin.values
+
+        }
+
+
+        self.storage.save(
+            output
+        )
+
+
+        return output
+
+
+
+# ==========================================================
+# FASTAPI SERVICE
+# ==========================================================
+
+
+app=FastAPI(
+
+    title="GEDT v11 Production API",
+
+    version="11.0.0"
+
+)
+
+
+runtime=GEDTRuntime()
+
+
+experiments=[]
+
+
+
+@app.get("/")
+def status():
+
+    return {
+
+        "system":
+        "GEDT v11",
+
+        "status":
+        "online"
+
+    }
+
+
+
+@app.post("/run")
+def run_experiment():
+
+    result=runtime.execute()
+
+    experiments.append(
+        result
+    )
+
+    return result
+
+
+
+@app.get("/results")
+def get_results():
+
+    return experiments
+
+
+
+@app.get("/twin")
+def get_twin():
+
+    return {
+
+        "state":
+        runtime.twin.values,
+
+        "timestamp":
+        runtime.twin.timestamp
+
+    }
+
+
+
+# ==========================================================
+# LOCAL EXECUTION
+# ==========================================================
+
+
+if __name__=="__main__":
+
+    import uvicorn
+
+
+    uvicorn.run(
+
+        app,
+
+        host="0.0.0.0",
+
+        port=8000
+
+    )
+
+
+
+python gedt_v11_production_server.py
+
+
+http://localhost:8000
+
+GET  /
+
+POST /run
+
+GET /results
+
+GET /twin
+
+
+                 GEDT API
+
+                    |
+
+          Dashboard Visualization
+
+                    |
+
+     --------------------------------
+
+     |              |               |
+
+Digital Twin   Experiments     Performance
+
+     |              |               |
+
+     ----------- Analytics ----------
+
+
+gedt_v11_dashboard.py
+
+pip install streamlit pandas matplotlib requests
+
+
+"""
+GEDT v11.0 Research Dashboard
+
+Features:
+- Digital Twin monitoring
+- Experiment results viewer
+- Productivity charts
+- Runtime analytics
+
+Connects to GEDT API
+"""
+
+
+import streamlit as st
+import requests
+import pandas as pd
+import matplotlib.pyplot as plt
+
+
+
+# ==========================================================
+# CONFIGURATION
+# ==========================================================
+
+
+API_URL = "http://localhost:8000"
+
+
+
+st.set_page_config(
+
+    page_title="GEDT v11 Dashboard",
+
+    layout="wide"
+
+)
+
+
+
+# ==========================================================
+# HEADER
+# ==========================================================
+
+
+st.title(
+    "GEDT v11 Autonomous Digital Twin Dashboard"
+)
+
+
+st.write(
+
+    "Simulation | AI | Digital Twin | Research Analytics"
+
+)
+
+
+
+# ==========================================================
+# API HELPERS
+# ==========================================================
+
+
+def get_data(
+    endpoint
+):
+
+    try:
+
+        response=requests.get(
+
+            f"{API_URL}/{endpoint}"
+
+        )
+
+        return response.json()
+
+
+    except Exception:
+
+        return None
+
+
+
+# ==========================================================
+# DIGITAL TWIN VIEW
+# ==========================================================
+
+
+st.header(
+    "Digital Twin State"
+)
+
+
+
+twin=get_data(
+    "twin"
+)
+
+
+if twin:
+
+
+    st.json(
+        twin
+    )
+
+
+else:
+
+    st.warning(
+        "GEDT API unavailable"
+    )
+
+
+
+# ==========================================================
+# RUN EXPERIMENT
+# ==========================================================
+
+
+st.header(
+    "Execute Experiment"
+)
+
+
+
+if st.button(
+    "Run GEDT Simulation"
+):
+
+
+    result=requests.post(
+
+        f"{API_URL}/run"
+
+    )
+
+
+    st.success(
+        "Experiment Complete"
+    )
+
+
+    st.json(
+        result.json()
+    )
+
+
+
+# ==========================================================
+# EXPERIMENT RESULTS
+# ==========================================================
+
+
+st.header(
+    "Experiment History"
+)
+
+
+
+results=get_data(
+    "results"
+)
+
+
+
+if results:
+
+
+    dataframe=pd.DataFrame(
+        [
+            {
+
+                "id":
+                r["experiment_id"],
+
+
+                "productivity":
+                r["best_result"]
+                ["productivity"]
+
+            }
+
+            for r in results
+
+        ]
+
+    )
+
+
+    st.dataframe(
+        dataframe
+    )
+
+
+    st.subheader(
+        "Productivity Trend"
+    )
+
+
+    fig,ax=plt.subplots()
+
+
+    ax.plot(
+
+        dataframe[
+            "productivity"
+        ]
+
+    )
+
+
+    ax.set_xlabel(
+        "Experiment"
+    )
+
+
+    ax.set_ylabel(
+        "Productivity"
+    )
+
+
+    st.pyplot(
+        fig
+    )
+
+
+
+else:
+
+    st.info(
+        "No experiments recorded"
+    )
+
+
+
+# ==========================================================
+# FOOTER
+# ==========================================================
+
+
+st.divider()
+
+
+st.caption(
+
+    "GEDT v11.0 Research Platform"
+
+)
+
+
+
+
+
+python gedt_v11_production_server.py
+
+
+
+streamlit run gedt_v11_dashboard.py
+
+http://localhost:8501
+
+
+
+                 User
+
+                  |
+
+          Streamlit Dashboard
+
+                  |
+
+             FastAPI API
+
+                  |
+
+     ----------------------------
+
+     |            |             |
+
+ Simulation   Digital Twin    AI
+
+     |
+
+ Distributed Experiments
+
+     |
+
+ Results Database
+
+gedt_v11_data_platform.py
+
+                GEDT v11
+
+                    |
+
+              Data Platform
+
+                    |
+
+      --------------------------------
+
+      |              |               |
+
+ Experiment DB   Twin History   AI Registry
+
+      |              |               |
+
+      -------- Analytics Engine -----
+
+
+gedt_v11_data_platform.py
+
+
+pip install sqlalchemy pandas
+
+"""
+GEDT v11.0 Data Platform
+
+Features:
+- Experiment database
+- Digital Twin snapshots
+- Model registry
+- Research history
+"""
+
+
+from datetime import datetime
+from sqlalchemy import (
+    create_engine,
+    Column,
+    Integer,
+    String,
+    Float,
+    Text
+)
+
+from sqlalchemy.orm import (
+    declarative_base,
+    sessionmaker
+)
+
+
+# ==========================================================
+# DATABASE SETUP
+# ==========================================================
+
+
+DATABASE="sqlite:///gedt_v11.db"
+
+
+engine=create_engine(
+    DATABASE,
+    echo=False
+)
+
+
+Base=declarative_base()
+
+
+Session=sessionmaker(
+    bind=engine
+)
+
+
+
+# ==========================================================
+# DATABASE MODELS
+# ==========================================================
+
+
+class Experiment(Base):
+
+    __tablename__="experiments"
+
+
+    id=Column(
+        Integer,
+        primary_key=True
+    )
+
+
+    experiment_id=Column(
+        String
+    )
+
+
+    population=Column(
+        Integer
+    )
+
+
+    productivity=Column(
+        Float
+    )
+
+
+    timestamp=Column(
+        String
+    )
+
+
+
+class TwinSnapshot(Base):
+
+    __tablename__="twin_history"
+
+
+    id=Column(
+        Integer,
+        primary_key=True
+    )
+
+
+    state=Column(
+        Text
+    )
+
+
+    timestamp=Column(
+        String
+    )
+
+
+
+class ModelRegistry(Base):
+
+    __tablename__="models"
+
+
+    id=Column(
+        Integer,
+        primary_key=True
+    )
+
+
+    name=Column(
+        String
+    )
+
+
+    version=Column(
+        String
+    )
+
+
+    status=Column(
+        String
+    )
+
+
+
+# Create tables
+
+Base.metadata.create_all(
+    engine
+)
+
+
+
+# ==========================================================
+# DATA PLATFORM
+# ==========================================================
+
+
+class GEDTDataPlatform:
+
+
+
+    def __init__(self):
+
+        self.session=Session()
+
+
+
+    def save_experiment(
+        self,
+        experiment_id,
+        population,
+        productivity
+    ):
+
+
+        record=Experiment(
+
+            experiment_id=
+            experiment_id,
+
+            population=
+            population,
+
+            productivity=
+            productivity,
+
+            timestamp=
+            datetime.utcnow()
+            .isoformat()
+
+        )
+
+
+        self.session.add(
+            record
+        )
+
+
+        self.session.commit()
+
+
+
+    def save_twin_state(
+        self,
+        state
+    ):
+
+
+        snapshot=TwinSnapshot(
+
+            state=str(state),
+
+            timestamp=
+            datetime.utcnow()
+            .isoformat()
+
+        )
+
+
+        self.session.add(
+            snapshot
+        )
+
+
+        self.session.commit()
+
+
+
+    def register_model(
+        self,
+        name,
+        version
+    ):
+
+
+        model=ModelRegistry(
+
+            name=name,
+
+            version=version,
+
+            status="active"
+
+        )
+
+
+        self.session.add(
+            model
+        )
+
+
+        self.session.commit()
+
+
+
+    def experiments(
+        self
+    ):
+
+        return (
+
+            self.session
+
+            .query(
+                Experiment
+            )
+
+            .all()
+
+        )
+
+
+
+# ==========================================================
+# DEMO
+# ==========================================================
+
+
+if __name__=="__main__":
+
+
+    db=GEDTDataPlatform()
+
+
+    db.save_experiment(
+
+        "GEDT-DEMO-001",
+
+        100000,
+
+        0.87
+
+    )
+
+
+    db.save_twin_state(
+
+        {
+
+            "population":
+            100000,
+
+            "technology":
+            0.75
+
+        }
+
+    )
+
+
+    db.register_model(
+
+        "GEDT_AI_Model",
+
+        "v1"
+
+    )
+
+
+    print(
+        "GEDT v11 Data Platform Ready"
+    )
+
+
+    print(
+        db.experiments()
+    )
+
+
+
+
+                 Dashboard
+
+                     |
+
+                 FastAPI
+
+                     |
+
+              GEDT Runtime
+
+                     |
+
+     --------------------------------
+
+     |              |               |
+
+ Simulation    Digital Twin       AI
+
+     |
+
+ Data Platform
+
+     |
+
+ Experiment Knowledge Base
+
+
 
 
 
