@@ -32309,6 +32309,1124 @@ class ComplianceReport:
 
 
 
+                         DATA SOURCES
+
+              Sensors | APIs | Files | Streams
+
+                              ↓
+
+                    Real-Time Ingestion
+
+                              ↓
+
+                     Data Processing Layer
+
+                              ↓
+
+        ┌─────────────────────┼─────────────────────┐
+        ↓                     ↓                     ↓
+
+   ML Models            Deep Learning        Computer Vision
+
+        ↓                     ↓                     ↓
+
+        └─────────────────────┼─────────────────────┘
+
+                              ↓
+
+                    Decision Intelligence
+
+                              ↓
+
+                    Digital Twin Engine
+
+                              ↓
+
+                  Scenario Simulation Engine
+
+                              ↓
+
+                    Recommendation Layer
+
+                              ↓
+
+              Dashboard + Reports + Alerts
+
+                              ↓
+
+             Audit + Governance + Monitoring
+
+gedt/
+
+├── app/
+
+│   ├── api/
+│   ├── ai/
+│   ├── database/
+│   ├── digital_twin/
+│   ├── decision/
+│   ├── governance/
+│   ├── monitoring/
+│   ├── realtime/
+│   ├── security/
+│   └── simulation/
+
+
+├── dashboard/
+
+├── tests/
+
+├── deployment/
+
+│   ├── docker/
+│   ├── kubernetes/
+│   └── monitoring/
+
+
+├── docs/
+
+├── models/
+
+├── datasets/
+
+├── requirements.txt
+
+├── docker-compose.yml
+
+└── README.md
+
+"""
+GEDT End-to-End Test
+"""
+
+
+def test_system_flow():
+
+
+    data = {
+
+        "sensor":
+
+        "test",
+
+        "value":
+
+        25
+
+    }
+
+
+    assert data["value"] == 25
+
+
+    prediction = {
+
+        "risk":
+
+        0.2
+
+    }
+
+
+    assert prediction["risk"] < 1
+
+
+    decision = {
+
+        "action":
+
+        "monitor"
+
+    }
+
+
+    assert decision["action"] == "monitor"
+
+"""
+GEDT Performance Benchmark
+"""
+
+
+import time
+
+
+
+class Benchmark:
+
+
+    def run(
+
+        self,
+
+        function,
+
+        *args
+
+    ):
+
+
+        start = time.time()
+
+
+        result = function(
+
+            *args
+
+        )
+
+
+        duration = time.time() - start
+
+
+        return {
+
+            "execution_time":
+
+            duration,
+
+
+            "result":
+
+            result
+
+        }
+
+"""
+GEDT System Status
+"""
+
+
+from fastapi import APIRouter
+
+
+router = APIRouter()
+
+
+
+@router.get("/system/status")
+
+def status():
+
+    return {
+
+        "platform":
+
+        "GEDT",
+
+
+        "version":
+
+        "1.0.0-RC",
+
+
+        "status":
+
+        "operational"
+
+    }
+
+docs/
+
+├── architecture.md
+
+├── installation.md
+
+├── api_reference.md
+
+├── ai_models.md
+
+├── governance.md
+
+├── deployment.md
+
+└── research_notes.md
+
+{
+ "prediction":
+ {
+   "risk":"medium"
+ },
+
+ "recommendation":
+ {
+   "action":"increase_resources"
+ },
+
+ "confidence":
+ 0.91,
+
+ "audit":
+ "stored"
+}
+
+
+"""
+GEDT Dataset Manager
+"""
+
+from pathlib import Path
+
+
+class DatasetManager:
+
+
+    def __init__(self, path="datasets"):
+
+        self.path = Path(path)
+
+
+
+    def list_files(self):
+
+        return [
+
+            str(file)
+
+            for file in self.path.rglob("*")
+
+            if file.is_file()
+
+        ]
+
+
+
+    def dataset_info(self):
+
+        files = self.list_files()
+
+        return {
+
+            "datasets":
+
+            len(files),
+
+            "files":
+
+            files
+
+        }
+
+"""
+GEDT Model Evaluation
+"""
+
+
+class ModelEvaluator:
+
+
+    def evaluate(
+
+        self,
+
+        predictions,
+
+        actuals
+
+    ):
+
+
+        correct = sum(
+
+            p == a
+
+            for p, a in zip(
+
+                predictions,
+
+                actuals
+
+            )
+
+        )
+
+
+        return {
+
+            "accuracy":
+
+            correct /
+
+            len(actuals)
+
+        }
+
+
+{
+ "model":
+ "gedt_model_v1",
+
+ "dataset":
+ "validation_set",
+
+ "accuracy":
+ 0.94,
+
+ "timestamp":
+ "2026-08-04",
+
+ "status":
+ "approved"
+}
+
+app/
+
+├── data/
+
+│   ├── loader.py
+│   ├── preprocessing.py
+│   └── features.py
+
+
+├── ai/
+
+│   ├── training/
+
+│   │   ├── train.py
+│   │   └── config.py
+
+│   ├── evaluation/
+
+│   │   └── metrics.py
+
+│   └── registry/
+
+│       └── register.py
+
+
+datasets/
+
+├── raw/
+
+├── processed/
+
+└── metadata/
+
+"""
+GEDT Dataset Loader
+"""
+
+import pandas as pd
+
+
+class DatasetLoader:
+
+
+    def load(
+
+        self,
+
+        path
+
+    ):
+
+        return pd.read_csv(
+
+            path
+
+        )
+
+
+"""
+GEDT Data Preprocessing
+"""
+
+from sklearn.preprocessing import StandardScaler
+
+
+
+class Preprocessor:
+
+
+    def __init__(self):
+
+        self.scaler = StandardScaler()
+
+
+
+    def transform(
+
+        self,
+
+        data
+
+    ):
+
+        return self.scaler.fit_transform(
+
+            data
+
+        )
+
+
+"""
+GEDT Feature Builder
+"""
+
+
+class FeatureBuilder:
+
+
+    def create(
+
+        self,
+
+        dataframe
+
+    ):
+
+
+        features = dataframe.copy()
+
+
+        return features
+
+
+
+"""
+GEDT Training Configuration
+"""
+
+
+TRAINING_CONFIG = {
+
+
+    "model":
+
+    "RandomForest",
+
+
+    "estimators":
+
+    200,
+
+
+    "random_state":
+
+    42
+
+}
+
+
+"""
+GEDT Training Pipeline
+"""
+
+from sklearn.ensemble import RandomForestClassifier
+
+
+
+class TrainingPipeline:
+
+
+    def train(
+
+        self,
+
+        X,
+
+        y
+
+    ):
+
+
+        model = RandomForestClassifier(
+
+            n_estimators=200,
+
+            random_state=42
+
+        )
+
+
+        model.fit(
+
+            X,
+
+            y
+
+        )
+
+
+        return model
+
+
+"""
+GEDT Evaluation Metrics
+"""
+
+
+from sklearn.metrics import accuracy_score
+
+
+
+def evaluate(
+
+    model,
+
+    X_test,
+
+    y_test
+
+):
+
+
+    predictions = model.predict(
+
+        X_test
+
+    )
+
+
+    return {
+
+        "accuracy":
+
+        accuracy_score(
+
+            y_test,
+
+            predictions
+
+        )
+
+    }
+
+"""
+GEDT Model Registry
+"""
+
+import json
+
+from datetime import datetime
+
+
+
+def register_model(
+
+    name,
+
+    metrics
+
+):
+
+
+    record = {
+
+        "model":
+
+        name,
+
+
+        "metrics":
+
+        metrics,
+
+
+        "created":
+
+        datetime.utcnow().isoformat()
+
+    }
+
+
+    with open(
+
+        "models/registry.json",
+
+        "w"
+
+    ) as file:
+
+
+        json.dump(
+
+            record,
+
+            file,
+
+            indent=4
+
+        )
+
+
+    return record
+
+from app.data.loader import DatasetLoader
+
+from app.ai.training.train import TrainingPipeline
+
+
+loader = DatasetLoader()
+
+data = loader.load(
+
+    "datasets/raw/train.csv"
+
+)
+
+
+X = data.drop(
+
+    "target",
+
+    axis=1
+
+)
+
+
+y = data["target"]
+
+
+trainer = TrainingPipeline()
+
+
+model = trainer.train(
+
+    X,
+
+    y
+
+)
+
+app/
+
+├── ai/
+
+│   ├── vision/
+
+│   │   ├── detector.py
+│   │   └── inference.py
+│   │
+│   ├── depth/
+
+│   │   ├── estimator.py
+│   │   └── fusion.py
+│   │
+│   ├── forecasting/
+
+│   │   └── predictor.py
+│   │
+│   └── risk/
+
+│       └── scorer.py
+
+
+"""
+GEDT Vision Detection Module
+"""
+
+
+class VisionDetector:
+
+
+    def __init__(self, model=None):
+
+        self.model = model
+
+
+
+    def detect(self, image):
+
+        # Placeholder for
+
+        # YOLO / EfficientNet / ViT
+
+        return {
+
+
+            "objects": [],
+
+
+            "confidence": 0.0
+
+        }
+
+
+
+"""
+GEDT Depth Estimation
+"""
+
+
+class DepthEstimator:
+
+
+    def estimate(
+
+        self,
+
+        image
+
+    ):
+
+
+        # Future integration:
+
+        # MiDaS / Depth Anything
+
+        return {
+
+
+            "depth_map":
+
+            None,
+
+
+            "average_distance":
+
+            0
+
+        }
+
+
+"""
+GEDT Sensor Fusion
+"""
+
+
+class FusionEngine:
+
+
+    def combine(
+
+        self,
+
+        vision,
+
+        depth,
+
+        sensors
+
+    ):
+
+
+        return {
+
+
+            "environment_state":
+
+            {
+
+
+            "objects":
+
+            vision["objects"],
+
+
+            "distance":
+
+            depth["average_distance"],
+
+
+            "sensor_count":
+
+            len(sensors)
+
+
+            }
+
+        }
+
+"""
+GEDT Risk Assessment
+"""
+
+
+class RiskScorer:
+
+
+    def calculate(
+
+        self,
+
+        environment
+
+    ):
+
+
+        risk = 0
+
+
+        if environment["sensor_count"] > 0:
+
+            risk += 0.2
+
+
+        if environment["distance"] < 50:
+
+            risk += 0.3
+
+
+        return {
+
+
+            "risk_score":
+
+            min(risk,1.0)
+
+        }
+
+
+"""
+GEDT Risk Assessment
+"""
+
+
+class RiskScorer:
+
+
+    def calculate(
+
+        self,
+
+        environment
+
+    ):
+
+
+        risk = 0
+
+
+        if environment["sensor_count"] > 0:
+
+            risk += 0.2
+
+
+        if environment["distance"] < 50:
+
+            risk += 0.3
+
+
+        return {
+
+
+            "risk_score":
+
+            min(risk,1.0)
+
+        }
+
+
+Satellite Image
+
++
+
+Sensor Data
+
++
+
+Weather Information
+
+app/
+
+├── datasets/
+
+│   ├── loaders/
+
+│   │   ├── image_loader.py
+│   │   ├── sensor_loader.py
+│   │   └── metadata.py
+│
+├── ai/
+
+│   ├── training/
+
+│   │   ├── vision_train.py
+│   │   └── depth_train.py
+│
+│   ├── evaluation/
+
+│   │   ├── vision_metrics.py
+│   │   └── depth_metrics.py
+│
+│   └── experiments/
+
+│       └── tracker.py
+
+"""
+GEDT Image Dataset Loader
+"""
+
+from pathlib import Path
+
+
+class ImageDataset:
+
+
+    def __init__(
+
+        self,
+
+        directory
+
+    ):
+
+        self.directory = Path(directory)
+
+
+
+    def files(self):
+
+        return [
+
+            str(image)
+
+            for image in self.directory.glob(
+
+                "*.jpg"
+
+            )
+
+        ]
+
+
+"""
+GEDT AI Training Configuration
+"""
+
+CONFIG = {
+
+
+    "epochs":
+
+    50,
+
+
+    "batch_size":
+
+    16,
+
+
+    "learning_rate":
+
+    0.001,
+
+
+    "model":
+
+    "EfficientNet"
+
+}
+"""
+GEDT Vision Training
+"""
+
+
+class VisionTrainer:
+
+
+    def train(
+
+        self,
+
+        dataset
+
+    ):
+
+
+        history = {
+
+
+            "epochs":
+
+            50,
+
+
+            "accuracy":
+
+            []
+
+
+        }
+
+
+        return history
+
+
+"""
+GEDT Depth Metrics
+"""
+
+
+def calculate_rmse(
+
+    prediction,
+
+    truth
+
+):
+
+
+    error = 0
+
+
+    for p,t in zip(
+
+        prediction,
+
+        truth
+
+    ):
+
+        error += (
+
+            p-t
+
+        ) ** 2
+
+
+    return (
+
+        error /
+
+        len(prediction)
+
+    ) ** 0.5
+
+
+"""
+GEDT Experiment Tracker
+"""
+
+from datetime import datetime
+
+
+
+class ExperimentTracker:
+
+
+    def log(
+
+        self,
+
+        model,
+
+        metrics
+
+    ):
+
+
+        return {
+
+
+            "model":
+
+            model,
+
+
+            "metrics":
+
+            metrics,
+
+
+            "time":
+
+            datetime.utcnow().isoformat()
+
+        }
+
+
+
 
 
 
