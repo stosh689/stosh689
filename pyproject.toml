@@ -38291,6 +38291,1477 @@ print(results)
 
 
 
+"""
+GEDT Configuration Manager
+
+Provides:
+- Environment variable overrides
+- JSON configuration loading
+- Dot-notation access
+- Immutable runtime configuration
+"""
+
+from __future__ import annotations
+
+import json
+import os
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Dict
+
+
+DEFAULT_CONFIG = {
+    "application": {
+        "name": "GEDT",
+        "version": "2.2.1"
+    },
+    "logging": {
+        "level": "INFO"
+    },
+    "simulation": {
+        "default_steps": 10
+    },
+    "digital_twin": {
+        "auto_update": True
+    },
+    "mlops": {
+        "enable_monitoring": True
+    }
+}
+
+
+@dataclass(frozen=True)
+class Config:
+
+    values: Dict[str, Any] = field(default_factory=dict)
+
+    def get(self, path: str, default: Any = None) -> Any:
+        """
+        Example:
+            config.get("logging.level")
+        """
+        current = self.values
+
+        for key in path.split("."):
+            if not isinstance(current, dict):
+                return default
+
+            current = current.get(key)
+
+            if current is None:
+                return default
+
+        return current
+
+
+class ConfigManager:
+
+    def __init__(self):
+
+        self._config = DEFAULT_CONFIG.copy()
+
+    def load_json(self, filename: str):
+
+        path = Path(filename)
+
+        if path.exists():
+
+            with open(path, "r", encoding="utf-8") as fp:
+
+                user_config = json.load(fp)
+
+            self._merge(self._config, user_config)
+
+    def load_environment(self):
+
+        if "GEDT_LOG_LEVEL" in os.environ:
+            self._config["logging"]["level"] = os.environ["GEDT_LOG_LEVEL"]
+
+        if "GEDT_SIMULATION_STEPS" in os.environ:
+            self._config["simulation"]["default_steps"] = int(
+                os.environ["GEDT_SIMULATION_STEPS"]
+            )
+
+    def build(self) -> Config:
+
+        return Config(values=self._config)
+
+    def _merge(self, base: Dict, incoming: Dict):
+
+        for key, value in incoming.items():
+
+            if (
+                key in base
+                and isinstance(base[key], dict)
+                and isinstance(value, dict)
+            ):
+                self._merge(base[key], value)
+            else:
+                base[key] = value
+
+app/core/
+├── config.py              ✅ Started
+├── logging.py             ← Next
+├── exceptions.py
+├── registry.py
+├── dependency_injection.py
+├── lifecycle.py
+└── health.py
+
+
+app/api/
+
+├── routes/
+│   ├── health.py
+│   ├── workflow.py
+│   ├── simulation.py
+│   ├── digital_twin.py
+│   ├── reasoning.py
+│   └── models.py
+│
+├── middleware/
+├── schemas/
+└── dependencies.py
+
+
+GET    /health
+
+GET    /version
+
+POST   /workflow/run
+
+POST   /simulation/run
+
+POST   /digital-twin/update
+
+POST   /reasoning/query
+
+GET    /metrics
+
+
+docs/
+
+Architecture.md
+
+DeveloperGuide.md
+
+PluginGuide.md
+
+WorkflowGuide.md
+
+DeploymentGuide.md
+
+API.md
+
+Benchmarks.md
+
+Contributing.md
+
+
+app/
+
+└── core/
+
+    ├── logging.py       ← New
+    ├── config.py
+    ├── exceptions.py    ← Next
+    └── health.py        ← Next
+
+"""
+GEDT Structured Logging System
+
+Features:
+- Console logging
+- File logging
+- JSON-style structured events
+- Execution tracing
+- Module identification
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+import time
+from datetime import datetime
+from pathlib import Path
+
+
+class GEDTLogger:
+
+
+    def __init__(
+
+        self,
+
+        name: str = "GEDT",
+
+        log_file: str = "logs/gedt.log"
+
+    ):
+
+        self.logger = logging.getLogger(name)
+
+        self.logger.setLevel(logging.INFO)
+
+
+        Path(log_file).parent.mkdir(
+
+            parents=True,
+
+            exist_ok=True
+
+        )
+
+
+        formatter = logging.Formatter(
+
+            "%(asctime)s | %(levelname)s | %(message)s"
+
+        )
+
+
+        if not self.logger.handlers:
+
+            console = logging.StreamHandler()
+
+            console.setFormatter(formatter)
+
+
+            file_handler = logging.FileHandler(
+
+                log_file
+
+            )
+
+            file_handler.setFormatter(formatter)
+
+
+            self.logger.addHandler(console)
+
+            self.logger.addHandler(file_handler)
+
+
+
+    def info(
+
+        self,
+
+        message,
+
+        metadata=None
+
+    ):
+
+        self.logger.info(
+
+            self._format(
+
+                message,
+
+                metadata
+
+            )
+
+        )
+
+
+
+    def error(
+
+        self,
+
+        message,
+
+        metadata=None
+
+    ):
+
+        self.logger.error(
+
+            self._format(
+
+                message,
+
+                metadata
+
+            )
+
+        )
+
+
+
+    def warning(
+
+        self,
+
+        message,
+
+        metadata=None
+
+    ):
+
+        self.logger.warning(
+
+            self._format(
+
+                message,
+
+                metadata
+
+            )
+
+        )
+
+
+
+    def _format(
+
+        self,
+
+        message,
+
+        metadata
+
+    ):
+
+        event = {
+
+            "timestamp":
+
+            datetime.utcnow().isoformat(),
+
+            "message":
+
+            message,
+
+            "metadata":
+
+            metadata or {}
+
+        }
+
+
+        return json.dumps(event)
+
+
+
+class Timer:
+
+
+    """
+    Measures GEDT component execution time.
+    """
+
+
+    def __init__(self, logger, operation):
+
+        self.logger = logger
+
+        self.operation = operation
+
+
+    def __enter__(self):
+
+        self.start = time.time()
+
+        self.logger.info(
+
+            "Started",
+
+            {
+
+                "operation":
+
+                self.operation
+
+            }
+
+        )
+
+        return self
+
+
+
+    def __exit__(self, exc_type, exc, traceback):
+
+        duration = (
+
+            time.time()
+
+            -
+
+            self.start
+
+        )
+
+
+        self.logger.info(
+
+            "Completed",
+
+            {
+
+                "operation":
+
+                self.operation,
+
+
+                "duration_seconds":
+
+                duration
+
+            }
+
+        )
+
+
+from app.core.logging import GEDTLogger, Timer
+
+
+logger = GEDTLogger()
+
+
+logger.info(
+
+    "GEDT system initialized",
+
+    {
+
+        "version":
+
+        "2.2.1"
+
+    }
+
+)
+
+
+with Timer(logger, "digital_twin_update"):
+
+    print("Updating twin...")
+
+
+2026-08-04 | INFO |
+{
+ "timestamp":"2026-08-04T...",
+ "message":"GEDT system initialized",
+ "metadata":{
+     "version":"2.2.1"
+ }
+}
+
+app/
+
+└── core/
+
+    ├── config.py
+    ├── logging.py
+    ├── exceptions.py   ← New
+    └── health.py
+
+
+
+"""
+GEDT Exception Framework
+
+Provides standardized errors for:
+- Core services
+- Plugins
+- Workflows
+- AI models
+- Digital twins
+- Simulations
+"""
+
+from datetime import datetime
+
+
+class GEDTException(Exception):
+    """
+    Base GEDT exception.
+    """
+
+    def __init__(
+        self,
+        message: str,
+        error_code: str = "GEDT_ERROR",
+        details: dict | None = None
+    ):
+
+        self.message = message
+
+        self.error_code = error_code
+
+        self.details = details or {}
+
+        self.timestamp = datetime.utcnow().isoformat()
+
+        super().__init__(message)
+
+
+    def to_dict(self):
+
+        return {
+
+            "error_code": self.error_code,
+
+            "message": self.message,
+
+            "timestamp": self.timestamp,
+
+            "details": self.details
+
+        }
+
+
+
+class ConfigurationError(GEDTException):
+    """
+    Invalid configuration.
+    """
+
+    def __init__(self, message, details=None):
+
+        super().__init__(
+            message,
+            "CONFIGURATION_ERROR",
+            details
+        )
+
+
+
+class PluginError(GEDTException):
+    """
+    Plugin execution failure.
+    """
+
+    def __init__(self, message, details=None):
+
+        super().__init__(
+            message,
+            "PLUGIN_ERROR",
+            details
+        )
+
+
+
+class WorkflowError(GEDTException):
+    """
+    Workflow execution failure.
+    """
+
+    def __init__(self, message, details=None):
+
+        super().__init__(
+            message,
+            "WORKFLOW_ERROR",
+            details
+        )
+
+
+
+class ModelError(GEDTException):
+    """
+    AI model failure.
+    """
+
+    def __init__(self, message, details=None):
+
+        super().__init__(
+            message,
+            "MODEL_ERROR",
+            details
+        )
+
+
+
+class DigitalTwinError(GEDTException):
+    """
+    Digital twin update failure.
+    """
+
+    def __init__(self, message, details=None):
+
+        super().__init__(
+            message,
+            "DIGITAL_TWIN_ERROR",
+            details
+        )
+
+
+
+{
+ "error_code":"PLUGIN_ERROR",
+ "message":"Vision plugin failed",
+ "timestamp":"2026-08-04T...",
+ "details":
+ {
+   "component":"vision",
+   "reason":"Sensor unavailable"
+ }
+}
+try:
+
+    workflow.execute()
+
+except WorkflowError:
+
+    retry()
+
+except ModelError:
+
+    rollback_model()
+
+except DigitalTwinError:
+
+    restore_snapshot()
+
+
+
+
+
+app/
+
+└── core/
+
+    ├── config.py
+    ├── logging.py
+    ├── exceptions.py
+    └── health.py        ← New
+
+
+
+
+
+
+"""
+GEDT Health Monitoring System
+
+Provides:
+- Component health checks
+- Service status
+- Readiness checks
+- Runtime diagnostics
+"""
+
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Dict, List
+
+
+@dataclass
+class HealthStatus:
+
+    component: str
+
+    healthy: bool
+
+    message: str
+
+    timestamp: str = field(
+        default_factory=lambda:
+        datetime.utcnow().isoformat()
+    )
+
+
+
+class HealthMonitor:
+
+
+    def __init__(self):
+
+        self.components = {}
+
+
+
+    def register_component(
+
+        self,
+
+        name: str,
+
+        check_function
+
+    ):
+
+        self.components[name] = check_function
+
+
+
+    def check_component(
+
+        self,
+
+        name: str
+
+    ) -> HealthStatus:
+
+
+        if name not in self.components:
+
+            return HealthStatus(
+
+                name,
+
+                False,
+
+                "Component not registered"
+
+            )
+
+
+        try:
+
+            result = self.components[name]()
+
+
+            return HealthStatus(
+
+                name,
+
+                True,
+
+                result
+
+            )
+
+
+        except Exception as error:
+
+
+            return HealthStatus(
+
+                name,
+
+                False,
+
+                str(error)
+
+            )
+
+
+
+    def check_all(self) -> List[Dict]:
+
+        results = []
+
+
+        for component in self.components:
+
+            status = self.check_component(
+
+                component
+
+            )
+
+            results.append(
+
+                status.__dict__
+
+            )
+
+
+        return results
+
+
+
+    def system_status(self):
+
+        results = self.check_all()
+
+
+        healthy = all(
+
+            item["healthy"]
+
+            for item in results
+
+        )
+
+
+        return {
+
+            "system":
+
+            "GEDT",
+
+
+            "healthy":
+
+            healthy,
+
+
+            "timestamp":
+
+            datetime.utcnow().isoformat(),
+
+
+            "components":
+
+            results
+
+        }
+
+
+
+
+from app.core.health import HealthMonitor
+
+
+health = HealthMonitor()
+
+
+health.register_component(
+
+    "database",
+
+    lambda:
+    "Database connected"
+
+)
+
+
+health.register_component(
+
+    "model_service",
+
+    lambda:
+    "AI models loaded"
+
+)
+
+
+health.register_component(
+
+    "digital_twin",
+
+    lambda:
+    "Twin synchronized"
+
+)
+
+
+print(
+
+    health.system_status()
+
+)
+
+
+
+GET /health
+
+Response:
+
+{
+ status: "healthy"
+}
+
+GET /ready
+
+Response:
+
+{
+ ready: true
+}
+
+
+app/
+
+└── core/
+
+    ├── config.py
+    ├── logging.py
+    ├── exceptions.py
+    ├── health.py
+    └── registry.py       ← New
+
+
+
+"""
+GEDT Service Registry
+
+Central registry for:
+- Plugins
+- Models
+- Workflows
+- Digital Twins
+- Simulations
+"""
+
+from datetime import datetime
+from typing import Any, Dict
+
+
+class ServiceRegistry:
+
+
+    def __init__(self):
+
+        self.services = {}
+
+
+
+    def register(
+
+        self,
+
+        category: str,
+
+        name: str,
+
+        service: Any,
+
+        metadata: dict | None = None
+
+    ):
+
+        if category not in self.services:
+
+            self.services[category] = {}
+
+
+        self.services[category][name] = {
+
+            "service": service,
+
+            "metadata": metadata or {},
+
+            "registered":
+
+            datetime.utcnow().isoformat()
+
+        }
+
+
+
+    def get(
+
+        self,
+
+        category: str,
+
+        name: str
+
+    ):
+
+        return (
+
+            self.services
+
+            .get(category, {})
+
+            .get(name)
+
+        )
+
+
+
+    def list_category(
+
+        self,
+
+        category: str
+
+    ):
+
+        return list(
+
+            self.services
+
+            .get(category, {})
+
+            .keys()
+
+        )
+
+
+
+    def summary(self):
+
+        return {
+
+            category:
+
+            list(items.keys())
+
+            for category, items
+
+            in self.services.items()
+
+        }
+
+
+from app.core.registry import ServiceRegistry
+
+
+registry = ServiceRegistry()
+
+
+registry.register(
+
+    category="models",
+
+    name="vision_model_v1",
+
+    service="CNN_Model",
+
+    metadata={
+
+        "framework":
+
+        "TensorFlow"
+
+    }
+
+)
+
+
+registry.register(
+
+    category="plugins",
+
+    name="weather_plugin",
+
+    service="WeatherPlugin"
+
+)
+
+
+registry.register(
+
+    category="workflows",
+
+    name="environment_analysis",
+
+    service="Workflow_v1"
+
+)
+
+
+print(
+
+    registry.summary()
+
+)
+
+
+app/
+
+└── core/
+
+    ├── config.py
+    ├── logging.py
+    ├── exceptions.py
+    ├── health.py
+    ├── registry.py
+    └── lifecycle.py       ← New
+
+
+"""
+GEDT Application Lifecycle Manager
+
+Controls:
+- Startup
+- Runtime initialization
+- Shutdown
+- Cleanup
+"""
+
+from datetime import datetime
+from typing import Callable, List
+
+
+class LifecycleManager:
+
+
+    def __init__(self):
+
+        self.startup_tasks: List[Callable] = []
+
+        self.shutdown_tasks: List[Callable] = []
+
+        self.running = False
+
+
+
+    def register_startup(
+
+        self,
+
+        task: Callable
+
+    ):
+
+        self.startup_tasks.append(task)
+
+
+
+    def register_shutdown(
+
+        self,
+
+        task: Callable
+
+    ):
+
+        self.shutdown_tasks.append(task)
+
+
+
+    def startup(self):
+
+        print(
+
+            "Starting GEDT..."
+
+        )
+
+
+        for task in self.startup_tasks:
+
+            task()
+
+
+        self.running = True
+
+
+        print(
+
+            "GEDT started",
+
+            datetime.utcnow()
+
+        )
+
+
+
+    def shutdown(self):
+
+        print(
+
+            "Stopping GEDT..."
+
+        )
+
+
+        for task in reversed(
+
+            self.shutdown_tasks
+
+        ):
+
+            task()
+
+
+        self.running = False
+
+
+        print(
+
+            "GEDT shutdown complete",
+
+            datetime.utcnow()
+
+        )
+
+
+
+    def status(self):
+
+        return {
+
+            "running":
+
+            self.running,
+
+            "timestamp":
+
+            datetime.utcnow().isoformat()
+
+        }
+
+
+app/
+
+└── core/
+
+    ├── config.py
+    ├── logging.py
+    ├── exceptions.py
+    ├── health.py
+    ├── registry.py
+    ├── lifecycle.py
+    └── dependency_injection.py   ← New
+
+
+"""
+GEDT Dependency Injection Container
+
+Provides:
+- Service registration
+- Singleton management
+- Dependency resolution
+- Runtime component wiring
+"""
+
+from typing import Any, Dict, Type
+
+
+class Container:
+
+
+    def __init__(self):
+
+        self.services: Dict[Any, Any] = {}
+
+        self.singletons: Dict[Any, Any] = {}
+
+
+
+    def register(
+
+        self,
+
+        interface: Any,
+
+        implementation: Any,
+
+        singleton: bool = True
+
+    ):
+
+        self.services[interface] = {
+
+            "implementation":
+
+            implementation,
+
+            "singleton":
+
+            singleton
+
+        }
+
+
+
+    def resolve(
+
+        self,
+
+        interface: Any
+
+    ):
+
+        if interface not in self.services:
+
+            raise Exception(
+
+                f"Service not registered: {interface}"
+
+            )
+
+
+        service = self.services[interface]
+
+
+        if service["singleton"]:
+
+
+            if interface not in self.singletons:
+
+                self.singletons[interface] = (
+
+                    service["implementation"]()
+
+                )
+
+
+            return self.singletons[interface]
+
+
+        return service["implementation"]()
+
+
+
+    def registered_services(self):
+
+        return list(
+
+            self.services.keys()
+
+        )
+
+
+from app.core.dependency_injection import Container
+
+
+container = Container()
+
+
+container.register(
+
+    DataProcessor,
+
+    DataProcessor
+
+)
+
+
+processor = container.resolve(
+
+    DataProcessor
+
+)
+
+
+print(
+
+    processor.process(
+
+        [1,2,3]
+
+    )
+
+)
+
+
+
+app/
+
+├── api/
+
+│   ├── main.py          ← New
+
+│   ├── routes/
+
+│   │   ├── health.py
+
+│   │   ├── workflow.py
+
+│   │   └── system.py
+
+│   │
+
+│   ├── schemas/
+
+│   └── middleware/
+
+
+pip install fastapi uvicorn
+
+
+"""
+GEDT API Gateway
+
+FastAPI entry point.
+
+Provides:
+- Health monitoring
+- System status
+- Workflow execution endpoints
+"""
+
+from fastapi import FastAPI
+
+from datetime import datetime
+
+
+app = FastAPI(
+
+    title="GEDT API",
+
+    description=
+    "Global Experimental Digital Twin Platform",
+
+    version="2.2.1"
+
+)
+
+
+@app.get("/")
+def root():
+
+    return {
+
+        "system": "GEDT",
+
+        "status": "online",
+
+        "timestamp":
+
+        datetime.utcnow().isoformat()
+
+    }
+
+
+
+@app.get("/health")
+def health():
+
+    return {
+
+        "service":
+
+        "GEDT",
+
+        "healthy":
+
+        True,
+
+        "timestamp":
+
+        datetime.utcnow().isoformat()
+
+    }
+
+
+
+@app.get("/status")
+def status():
+
+    return {
+
+        "platform":
+
+        "GEDT",
+
+        "version":
+
+        "2.2.1",
+
+        "components":
+
+        {
+
+            "core":
+
+            "running",
+
+            "workflow":
+
+            "ready",
+
+            "plugins":
+
+            "ready"
+
+        }
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
