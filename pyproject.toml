@@ -40897,6 +40897,4549 @@ def login(
 
 
 
+app/
+
+├── audit/
+
+│   ├── events.py          ← New
+
+│   ├── logger.py          ← New
+
+│   └── repository.py      ← New
+
+│
+├── storage/
+
+├── api/
+
+└── core/
+
+
+
+
+"""
+GEDT Audit Event Definitions
+"""
+
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Dict, Any
+
+
+@dataclass
+class AuditEvent:
+
+    event_type: str
+
+    actor: str
+
+    component: str
+
+    action: str
+
+    details: Dict[str, Any] = field(
+        default_factory=dict
+    )
+
+    timestamp: str = field(
+        default_factory=lambda:
+        datetime.utcnow().isoformat()
+    )
+
+
+
+"""
+GEDT Audit Logger
+
+Captures system activity.
+"""
+
+from app.audit.events import AuditEvent
+
+
+class AuditLogger:
+
+
+    def __init__(self):
+
+        self.events = []
+
+
+
+    def record(
+
+        self,
+
+        event: AuditEvent
+
+    ):
+
+        self.events.append(event)
+
+
+
+    def history(self):
+
+        return [
+
+            event.__dict__
+
+            for event in self.events
+
+        ]
+
+from app.audit.logger import AuditLogger
+
+from app.audit.events import AuditEvent
+
+
+audit = AuditLogger()
+
+
+audit.record(
+
+    AuditEvent(
+
+        event_type="WORKFLOW",
+
+        actor="researcher_01",
+
+        component="workflow_engine",
+
+        action="execute",
+
+        details={
+
+            "workflow":
+
+            "environment_analysis"
+
+        }
+
+    )
+
+)
+
+
+print(
+
+    audit.history()
+
+)
+
+
+Workflow
+
+   ↓
+
+GEDT Event Bus
+
+   ↓
+
+Simulation
+Digital Twin
+AI Models
+Notifications
+Analytics
+
+
+
+app/
+
+├── events/
+
+│   ├── bus.py              ← New
+
+│   ├── events.py           ← New
+
+│   ├── handlers.py         ← New
+
+│   └── subscribers.py      ← New
+
+
+
+"""
+GEDT Event Definitions
+"""
+
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Dict, Any
+
+
+
+@dataclass
+class GEDTEvent:
+
+
+    name: str
+
+
+    source: str
+
+
+    payload: Dict[str, Any]
+
+
+    timestamp: str = field(
+
+        default_factory=lambda:
+
+        datetime.utcnow().isoformat()
+
+    )
+
+"""
+GEDT Event Bus
+
+Simple in-memory event dispatcher.
+"""
+
+from typing import Callable, Dict, List
+
+
+
+class EventBus:
+
+
+    def __init__(self):
+
+        self.listeners: Dict[str, List[Callable]] = {}
+
+
+
+    def subscribe(
+
+        self,
+
+        event_name: str,
+
+        handler: Callable
+
+    ):
+
+        if event_name not in self.listeners:
+
+            self.listeners[event_name] = []
+
+
+        self.listeners[event_name].append(
+
+            handler
+
+        )
+
+
+
+    def publish(
+
+        self,
+
+        event
+
+    ):
+
+        handlers = self.listeners.get(
+
+            event.name,
+
+            []
+
+        )
+
+
+        for handler in handlers:
+
+            handler(event)
+
+
+
+"""
+GEDT Event Handlers
+"""
+
+
+def digital_twin_update_handler(event):
+
+    print(
+
+        "Digital Twin received:",
+
+        event.payload
+
+    )
+
+
+
+def simulation_handler(event):
+
+    print(
+
+        "Simulation started:",
+
+        event.payload
+
+    )
+
+
+from app.events.bus import EventBus
+
+from app.events.events import GEDTEvent
+
+from app.events.handlers import (
+    digital_twin_update_handler,
+    simulation_handler
+)
+
+
+bus = EventBus()
+
+
+bus.subscribe(
+
+    "sensor_update",
+
+    digital_twin_update_handler
+
+)
+
+
+bus.subscribe(
+
+    "sensor_update",
+
+    simulation_handler
+
+)
+
+
+
+event = GEDTEvent(
+
+    name="sensor_update",
+
+    source="NODE_001",
+
+    payload={
+
+        "temperature":
+
+        22.5
+
+    }
+
+)
+
+
+bus.publish(event)
+
+
+
+app/
+
+├── streaming/
+
+│   ├── websocket.py       ← New
+
+│   ├── manager.py         ← New
+
+│   └── streams.py         ← New
+
+
+"""
+GEDT Stream Connection Manager
+"""
+
+from typing import List
+
+
+class ConnectionManager:
+
+
+    def __init__(self):
+
+        self.connections: List = []
+
+
+
+    async def connect(
+
+        self,
+
+        websocket
+
+    ):
+
+        await websocket.accept()
+
+        self.connections.append(
+
+            websocket
+
+        )
+
+
+
+    def disconnect(
+
+        self,
+
+        websocket
+
+    ):
+
+        if websocket in self.connections:
+
+            self.connections.remove(
+
+                websocket
+
+            )
+
+
+
+    async def broadcast(
+
+        self,
+
+        message
+
+    ):
+
+        for connection in self.connections:
+
+            await connection.send_json(
+
+                message
+
+            )
+
+
+
+"""
+GEDT Real-Time API
+"""
+
+from fastapi import APIRouter, WebSocket
+
+from app.streaming.manager import (
+    ConnectionManager
+)
+
+
+router = APIRouter(
+
+    tags=["Streaming"]
+
+)
+
+
+manager = ConnectionManager()
+
+
+
+@router.websocket("/stream")
+
+async def stream(
+
+    websocket: WebSocket
+
+):
+
+    await manager.connect(
+
+        websocket
+
+    )
+
+
+    try:
+
+        while True:
+
+            data = await websocket.receive_json()
+
+
+            await manager.broadcast(
+
+                {
+
+                    "event":
+
+                    "stream_update",
+
+
+                    "data":
+
+                    data
+
+                }
+
+            )
+
+
+    except Exception:
+
+        manager.disconnect(
+
+            websocket
+
+        )
+
+
+"""
+GEDT Stream Events
+"""
+
+
+from dataclasses import dataclass
+
+from datetime import datetime
+
+
+
+@dataclass
+class StreamMessage:
+
+
+    source: str
+
+    data: dict
+
+
+    timestamp: str = datetime.utcnow().isoformat()
+
+
+from app.streaming.websocket import router as stream_router
+
+
+app.include_router(
+
+    stream_router
+
+)
+
+
+
+{
+ "device":"sensor_001",
+ "temperature":23.4,
+ "humidity":45
+}
+
+
+{
+ "event":"stream_update",
+ "data":{
+    "device":"sensor_001",
+    "temperature":23.4
+ }
+}
+
+
+Sensor Data
+
+    ↓
+
+WebSocket Stream
+
+    ↓
+
+Event Created
+
+    ↓
+
+GEDT Event Bus
+
+    ↓
+
+Subscribers
+
+    ├── Digital Twin
+
+    ├── Simulation
+
+    ├── AI Models
+
+    └── Alerts
+
+
+
+app/
+
+├── digital_twin/
+
+│   ├── service.py          ← New
+
+│   ├── models.py           ← New
+
+│   ├── repository.py       ← New
+
+│   └── snapshots.py        ← New
+
+
+├── api/
+
+│   └── routes/
+
+│       └── digital_twin.py ← New
+
+"""
+GEDT Digital Twin Models
+"""
+
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Dict, Any
+
+
+@dataclass
+class DigitalTwin:
+
+
+    twin_id: str
+
+
+    name: str
+
+
+    state: Dict[str, Any]
+
+
+    created_at: str = field(
+
+        default_factory=lambda:
+
+        datetime.utcnow().isoformat()
+
+    )
+
+"""
+GEDT Digital Twin Service
+"""
+
+from app.digital_twin.models import (
+    DigitalTwin
+)
+
+
+class DigitalTwinService:
+
+
+    def __init__(self):
+
+        self.twins = {}
+
+
+
+    def create(
+
+        self,
+
+        twin_id,
+
+        name,
+
+        initial_state
+
+    ):
+
+        twin = DigitalTwin(
+
+            twin_id,
+
+            name,
+
+            initial_state
+
+        )
+
+
+        self.twins[twin_id] = twin
+
+
+        return twin
+
+
+
+    def update_state(
+
+        self,
+
+        twin_id,
+
+        update
+
+    ):
+
+        twin = self.twins[twin_id]
+
+
+        twin.state.update(
+
+            update
+
+        )
+
+
+        return twin
+
+
+
+    def get_state(
+
+        self,
+
+        twin_id
+
+    ):
+
+        return self.twins.get(
+
+            twin_id
+
+        )
+
+
+POST /digital-twin/create
+
+
+{
+ "twin_id":"factory_001",
+ "name":"Production Line",
+ "state":{
+    "temperature":21,
+    "pressure":100
+ }
+}
+
+
+POST /digital-twin/factory_001/update
+
+
+{
+ "update":{
+    "temperature":24
+ }
+}
+
+
+             Live Data
+
+                ↓
+
+          Digital Twin
+
+                ↓
+
+     Current System State
+
+                ↓
+
+ ┌──────────────┼──────────────┐
+
+ ↓              ↓              ↓
+
+Simulation    AI Models    Analytics
+
+
+app/
+
+├── digital_twin/
+
+│   ├── service.py
+
+│   ├── models.py
+
+│   ├── snapshots.py       ← New
+
+│   └── repository.py      ← New
+
+
+├── storage/
+
+│   └── models.py
+
+
+"""
+GEDT Digital Twin Snapshot Engine
+"""
+
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Dict, Any
+
+
+@dataclass
+class TwinSnapshot:
+
+    twin_id: str
+
+    state: Dict[str, Any]
+
+    version: int
+
+    timestamp: str = field(
+
+        default_factory=lambda:
+
+        datetime.utcnow().isoformat()
+
+    )
+
+"""
+Digital Twin Version Management
+"""
+
+
+class SnapshotManager:
+
+
+    def __init__(self):
+
+        self.history = {}
+
+
+
+    def save_snapshot(
+
+        self,
+
+        twin
+
+    ):
+
+        snapshots = self.history.setdefault(
+
+            twin.twin_id,
+
+            []
+
+        )
+
+
+        version = len(snapshots) + 1
+
+
+        snapshot = {
+
+            "twin_id":
+
+            twin.twin_id,
+
+
+            "version":
+
+            version,
+
+
+            "state":
+
+            twin.state.copy()
+
+        }
+
+
+        snapshots.append(
+
+            snapshot
+
+        )
+
+
+        return snapshot
+
+
+
+    def get_history(
+
+        self,
+
+        twin_id
+
+    ):
+
+        return self.history.get(
+
+            twin_id,
+
+            []
+
+        )
+
+
+
+    def restore(
+
+        self,
+
+        twin_id,
+
+        version
+
+    ):
+
+        snapshots = self.history[twin_id]
+
+
+        for snapshot in snapshots:
+
+            if snapshot["version"] == version:
+
+                return snapshot["state"]
+
+
+        return None
+
+
+
+self.snapshot_manager = SnapshotManager()
+
+
+self.snapshot_manager.save_snapshot(
+    twin
+)
+
+
+
+GET /digital-twin/{id}/history
+
+{
+ "versions":[1,2,3]
+}
+
+
+POST /digital-twin/{id}/restore/2
+
+
+
+Simulation Failure
+
+        ↓
+
+Find Last Good Snapshot
+
+        ↓
+
+Restore Twin
+
+        ↓
+
+Resume Operation
+
+app/
+
+├── simulation/
+
+│   ├── models.py          ← New
+
+│   ├── engine.py          ← New
+
+│   ├── service.py         ← New
+
+│   └── results.py         ← New
+
+
+├── api/
+
+│   └── routes/
+
+│       └── simulation.py  ← New
+
+
+
+
+
+
+"""
+GEDT Simulation Models
+"""
+
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Dict, Any
+
+
+@dataclass
+class SimulationScenario:
+
+    scenario_id: str
+
+    name: str
+
+    parameters: Dict[str, Any]
+
+    created_at: str = field(
+        default_factory=lambda:
+        datetime.utcnow().isoformat()
+    )
+
+
+
+@dataclass
+class SimulationResult:
+
+    scenario_id: str
+
+    status: str
+
+    output: Dict[str, Any]
+
+    execution_time: float
+
+
+
+"""
+GEDT Simulation Engine
+"""
+
+import time
+
+
+class SimulationEngine:
+
+
+    def run(
+
+        self,
+
+        scenario
+
+    ):
+
+        start = time.time()
+
+
+        # Future connection:
+        # physics models
+        # ML forecasting
+        # agent simulation
+
+
+        result = {
+
+            "prediction":
+
+            "completed",
+
+            "parameters":
+
+            scenario.parameters
+
+        }
+
+
+        duration = time.time() - start
+
+
+        return {
+
+            "status":
+
+            "completed",
+
+            "output":
+
+            result,
+
+            "execution_time":
+
+            duration
+
+        }
+
+
+
+"""
+GEDT Simulation Service
+"""
+
+from app.simulation.engine import (
+    SimulationEngine
+)
+
+
+class SimulationService:
+
+
+    def __init__(self):
+
+        self.engine = SimulationEngine()
+
+        self.scenarios = {}
+
+
+
+    def create_scenario(
+
+        self,
+
+        scenario
+
+    ):
+
+        self.scenarios[
+
+            scenario.scenario_id
+
+        ] = scenario
+
+
+        return scenario
+
+
+
+    def execute(
+
+        self,
+
+        scenario_id
+
+    ):
+
+        scenario = self.scenarios[
+
+            scenario_id
+
+        ]
+
+
+        return self.engine.run(
+
+            scenario
+
+        )
+
+
+
+"""
+GEDT Simulation API
+"""
+
+from fastapi import APIRouter
+
+from pydantic import BaseModel
+
+
+router = APIRouter(
+
+    prefix="/simulation",
+
+    tags=["Simulation"]
+
+)
+
+
+service = None
+
+
+
+class ScenarioRequest(BaseModel):
+
+    scenario_id: str
+
+    name: str
+
+    parameters: dict
+
+
+
+@router.post("/create")
+def create(
+
+    request: ScenarioRequest
+
+):
+
+    return service.create_scenario(
+
+        request
+
+    )
+
+
+
+@router.post("/{scenario_id}/run")
+def run(
+
+    scenario_id: str
+
+):
+
+    return service.execute(
+
+        scenario_id
+
+    )
+
+
+
+POST /simulation/scenario_001/run
+
+
+{
+ "status":"completed",
+ "output":{
+    "prediction":"completed"
+ },
+ "execution_time":0.001
+}
+
+
+
+app/
+
+├── intelligence/
+
+│   ├── models.py             ← New
+
+│   ├── registry.py           ← New
+
+│   ├── inference.py          ← New
+
+│   └── monitoring.py         ← New
+
+
+├── api/
+
+│   └── routes/
+
+│       └── models.py         ← New
+
+
+"""
+GEDT AI Model Definitions
+"""
+
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Dict, Any
+
+
+@dataclass
+class AIModel:
+
+
+    name: str
+
+
+    version: str
+
+
+    model_type: str
+
+
+    metadata: Dict[str, Any]
+
+
+    created_at: str = field(
+
+        default_factory=lambda:
+
+        datetime.utcnow().isoformat()
+
+    )
+
+
+
+
+
+"""
+GEDT AI Model Registry
+"""
+
+
+class ModelRegistry:
+
+
+    def __init__(self):
+
+        self.models = {}
+
+
+
+    def register(
+
+        self,
+
+        model
+
+    ):
+
+        key = (
+
+            model.name,
+
+            model.version
+
+        )
+
+
+        self.models[key] = model
+
+
+        return model
+
+
+
+    def get(
+
+        self,
+
+        name,
+
+        version
+
+    ):
+
+        return self.models.get(
+
+            (
+
+                name,
+
+                version
+
+            )
+
+        )
+
+
+
+    def list_models(self):
+
+        return [
+
+            {
+
+                "name":
+
+                model.name,
+
+
+                "version":
+
+                model.version,
+
+
+                "type":
+
+                model.model_type
+
+            }
+
+            for model
+
+            in self.models.values()
+
+        ]
+
+
+
+"""
+GEDT AI Inference Service
+"""
+
+import time
+
+
+
+class InferenceService:
+
+
+    def __init__(
+
+        self,
+
+        registry
+
+    ):
+
+        self.registry = registry
+
+
+
+    def predict(
+
+        self,
+
+        model_name,
+
+        version,
+
+        input_data
+
+    ):
+
+        start = time.time()
+
+
+        model = self.registry.get(
+
+            model_name,
+
+            version
+
+        )
+
+
+        if not model:
+
+            raise Exception(
+
+                "Model not found"
+
+            )
+
+
+        # Placeholder inference
+        # Replace with:
+        # TensorFlow
+        # PyTorch
+        # ONNX
+        # sklearn
+
+
+        prediction = {
+
+            "result":
+
+            "generated",
+
+
+            "input":
+
+            input_data
+
+        }
+
+
+        return {
+
+            "model":
+
+            model_name,
+
+
+            "version":
+
+            version,
+
+
+            "prediction":
+
+            prediction,
+
+
+            "confidence":
+
+            0.95,
+
+
+            "execution_time":
+
+            time.time() - start
+
+        }
+
+
+
+
+
+"""
+GEDT Model API
+"""
+
+from fastapi import APIRouter
+
+from pydantic import BaseModel
+
+
+router = APIRouter(
+
+    prefix="/models",
+
+    tags=["AI Models"]
+
+)
+
+
+service = None
+
+
+
+class InferenceRequest(BaseModel):
+
+    model_name: str
+
+    version: str
+
+    data: dict
+
+
+
+@router.get("/")
+def list_models():
+
+    return service.registry.list_models()
+
+
+
+@router.post("/predict")
+def predict(
+
+    request: InferenceRequest
+
+):
+
+    return service.predict(
+
+        request.model_name,
+
+        request.version,
+
+        request.data
+
+    )
+
+
+from app.intelligence.models import AIModel
+
+
+model = AIModel(
+
+    name="environment_predictor",
+
+    version="1.0",
+
+    model_type="forecasting",
+
+    metadata={
+
+        "framework":
+
+        "PyTorch"
+
+    }
+
+)
+
+
+registry.register(model)
+
+
+
+POST /models/predict
+
+
+{
+ "model_name":"environment_predictor",
+ "version":"1.0",
+ "data":{
+    "temperature":22,
+    "humidity":40
+ }
+}
+
+
+
+{
+ "model":"environment_predictor",
+ "version":"1.0",
+ "confidence":0.95,
+ "prediction":{
+    "result":"generated"
+ }
+}
+
+
+
+                 Data
+
+                  ↓
+
+          Digital Twin State
+
+                  ↓
+
+            AI Registry
+
+                  ↓
+
+          Inference Service
+
+                  ↓
+
+       Prediction + Confidence
+
+                  ↓
+
+       Simulation / Decision Layer
+
+
+
+
+
+
+AI Prediction
+
+      ↓
+
+Reasoning Engine
+
+      ↓
+
+Recommendation
+
+      ↓
+
+Human / Autonomous Action
+
+
+
+app/
+
+├── reasoning/
+
+│   ├── models.py              ← New
+
+│   ├── rules.py               ← New
+
+│   ├── engine.py              ← New
+
+│   └── recommendations.py     ← New
+
+
+├── api/
+
+│   └── routes/
+
+│       └── decisions.py       ← New
+
+
+
+"""
+GEDT Decision Models
+"""
+
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Dict, Any, List
+
+
+
+@dataclass
+class Recommendation:
+
+
+    action: str
+
+
+    reason: str
+
+
+    confidence: float
+
+
+    priority: str
+
+
+    metadata: Dict[str, Any]
+
+
+    created_at: str = field(
+
+        default_factory=lambda:
+
+        datetime.utcnow().isoformat()
+
+    )
+
+
+
+
+"""
+GEDT Rule-Based Reasoning
+"""
+
+
+class RuleEngine:
+
+
+    def evaluate(
+
+        self,
+
+        state
+
+    ):
+
+
+        recommendations = []
+
+
+
+        if state.get(
+
+            "temperature",
+
+            0
+
+        ) > 30:
+
+
+            recommendations.append(
+
+                {
+
+                "action":
+
+                "activate_cooling",
+
+
+                "reason":
+
+                "Temperature threshold exceeded",
+
+
+                "confidence":
+
+                0.90
+
+                }
+
+            )
+
+
+
+        if state.get(
+
+            "pressure",
+
+            0
+
+        ) > 150:
+
+
+            recommendations.append(
+
+                {
+
+                "action":
+
+                "inspect_pressure_system",
+
+
+                "reason":
+
+                "Pressure anomaly detected",
+
+
+                "confidence":
+
+                0.85
+
+                }
+
+            )
+
+
+        return recommendations
+
+
+
+
+"""
+GEDT Decision Engine
+"""
+
+from app.reasoning.rules import RuleEngine
+
+
+class DecisionEngine:
+
+
+    def __init__(self):
+
+        self.rules = RuleEngine()
+
+
+
+    def analyze(
+
+        self,
+
+        state
+
+    ):
+
+
+        results = self.rules.evaluate(
+
+            state
+
+        )
+
+
+        return results
+
+
+
+
+"""
+GEDT Decision API
+"""
+
+from fastapi import APIRouter
+
+from pydantic import BaseModel
+
+
+router = APIRouter(
+
+    prefix="/decisions",
+
+    tags=["Decision Support"]
+
+)
+
+
+engine = None
+
+
+
+class DecisionRequest(BaseModel):
+
+    state: dict
+
+
+
+@router.post("/analyze")
+def analyze(
+
+    request: DecisionRequest
+
+):
+
+    return engine.analyze(
+
+        request.state
+
+    )
+
+
+
+
+from app.intelligence.models import AIModel
+
+
+model = AIModel(
+
+    name="environment_predictor",
+
+    version="1.0",
+
+    model_type="forecasting",
+
+    metadata={
+
+        "framework":
+
+        "PyTorch"
+
+    }
+
+)
+
+
+registry.register(model)
+
+
+
+from app.intelligence.models import AIModel
+
+
+model = AIModel(
+
+    name="environment_predictor",
+
+    version="1.0",
+
+    model_type="forecasting",
+
+    metadata={
+
+        "framework":
+
+        "PyTorch"
+
+    }
+
+)
+
+
+registry.register(model)
+
+
+
+                  Data
+
+                   ↓
+
+             Digital Twin
+
+                   ↓
+
+              AI Models
+
+                   ↓
+
+             Predictions
+
+                   ↓
+
+          Decision Engine
+
+                   ↓
+
+          Recommendations
+
+                   ↓
+
+        Human / Autonomous Action
+
+
+
+
+Recommendation:
+
+Reduce system load
+
+
+Why?
+
+- Temperature increased 18%
+- Pressure approaching limit
+- Simulation predicts failure risk: 82%
+
+
+Evidence:
+
+Digital Twin State v42
+Model: Predictor-3.1
+Simulation: Scenario-008
+
+
+
+app/
+
+├── explainability/
+
+│   ├── models.py          ← New
+
+│   ├── evidence.py        ← New
+
+│   ├── explainer.py       ← New
+
+│   └── reasoning_trace.py ← New
+
+
+├── api/
+
+│   └── routes/
+
+│       └── explain.py     ← New
+
+
+
+
+
+"""
+GEDT Explainable AI Models
+"""
+
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Dict, Any, List
+
+
+@dataclass
+class Explanation:
+
+
+    decision: str
+
+
+    summary: str
+
+
+    evidence: List[Dict[str, Any]]
+
+
+    confidence: float
+
+
+    created_at: str = field(
+
+        default_factory=lambda:
+
+        datetime.utcnow().isoformat()
+
+    )
+
+"""
+GEDT Evidence Collection
+"""
+
+
+class EvidenceCollector:
+
+
+    def collect(
+
+        self,
+
+        state,
+
+        prediction
+
+    ):
+
+        evidence = []
+
+
+        for key, value in state.items():
+
+            evidence.append(
+
+                {
+
+                "feature":
+
+                key,
+
+
+                "value":
+
+                value,
+
+
+                "impact":
+
+                "contributing_factor"
+
+                }
+
+            )
+
+
+        return evidence
+
+
+
+
+"""
+GEDT Explanation Generator
+"""
+
+from app.explainability.models import (
+    Explanation
+)
+
+from app.explainability.evidence import (
+    EvidenceCollector
+)
+
+
+class Explainer:
+
+
+    def __init__(self):
+
+        self.collector = EvidenceCollector()
+
+
+
+    def explain(
+
+        self,
+
+        decision,
+
+        state,
+
+        prediction
+
+    ):
+
+
+        evidence = self.collector.collect(
+
+            state,
+
+            prediction
+
+        )
+
+
+        return Explanation(
+
+            decision=
+
+            decision,
+
+
+            summary=
+
+            "Decision generated from AI prediction and system state analysis",
+
+
+            evidence=
+
+            evidence,
+
+
+            confidence=
+
+            prediction.get(
+
+                "confidence",
+
+                0.0
+
+            )
+
+        )
+
+
+
+"""
+GEDT Explainability API
+"""
+
+from fastapi import APIRouter
+
+from pydantic import BaseModel
+
+
+router = APIRouter(
+
+    prefix="/explain",
+
+    tags=["Explainable AI"]
+
+)
+
+
+explainer = None
+
+
+
+class ExplainRequest(BaseModel):
+
+    decision: str
+
+    state: dict
+
+    prediction: dict
+
+
+
+@router.post("/")
+def explain(
+
+    request: ExplainRequest
+
+):
+
+    return explainer.explain(
+
+        request.decision,
+
+        request.state,
+
+        request.prediction
+
+    )
+
+POST /explain/
+
+
+{
+ "decision":
+ "activate_cooling",
+
+ "state":
+ {
+   "temperature":35,
+   "pressure":120
+ },
+
+ "prediction":
+ {
+   "confidence":0.92
+ }
+}
+
+{
+ "decision":
+ "activate_cooling",
+
+ "summary":
+ "Decision generated from AI prediction and system state analysis",
+
+ "confidence":
+ 0.92,
+
+ "evidence":
+ [
+  {
+   "feature":"temperature",
+   "value":35,
+   "impact":"contributing_factor"
+  }
+ ]
+}
+
+
+GEDT Components
+
+      ↓
+
+Metrics Collector
+
+      ↓
+
+Monitoring Service
+
+      ↓
+
+Dashboard / Alerts
+
+app/
+
+├── monitoring/
+
+│   ├── metrics.py          ← New
+
+│   ├── collector.py        ← New
+
+│   ├── alerts.py           ← New
+
+│   └── health_metrics.py   ← New
+
+
+├── api/
+
+│   └── routes/
+
+│       └── metrics.py      ← New
+
+
+"""
+GEDT Metrics Models
+"""
+
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Dict, Any
+
+
+@dataclass
+class Metric:
+
+
+    name: str
+
+
+    value: float
+
+
+    category: str
+
+
+    metadata: Dict[str, Any]
+
+
+    timestamp: str = field(
+
+        default_factory=lambda:
+
+        datetime.utcnow().isoformat()
+
+    )
+
+
+
+"""
+GEDT Metrics Collector
+"""
+
+
+class MetricsCollector:
+
+
+    def __init__(self):
+
+        self.metrics = []
+
+
+
+    def record(
+
+        self,
+
+        metric
+
+    ):
+
+        self.metrics.append(
+
+            metric
+
+        )
+
+
+
+    def get_all(self):
+
+        return [
+
+            metric.__dict__
+
+            for metric
+
+            in self.metrics
+
+        ]
+
+
+
+from app.monitoring.metrics import Metric
+
+
+collector.record(
+
+    Metric(
+
+        name="workflow_execution_time",
+
+        value=1.24,
+
+        category="workflow",
+
+        metadata={
+
+            "workflow":
+
+            "environment_analysis"
+
+        }
+
+    )
+
+)
+
+
+
+"""
+GEDT Alert Management
+"""
+
+
+class AlertManager:
+
+
+    def __init__(self):
+
+        self.alerts = []
+
+
+
+    def check(
+
+        self,
+
+        metric
+
+    ):
+
+        if metric.value > 90:
+
+            self.alerts.append(
+
+                {
+
+                "severity":
+
+                "warning",
+
+
+                "metric":
+
+                metric.name
+
+                }
+
+            )
+
+
+
+    def list_alerts(self):
+
+        return self.alerts
+
+
+"""
+GEDT Monitoring API
+"""
+
+from fastapi import APIRouter
+
+
+router = APIRouter(
+
+    prefix="/metrics",
+
+    tags=["Monitoring"]
+
+)
+
+
+collector = None
+
+
+
+@router.get("/")
+def metrics():
+
+    return collector.get_all()
+
+
+
+
+app/
+
+├── automation/
+
+│   ├── scheduler.py          ← New
+
+│   ├── triggers.py           ← New
+
+│   ├── jobs.py               ← New
+
+│   └── executor.py           ← New
+
+
+├── api/
+
+│   └── routes/
+
+│       └── automation.py     ← New
+
+
+"""
+GEDT Automation Jobs
+"""
+
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Dict, Any
+
+
+@dataclass
+class ScheduledJob:
+
+
+    job_id: str
+
+
+    workflow_name: str
+
+
+    schedule: str
+
+
+    parameters: Dict[str, Any]
+
+
+    created_at: str = field(
+
+        default_factory=lambda:
+
+        datetime.utcnow().isoformat()
+
+    )
+
+
+"""
+GEDT Automated Workflow Executor
+"""
+
+
+class WorkflowExecutor:
+
+
+    def __init__(self, workflow_engine):
+
+        self.workflow_engine = workflow_engine
+
+
+
+    def execute(
+
+        self,
+
+        job
+
+    ):
+
+        return self.workflow_engine.execute(
+
+            job.workflow_name,
+
+            job.parameters
+
+        )
+
+
+
+"""
+GEDT Scheduler
+"""
+
+
+class Scheduler:
+
+
+    def __init__(self):
+
+        self.jobs = []
+
+
+
+    def add_job(
+
+        self,
+
+        job
+
+    ):
+
+        self.jobs.append(
+
+            job
+
+        )
+
+
+
+    def list_jobs(self):
+
+        return [
+
+            job.__dict__
+
+            for job in self.jobs
+
+        ]
+
+
+
+    def run_job(
+
+        self,
+
+        job_id
+
+    ):
+
+        for job in self.jobs:
+
+            if job.job_id == job_id:
+
+                return {
+
+                    "status":
+
+                    "started",
+
+                    "job":
+
+                    job.workflow_name
+
+                }
+
+
+        return {
+
+            "status":
+
+            "not_found"
+
+        }
+
+
+
+"""
+GEDT Trigger Definitions
+"""
+
+
+class TriggerManager:
+
+
+    def evaluate(
+
+        self,
+
+        event
+
+    ):
+
+
+        if event.name == "sensor_alert":
+
+            return {
+
+                "triggered":
+
+                True,
+
+                "workflow":
+
+                "emergency_analysis"
+
+            }
+
+
+        return {
+
+            "triggered":
+
+            False
+
+        }
+
+
+
+
+"""
+GEDT Automation API
+"""
+
+from fastapi import APIRouter
+
+from pydantic import BaseModel
+
+
+router = APIRouter(
+
+    prefix="/automation",
+
+    tags=["Automation"]
+
+)
+
+
+scheduler = None
+
+
+
+class JobRequest(BaseModel):
+
+    job_id: str
+
+    workflow_name: str
+
+    schedule: str
+
+    parameters: dict
+
+
+
+@router.post("/jobs")
+def create_job(
+
+    request: JobRequest
+
+):
+
+    scheduler.add_job(
+
+        request
+
+    )
+
+    return {
+
+        "status":
+
+        "created"
+
+    }
+
+
+
+@router.get("/jobs")
+def jobs():
+
+    return scheduler.list_jobs()
+
+
+
+
+
+
+POST /automation/jobs
+
+
+{
+ "job_id":"daily_scan",
+
+ "workflow_name":
+ "environment_monitoring",
+
+ "schedule":
+ "0 06 * * *",
+
+ "parameters":
+ {
+   "region":"north_zone"
+ }
+}
+
+
+
+Agent A
+  |
+Agent B ── Event Bus ── Shared Environment
+  |
+Agent C
+
+        ↓
+
+Decision System
+
+
+
+app/
+
+├── agents/
+
+│   ├── base.py              ← New
+
+│   ├── registry.py          ← New
+
+│   ├── communication.py     ← New
+
+│   ├── planner.py           ← New
+
+│   └── specialized/
+
+│       ├── monitoring.py
+
+│       ├── simulation.py
+
+│       └── reasoning.py
+
+
+
+
+"""
+GEDT Base AI Agent
+"""
+
+from abc import ABC, abstractmethod
+
+
+
+class Agent(ABC):
+
+
+    def __init__(
+
+        self,
+
+        agent_id
+
+    ):
+
+        self.agent_id = agent_id
+
+
+
+    @abstractmethod
+    def process(
+
+        self,
+
+        task
+
+    ):
+
+        pass
+
+
+
+"""
+GEDT Agent Registry
+"""
+
+
+class AgentRegistry:
+
+
+    def __init__(self):
+
+        self.agents = {}
+
+
+
+    def register(
+
+        self,
+
+        agent
+
+    ):
+
+        self.agents[
+
+            agent.agent_id
+
+        ] = agent
+
+
+
+    def get(
+
+        self,
+
+        agent_id
+
+    ):
+
+        return self.agents.get(
+
+            agent_id
+
+        )
+
+
+
+    def list_agents(self):
+
+        return list(
+
+            self.agents.keys()
+
+        )
+
+
+
+
+"""
+GEDT Agent Messaging
+"""
+
+
+class AgentMessenger:
+
+
+    def __init__(self):
+
+        self.messages = []
+
+
+
+    def send(
+
+        self,
+
+        sender,
+
+        receiver,
+
+        message
+
+    ):
+
+        self.messages.append(
+
+            {
+
+            "from":
+
+            sender,
+
+
+            "to":
+
+            receiver,
+
+
+            "message":
+
+            message
+
+            }
+
+        )
+
+
+
+    def history(self):
+
+        return self.messages
+
+
+
+"""
+GEDT Monitoring Agent
+"""
+
+from app.agents.base import Agent
+
+
+
+class MonitoringAgent(Agent):
+
+
+    def process(
+
+        self,
+
+        task
+
+    ):
+
+
+        return {
+
+            "agent":
+
+            self.agent_id,
+
+
+            "finding":
+
+            "system analysis completed"
+
+        }
+
+
+"""
+GEDT Agent Planner
+"""
+
+
+class AgentPlanner:
+
+
+    def assign(
+
+        self,
+
+        objective
+
+    ):
+
+
+        if "simulate" in objective:
+
+            return "simulation_agent"
+
+
+        if "monitor" in objective:
+
+            return "monitoring_agent"
+
+
+        return "reasoning_agent"
+
+
+
+Objective:
+
+"Analyze energy efficiency"
+
+
+Planner
+
+ ↓
+
+Monitoring Agent
+
+ ↓
+
+Simulation Agent
+
+ ↓
+
+Optimization Agent
+
+ ↓
+
+Decision Agent
+
+
+{
+ "recommendation":
+ "Reduce energy consumption",
+
+ "confidence":
+ 0.91,
+
+ "agents_used":
+ [
+  "monitoring",
+  "simulation",
+  "optimization"
+ ]
+}
+
+
+app/
+
+├── knowledge/
+
+│   ├── graph.py              ← New
+
+│   ├── entities.py           ← New
+
+│   ├── relationships.py      ← New
+
+│   ├── reasoning.py          ← New
+
+│   └── queries.py            ← New
+
+
+
+"""
+GEDT Knowledge Entities
+"""
+
+from dataclasses import dataclass
+from typing import Dict, Any
+
+
+
+@dataclass
+class Entity:
+
+
+    entity_id: str
+
+
+    entity_type: str
+
+
+    attributes: Dict[str, Any]
+
+
+
+Factory_001
+
+Type:
+Industrial Asset
+
+
+Sensor_12
+
+Type:
+Measurement Device
+
+
+Model_X
+
+Type:
+AI Predictor
+
+
+Simulation_A
+
+Type:
+Scenario
+
+
+
+Factory_001
+
+   HAS_SENSOR
+
+        ↓
+
+Sensor_12
+
+
+Sensor_12
+
+   PRODUCES_DATA
+
+        ↓
+
+Temperature_Stream
+
+
+
+"""
+GEDT Knowledge Graph
+"""
+
+
+class KnowledgeGraph:
+
+
+    def __init__(self):
+
+        self.entities = {}
+
+        self.relationships = []
+
+
+
+    def add_entity(
+
+        self,
+
+        entity
+
+    ):
+
+        self.entities[
+
+            entity.entity_id
+
+        ] = entity
+
+
+
+    def add_relationship(
+
+        self,
+
+        relationship
+
+    ):
+
+        self.relationships.append(
+
+            relationship
+
+        )
+
+
+
+    def find_related(
+
+        self,
+
+        entity_id
+
+    ):
+
+        return [
+
+            r
+
+            for r
+
+            in self.relationships
+
+            if r.source == entity_id
+
+        ]
+
+
+
+"""
+GEDT Semantic Reasoning
+"""
+
+
+class SemanticReasoner:
+
+
+    def __init__(
+
+        self,
+
+        graph
+
+    ):
+
+        self.graph = graph
+
+
+
+    def analyze_context(
+
+        self,
+
+        entity_id
+
+    ):
+
+
+        relationships = (
+
+            self.graph
+
+            .find_related(entity_id)
+
+        )
+
+
+        return {
+
+            "entity":
+
+            entity_id,
+
+
+            "connections":
+
+            relationships
+
+        }
+
+
+
+Factory_001
+
+ ↓
+
+Connected Sensors
+
+ ↓
+
+Temperature Increase
+
+ ↓
+
+Historical Failures
+
+ ↓
+
+Simulation Results
+
+ ↓
+
+AI Prediction
+
+ ↓
+
+Recommendation
+
+
+
+External Data Sources
+
+        ↓
+
+Data Connectors
+
+        ↓
+
+GEDT Integration Layer
+
+        ↓
+
+Knowledge Graph + Digital Twins
+
+External Systems
+
+ ┌──────────────┐
+ │ IoT Devices  │
+ └──────┬───────┘
+
+ ┌──────────────┐
+ │ Databases   │
+ └──────┬───────┘
+
+ ┌──────────────┐
+ │ Cloud APIs  │
+ └──────┬───────┘
+
+ ┌──────────────┐
+ │ Scientific  │
+ │ Datasets    │
+ └──────┬───────┘
+
+        ↓
+
+ GEDT Data Federation Layer
+
+        ↓
+
+ Event Bus
+
+        ↓
+
+ Digital Twin / AI / Knowledge Graph
+
+
+
+
+app/
+
+├── integration/
+
+│   ├── connectors.py        ← New
+
+│   ├── registry.py          ← New
+
+│   ├── pipeline.py          ← New
+
+│   ├── adapters/
+
+│   │   ├── database.py
+
+│   │   ├── api.py
+
+│   │   └── sensor.py
+
+│
+└── api/
+
+    └── routes/
+
+        └── integrations.py  ← New
+
+
+
+
+"""
+GEDT Data Connector Models
+"""
+
+from dataclasses import dataclass
+from typing import Dict, Any
+
+
+
+@dataclass
+class DataConnector:
+
+
+    connector_id: str
+
+
+    connector_type: str
+
+
+    configuration: Dict[str, Any]
+
+
+    active: bool = True
+
+
+"""
+GEDT Connector Registry
+"""
+
+
+class ConnectorRegistry:
+
+
+    def __init__(self):
+
+        self.connectors = {}
+
+
+
+    def register(
+
+        self,
+
+        connector
+
+    ):
+
+        self.connectors[
+
+            connector.connector_id
+
+        ] = connector
+
+
+
+    def get(
+
+        self,
+
+        connector_id
+
+    ):
+
+        return self.connectors.get(
+
+            connector_id
+
+        )
+
+
+
+    def list_all(self):
+
+        return [
+
+            connector.__dict__
+
+            for connector
+
+            in self.connectors.values()
+
+        ]
+
+
+"""
+GEDT Data Federation Pipeline
+"""
+
+
+class DataPipeline:
+
+
+    def __init__(
+
+        self,
+
+        event_bus
+
+    ):
+
+        self.event_bus = event_bus
+
+
+
+    def ingest(
+
+        self,
+
+        connector,
+
+        data
+
+    ):
+
+
+        event = {
+
+            "source":
+
+            connector.connector_id,
+
+
+            "data":
+
+            data
+
+        }
+
+
+        self.event_bus.publish(
+
+            event
+
+        )
+
+
+        return {
+
+            "status":
+
+            "accepted"
+
+        }
+
+
+"""
+Sensor Data Adapter
+"""
+
+
+class SensorAdapter:
+
+
+    def normalize(
+
+        self,
+
+        payload
+
+    ):
+
+
+        return {
+
+            "temperature":
+
+            payload.get(
+
+                "temp"
+
+            ),
+
+
+            "humidity":
+
+            payload.get(
+
+                "humidity"
+
+            )
+
+        }
+
+
+
+
+ """
+GEDT Integration API
+"""
+
+from fastapi import APIRouter
+
+from pydantic import BaseModel
+
+
+router = APIRouter(
+
+    prefix="/integrations",
+
+    tags=["Integrations"]
+
+)
+
+
+registry = None
+
+
+
+class ConnectorRequest(BaseModel):
+
+    connector_id: str
+
+    connector_type: str
+
+    configuration: dict
+
+
+
+@router.post("/register")
+def register(
+
+    request: ConnectorRequest
+
+):
+
+    registry.register(
+
+        request
+
+    )
+
+
+    return {
+
+        "status":
+
+        "registered"
+
+    }
+
+
+
+@router.get("/")
+def list_connectors():
+
+    return registry.list_all()
+
+
+
+POST /integrations/register
+
+
+{
+ "connector_id":"factory_sensor_network",
+
+ "connector_type":"mqtt",
+
+ "configuration":
+ {
+   "topic":"factory/temperature"
+ }
+}
+
+
+
+{
+ "status":"registered"
+}
+
+
+Incoming Data
+
+      ↓
+
+Data Validation
+
+      ↓
+
+Quality Scoring
+
+      ↓
+
+Provenance Tracking
+
+      ↓
+
+Trusted Data Layer
+
+      ↓
+
+AI / Digital Twin / Simulation
+
+
+
+
+
+
+app/
+
+├── governance/
+
+│   ├── quality.py          ← New
+
+│   ├── provenance.py       ← New
+
+│   ├── lineage.py          ← New
+
+│   └── policy.py           ← New
+
+
+├── api/
+
+│   └── routes/
+
+│       └── governance.py   ← New
+
+
+
+"""
+GEDT Data Quality Management
+"""
+
+from dataclasses import dataclass
+from datetime import datetime
+
+
+
+@dataclass
+class DataQualityScore:
+
+
+    source: str
+
+
+    completeness: float
+
+
+    accuracy: float
+
+
+    freshness: float
+
+
+    overall_score: float
+
+
+    timestamp: str = datetime.utcnow().isoformat()
+
+
+
+
+"""
+GEDT Quality Analyzer
+"""
+
+
+class QualityAnalyzer:
+
+
+    def evaluate(
+
+        self,
+
+        data
+
+    ):
+
+
+        completeness = (
+
+            len(data.keys())
+
+            /
+
+            10
+
+        )
+
+
+        score = min(
+
+            completeness,
+
+            1.0
+
+        )
+
+
+        return {
+
+            "completeness":
+
+            score,
+
+
+            "overall":
+
+            score
+
+        }
+
+
+"""
+GEDT Quality Analyzer
+"""
+
+
+class QualityAnalyzer:
+
+
+    def evaluate(
+
+        self,
+
+        data
+
+    ):
+
+
+        completeness = (
+
+            len(data.keys())
+
+            /
+
+            10
+
+        )
+
+
+        score = min(
+
+            completeness,
+
+            1.0
+
+        )
+
+
+        return {
+
+            "completeness":
+
+            score,
+
+
+            "overall":
+
+            score
+
+        }
+
+
+
+"""
+GEDT Data Provenance
+"""
+
+
+from datetime import datetime
+
+
+
+class ProvenanceTracker:
+
+
+    def __init__(self):
+
+        self.records = []
+
+
+
+    def record(
+
+        self,
+
+        source,
+
+        transformation,
+
+        destination
+
+    ):
+
+
+        self.records.append(
+
+            {
+
+            "source":
+
+            source,
+
+
+            "transformation":
+
+            transformation,
+
+
+            "destination":
+
+            destination,
+
+
+            "timestamp":
+
+            datetime.utcnow().isoformat()
+
+            }
+
+        )
+
+
+
+    def history(self):
+
+        return self.records
+
+
+
+
+"""
+GEDT Data Lineage Graph
+"""
+
+
+class LineageGraph:
+
+
+    def __init__(self):
+
+        self.links = []
+
+
+
+    def add_link(
+
+        self,
+
+        parent,
+
+        child
+
+    ):
+
+        self.links.append(
+
+            {
+
+            "parent":
+
+            parent,
+
+
+            "child":
+
+            child
+
+            }
+
+        )
+
+
+
+    def trace(
+
+        self,
+
+        item
+
+    ):
+
+        return [
+
+            link
+
+            for link
+
+            in self.links
+
+            if link["child"] == item
+
+        ]
+
+
+
+"""
+GEDT Governance API
+"""
+
+from fastapi import APIRouter
+
+
+router = APIRouter(
+
+    prefix="/governance",
+
+    tags=["Governance"]
+
+)
+
+
+quality_engine = None
+
+
+
+@router.post("/quality-check")
+def quality_check(
+
+    data: dict
+
+):
+
+    return quality_engine.evaluate(
+
+        data
+
+    )
+
+GEDT Services
+
+      ↓
+
+Containers
+
+      ↓
+
+Orchestration
+
+      ↓
+
+Cloud / Edge Infrastructure
+
+      ↓
+
+Production Platform
+
+
+
+
+deployment/
+
+├── docker/
+
+│   ├── Dockerfile
+
+│   └── docker-compose.yml
+
+
+├── kubernetes/
+
+│   ├── api.yaml
+
+│   ├── services.yaml
+
+│   └── database.yaml
+
+
+├── config/
+
+│   ├── development.env
+
+│   └── production.env
+
+
+
+FROM python:3.12
+
+
+WORKDIR /gedt
+
+
+COPY requirements.txt .
+
+
+RUN pip install -r requirements.txt
+
+
+COPY app/ .
+
+
+CMD [
+
+"uvicorn",
+
+"main:app",
+
+"--host",
+
+"0.0.0.0",
+
+"--port",
+
+"8000"
+
+]
+
+
+version: "3.9"
+
+
+services:
+
+
+  gedt-api:
+
+    build: .
+
+    ports:
+
+      - "8000:8000"
+
+
+
+  database:
+
+    image: postgres:16
+
+    environment:
+
+      POSTGRES_DB: gedt
+
+      POSTGRES_USER: gedt
+
+      POSTGRES_PASSWORD: password
+
+
+
+  event-bus:
+
+    image: redis:latest
+
+
+
+  monitoring:
+
+    image: prom/prometheus
+
+
+DATABASE_URL=postgresql://gedt:password@database/gedt
+
+EVENT_BUS=redis://event-bus:6379
+
+LOG_LEVEL=INFO
+
+ENVIRONMENT=production
+
+
+
+
+apiVersion: apps/v1
+
+kind: Deployment
+
+
+metadata:
+
+  name: gedt-api
+
+
+spec:
+
+  replicas: 3
+
+
+  selector:
+
+    matchLabels:
+
+      app: gedt-api
+
+
+  template:
+
+    metadata:
+
+      labels:
+
+        app: gedt-api
+
+
+    spec:
+
+      containers:
+
+      - name: api
+
+        image: gedt/api:latest
+
+        ports:
+
+        - containerPort: 8000
+
+
+deployment/
+
+├── ci/
+
+│   ├── tests.yml
+
+│   ├── build.yml
+
+│   └── security.yml
+
+
+├── cd/
+
+│   ├── deploy.yml
+
+│   └── rollback.yml
+
+
+├── scripts/
+
+│   ├── health_check.py
+
+│   └── migrate.py
+
+
+name: GEDT Tests
+
+
+on:
+
+  push:
+
+
+jobs:
+
+  test:
+
+
+    runs-on: ubuntu-latest
+
+
+    steps:
+
+
+    - uses: actions/checkout@v4
+
+
+    - name: Install dependencies
+
+      run: |
+
+        pip install -r requirements.txt
+
+
+
+    - name: Run tests
+
+      run: |
+
+        pytest
+
+
+name: GEDT Build
+
+
+on:
+
+  push:
+
+
+jobs:
+
+  build:
+
+
+    runs-on: ubuntu-latest
+
+
+    steps:
+
+
+    - uses: actions/checkout@v4
+
+
+    - name: Build container
+
+      run: |
+
+        docker build -t gedt/api .
+
+
+name: Security Scan
+
+
+jobs:
+
+ scan:
+
+
+  runs-on:
+
+    ubuntu-latest
+
+
+  steps:
+
+
+  - uses:
+
+      actions/checkout@v4
+
+
+  - name:
+
+      Dependency Audit
+
+    run:
+
+      pip-audit
+
+
+
+"""
+GEDT Database Migration Helper
+"""
+
+
+def migrate():
+
+    print(
+
+        "Applying database migrations"
+
+    )
+
+
+if __name__ == "__main__":
+
+    migrate()
+
+External Users
+
+      ↓
+
+ API Gateway
+
+      ↓
+
+ Service Mesh
+
+      ↓
+
+GEDT Microservices
+
+      ↓
+
+Observability Layer
+
+
+app/
+
+├── gateway/
+
+│   ├── router.py              ← New
+
+│   ├── policies.py            ← New
+
+│   ├── rate_limit.py          ← New
+
+│   └── security.py            ← New
+
+
+├── mesh/
+
+│   ├── discovery.py            ← New
+
+│   ├── health.py               ← New
+
+│   ├── tracing.py              ← New
+
+│   └── resilience.py           ← New
+
+
+"""
+GEDT Service Discovery
+"""
+
+
+class ServiceRegistry:
+
+
+    def __init__(self):
+
+        self.services = {}
+
+
+
+    def register(
+
+        self,
+
+        name,
+
+        endpoint
+
+    ):
+
+        self.services[name] = endpoint
+
+
+
+    def locate(
+
+        self,
+
+        name
+
+    ):
+
+        return self.services.get(name)
+
+
+
+    def list_services(self):
+
+        return self.services
+
+
+
+
+"""
+GEDT Enterprise Gateway
+"""
+
+
+class Gateway:
+
+
+    def __init__(
+
+        self,
+
+        registry
+
+    ):
+
+        self.registry = registry
+
+
+
+    def route(
+
+        self,
+
+        service,
+
+        request
+
+    ):
+
+
+        endpoint = self.registry.locate(
+
+            service
+
+        )
+
+
+        return {
+
+            "target":
+
+            endpoint,
+
+
+            "request":
+
+            request
+
+        }
+
+
+
+
+
+"""
+GEDT API Protection
+"""
+
+
+class RateLimiter:
+
+
+    def __init__(self):
+
+        self.requests = {}
+
+
+
+    def allow(
+
+        self,
+
+        client
+
+    ):
+
+
+        count = self.requests.get(
+
+            client,
+
+            0
+
+        )
+
+
+        if count > 100:
+
+            return False
+
+
+        self.requests[client] = count + 1
+
+
+        return True
+
+
+
+
+"""
+Service Health Tracking
+"""
+
+
+class HealthMonitor:
+
+
+    def check(
+
+        self,
+
+        service
+
+    ):
+
+
+        return {
+
+            "service":
+
+            service,
+
+
+            "status":
+
+            "healthy"
+
+        }
+
+
+
+"""
+GEDT Distributed Tracing
+"""
+
+
+import uuid
+
+
+
+class TraceManager:
+
+
+    def create_trace(self):
+
+        return str(
+
+            uuid.uuid4()
+
+        )
+
+
+
+Raw Data
+
+ ↓
+
+Data Lake
+
+ ↓
+
+Feature Store
+
+ ↓
+
+Analytics Engine
+
+ ↓
+
+AI Models + Digital Twins
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
