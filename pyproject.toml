@@ -51414,6 +51414,1702 @@ Adaptive Intelligence Ecosystem
 
 
 
+planetary_gedt/
+
+├── global_model/
+
+│   └── earth_representation.py
+
+
+├── regional_twins/
+
+│   └── synchronization.py
+
+
+├── environmental_ai/
+
+│   └── climate_reasoning.py
+
+
+├── resource_model/
+
+│   └── optimization.py
+
+
+└── governance/
+
+    └── global_policy.py
+
+
+Recommendation:
+
+Replace component
+
+Evidence:
+
+- vibration anomaly
+- temperature increase
+- historical failure pattern
+
+Confidence:
+
+91%
+
+Alternative:
+
+Continue monitoring
+Risk:
+
++20% failure probability
+
+Observe
+
+↓
+
+Learn
+
+↓
+
+Improve
+
+↓
+
+Validate
+
+↓
+
+Deploy
+
+↓
+
+Repeat
+
+                 GEDT CORE v1
+
+        ┌──────────────────────┐
+        │ Digital Twin Engine  │
+        └──────────┬───────────┘
+                   ↓
+        ┌──────────────────────┐
+        │ Knowledge Graph      │
+        └──────────┬───────────┘
+                   ↓
+        ┌──────────────────────┐
+        │ AI Reasoning Layer   │
+        └──────────┬───────────┘
+                   ↓
+        ┌──────────────────────┐
+        │ Simulation Engine    │
+        └──────────┬───────────┘
+                   ↓
+        ┌──────────────────────┐
+        │ Decision Interface   │
+        └──────────────────────┘
+
+
+
+AI Models
++
+Rules
++
+Agents
+
+
+GEDT Foundation Intelligence Model
+
+
+gedt_core/
+
+├── main.py
+
+├── digital_twin/
+
+│   ├── twin.py
+
+│   └── state.py
+
+
+├── intelligence/
+
+│   ├── analyzer.py
+
+│   ├── predictor.py
+
+│   └── reasoning.py
+
+
+├── decision/
+
+│   └── engine.py
+
+
+├── memory/
+
+│   └── knowledge.py
+
+
+└── tests/
+
+
+from dataclasses import dataclass
+from datetime import datetime
+
+
+@dataclass
+class SystemState:
+
+    asset_id: str
+
+    temperature: float
+
+    vibration: float
+
+    pressure: float
+
+    timestamp: datetime = datetime.now()
+
+class DigitalTwin:
+
+
+    def __init__(self):
+
+        self.states = []
+
+
+    def update(self, state):
+
+        self.states.append(state)
+
+
+    def current_state(self):
+
+        if self.states:
+
+            return self.states[-1]
+
+        return None
+
+
+
+class DigitalTwin:
+
+
+    def __init__(self):
+
+        self.states = []
+
+
+    def update(self, state):
+
+        self.states.append(state)
+
+
+    def current_state(self):
+
+        if self.states:
+
+            return self.states[-1]
+
+        return None
+
+class Analyzer:
+
+
+    def analyze(self, state):
+
+        risk = 0
+
+
+        if state.temperature > 80:
+
+            risk += 40
+
+
+        if state.vibration > 5:
+
+            risk += 40
+
+
+        if state.pressure > 100:
+
+            risk += 20
+
+
+        return {
+
+            "risk_score": risk,
+
+            "status":
+
+            "warning" if risk > 50 else "normal"
+
+        }
+
+
+
+class Reasoner:
+
+
+    def explain(self, state, prediction):
+
+        return {
+
+
+            "explanation":
+
+            [
+
+            "Temperature analysis completed",
+
+            "Vibration pattern evaluated",
+
+            "Risk calculated"
+
+            ],
+
+
+            "prediction":
+
+            prediction
+
+        }
+
+
+class DecisionEngine:
+
+
+    def decide(self, prediction):
+
+
+        if prediction["failure_probability"] > 0.7:
+
+            return {
+
+                "action":
+
+                "Schedule maintenance"
+
+            }
+
+
+        return {
+
+            "action":
+
+            "Continue monitoring"
+
+        }
+
+
+class KnowledgeMemory:
+
+
+    def __init__(self):
+
+        self.records = []
+
+
+    def store(self, event):
+
+        self.records.append(event)
+
+
+    def retrieve(self):
+
+        return self.records
+
+
+
+from digital_twin.twin import DigitalTwin
+from digital_twin.state import SystemState
+
+from intelligence.analyzer import Analyzer
+from intelligence.predictor import Predictor
+from intelligence.reasoning import Reasoner
+
+from decision.engine import DecisionEngine
+from memory.knowledge import KnowledgeMemory
+
+
+
+twin = DigitalTwin()
+
+analyzer = Analyzer()
+
+predictor = Predictor()
+
+reasoner = Reasoner()
+
+decision = DecisionEngine()
+
+memory = KnowledgeMemory()
+
+
+
+state = SystemState(
+
+    asset_id="Machine_001",
+
+    temperature=90,
+
+    vibration=7,
+
+    pressure=110
+
+)
+
+
+
+# Update Twin
+
+twin.update(state)
+
+
+
+current = twin.current_state()
+
+
+
+# Intelligence
+
+analysis = analyzer.analyze(current)
+
+prediction = predictor.predict(analysis)
+
+
+
+# Explanation
+
+explanation = reasoner.explain(
+
+    current,
+
+    prediction
+
+)
+
+
+
+# Decision
+
+action = decision.decide(
+
+    prediction
+
+)
+
+
+
+# Store knowledge
+
+memory.store({
+
+    "state": current,
+
+    "decision": action
+
+})
+
+
+
+print(explanation)
+
+print(action)
+
+
+
+GEDT Prototype Level 1
+
+        ↓
+
+Single Asset Intelligence Demonstrator
+
+
+
+gedt_core/
+
+├── knowledge/
+
+│   ├── graph.py          ← New
+
+│   ├── entities.py       ← New
+
+│   └── causal.py         ← New
+
+
+├── intelligence/
+
+│   └── reasoning.py      ← Upgrade
+
+
+
+from dataclasses import dataclass
+
+
+@dataclass
+class Entity:
+
+    name: str
+
+    category: str
+
+
+class KnowledgeGraph:
+
+
+    def __init__(self):
+
+        self.nodes = {}
+
+        self.relationships = []
+
+
+
+    def add_entity(self, entity):
+
+        self.nodes[entity.name] = entity
+
+
+
+    def add_relationship(
+
+        self,
+
+        source,
+
+        relation,
+
+        target
+
+    ):
+
+        self.relationships.append(
+
+            {
+
+            "source": source,
+
+            "relation": relation,
+
+            "target": target
+
+            }
+
+        )
+
+
+
+    def find_connections(
+
+        self,
+
+        entity
+
+    ):
+
+        return [
+
+            r for r in self.relationships
+
+            if r["source"] == entity
+
+        ]
+
+
+
+from knowledge.entities import Entity
+from knowledge.graph import KnowledgeGraph
+
+
+
+graph = KnowledgeGraph()
+
+
+
+machine = Entity(
+
+    "Machine_001",
+
+    "asset"
+
+)
+
+
+cooling = Entity(
+
+    "Cooling_System",
+
+    "component"
+
+)
+
+
+temperature = Entity(
+
+    "High_Temperature",
+
+    "condition"
+
+)
+
+
+failure = Entity(
+
+    "Component_Failure",
+
+    "event"
+
+)
+
+
+
+for item in [
+
+    machine,
+
+    cooling,
+
+    temperature,
+
+    failure
+
+]:
+
+    graph.add_entity(item)
+
+
+
+graph.add_relationship(
+
+    "Cooling_System",
+
+    "causes",
+
+    "High_Temperature"
+
+)
+
+
+graph.add_relationship(
+
+    "High_Temperature",
+
+    "increases_probability_of",
+
+    "Component_Failure"
+
+)
+
+
+class CausalReasoner:
+
+
+    def __init__(self, graph):
+
+        self.graph = graph
+
+
+
+    def explain(self, condition):
+
+
+        chain = []
+
+
+        connections = self.graph.find_connections(
+
+            condition
+
+        )
+
+
+        for item in connections:
+
+            chain.append(
+
+                {
+
+                "cause":
+
+                item["source"],
+
+
+                "effect":
+
+                item["target"]
+
+                }
+
+            )
+
+
+        return chain
+
+
+class Reasoner:
+
+
+    def explain_failure(
+
+        self,
+
+        causal_chain
+
+    ):
+
+
+        explanation = []
+
+
+        for step in causal_chain:
+
+
+            explanation.append(
+
+                f"{step['cause']} -> {step['effect']}"
+
+            )
+
+
+        return explanation
+
+
+
+Current State
+
+↓
+
+Simulation
+
+↓
+
+Possible Futures
+
+↓
+
+Best Action
+
+
+
+gedt_core/
+
+├── simulation/
+
+│   ├── model.py          ← New
+
+│   ├── scenario.py       ← New
+
+│   ├── simulator.py      ← New
+
+│   └── evaluator.py      ← New
+
+
+├── decision/
+
+│   └── engine.py
+
+
+from dataclasses import dataclass
+
+
+@dataclass
+class SimulationState:
+
+    temperature: float
+
+    vibration: float
+
+    energy_usage: float
+
+    risk: float
+
+
+class Scenario:
+
+
+    def __init__(
+
+        self,
+
+        name,
+
+        changes
+
+    ):
+
+        self.name = name
+
+        self.changes = changes
+
+
+
+class Simulator:
+
+
+    def run(
+
+        self,
+
+        state,
+
+        scenario
+
+    ):
+
+
+        new_temperature = (
+
+            state.temperature
+
+            +
+
+            scenario.changes.get(
+
+                "temperature",
+
+                0
+
+            )
+
+        )
+
+
+        new_energy = (
+
+            state.energy_usage
+
+            +
+
+            scenario.changes.get(
+
+                "energy_usage",
+
+                0
+
+            )
+
+        )
+
+
+        risk = (
+
+            new_temperature * 0.5
+
+            +
+
+            state.vibration * 5
+
+        )
+
+
+        return {
+
+            "scenario":
+
+            scenario.name,
+
+
+            "temperature":
+
+            new_temperature,
+
+
+            "energy":
+
+            new_energy,
+
+
+            "risk":
+
+            risk
+
+        }
+
+
+class Evaluator:
+
+
+    def rank(
+
+        self,
+
+        results
+
+    ):
+
+
+        return sorted(
+
+            results,
+
+            key=lambda x:
+
+            x["risk"]
+
+        )
+
+
+from simulation.model import SimulationState
+from simulation.scenario import Scenario
+from simulation.simulator import Simulator
+from simulation.evaluator import Evaluator
+
+
+
+state = SimulationState(
+
+    temperature=90,
+
+    vibration=7,
+
+    energy_usage=100,
+
+    risk=80
+
+)
+
+
+
+scenarios = [
+
+Scenario(
+
+    "Increase Cooling",
+
+    {
+
+    "temperature":-15,
+
+    "energy_usage":10
+
+    }
+
+),
+
+
+Scenario(
+
+    "Reduce Load",
+
+    {
+
+    "temperature":-8,
+
+    "energy_usage":-15
+
+    }
+
+)
+
+]
+
+
+
+simulator = Simulator()
+
+
+results=[]
+
+
+for scenario in scenarios:
+
+    results.append(
+
+        simulator.run(
+
+            state,
+
+            scenario
+
+        )
+
+    )
+
+
+
+best = Evaluator().rank(results)
+
+
+print(best)
+
+
+gedt_core/
+
+├── optimization/
+
+│   ├── objective.py
+
+│   ├── constraints.py
+
+│   ├── optimizer.py
+
+│   └── ranking.py
+
+
+├── decision/
+
+│   └── engine.py
+
+
+class Objective:
+
+
+    def __init__(
+
+        self,
+
+        name,
+
+        weight
+
+    ):
+
+        self.name = name
+
+        self.weight = weight
+
+
+class ConstraintManager:
+
+
+    def check(
+
+        self,
+
+        option
+
+    ):
+
+
+        if option["energy"] > 150:
+
+            return False
+
+
+        return True
+
+
+
+class Optimizer:
+
+
+    def calculate_score(
+
+        self,
+
+        option
+
+    ):
+
+
+        risk_score = (
+
+            100 - option["risk"]
+
+        )
+
+
+        energy_score = (
+
+            100 - option["energy"]
+
+        )
+
+
+        return (
+
+            risk_score * 0.7
+
+            +
+
+            energy_score * 0.3
+
+        )
+
+
+
+    def optimize(
+
+        self,
+
+        options
+
+    ):
+
+
+        ranked=[]
+
+
+        for option in options:
+
+
+            option["score"] = (
+
+                self.calculate_score(
+
+                    option
+
+                )
+
+            )
+
+
+            ranked.append(option)
+
+
+
+        return sorted(
+
+            ranked,
+
+            key=lambda x:
+
+            x["score"],
+
+            reverse=True
+
+        )
+
+
+
+
+class Ranking:
+
+
+    def best(
+
+        self,
+
+        results
+
+    ):
+
+
+        return results[0]
+
+
+from optimization.optimizer import Optimizer
+from optimization.ranking import Ranking
+
+
+
+simulation_results = [
+
+{
+
+"scenario":
+
+"Cooling Upgrade",
+
+"risk":
+
+40,
+
+"energy":
+
+130
+
+},
+
+
+{
+
+"scenario":
+
+"Load Reduction",
+
+"risk":
+
+55,
+
+"energy":
+
+85
+
+},
+
+
+{
+
+"scenario":
+
+"Maintenance",
+
+"risk":
+
+30,
+
+"energy":
+
+100
+
+}
+
+]
+
+
+
+optimizer = Optimizer()
+
+
+ranked = optimizer.optimize(
+
+    simulation_results
+
+)
+
+
+decision = Ranking().best(
+
+    ranked
+
+)
+
+
+print(decision)
+
+
+{
+scenario:
+
+"Maintenance",
+
+risk:
+
+30,
+
+energy:
+
+100,
+
+score:
+
+69
+}
+
+
+          GEDT Coordinator Agent
+
+                    ↓
+
+ ┌──────────┬──────────┬──────────┐
+
+ ↓          ↓          ↓
+
+Monitor   Reason    Optimize
+
+Agent     Agent     Agent
+
+                    ↓
+
+              Final Decision
+
+
+
+gedt_core/
+
+├── agents/
+
+│   ├── base.py
+
+│   ├── monitor.py
+
+│   ├── reasoning.py
+
+│   ├── simulation.py
+
+│   ├── optimizer.py
+
+│   ├── safety.py
+
+│   └── coordinator.py
+
+
+└── main.py
+
+
+
+class Agent:
+
+
+    def __init__(self, name):
+
+        self.name = name
+
+
+    def report(self, message):
+
+        return {
+
+            "agent": self.name,
+
+            "message": message
+
+        }
+
+
+
+
+from .base import Agent
+
+
+class MonitoringAgent(Agent):
+
+
+    def analyze(self, state):
+
+        alerts=[]
+
+
+        if state["temperature"] > 80:
+
+            alerts.append(
+                "High temperature detected"
+            )
+
+
+        if state["vibration"] > 5:
+
+            alerts.append(
+                "High vibration detected"
+            )
+
+
+        return self.report(alerts)
+
+
+
+
+class Optimizer:
+
+
+    def calculate_score(
+
+        self,
+
+        option
+
+    ):
+
+
+        risk_score = (
+
+            100 - option["risk"]
+
+        )
+
+
+        energy_score = (
+
+            100 - option["energy"]
+
+        )
+
+
+        return (
+
+            risk_score * 0.7
+
+            +
+
+            energy_score * 0.3
+
+        )
+
+
+
+    def optimize(
+
+        self,
+
+        options
+
+    ):
+
+
+        ranked=[]
+
+
+        for option in options:
+
+
+            option["score"] = (
+
+                self.calculate_score(
+
+                    option
+
+                )
+
+            )
+
+
+            ranked.append(option)
+
+
+
+        return sorted(
+
+            ranked,
+
+            key=lambda x:
+
+            x["score"],
+
+            reverse=True
+
+        )
+
+
+class Ranking:
+
+
+    def best(
+
+        self,
+
+        results
+
+    ):
+
+
+        return results[0]
+
+
+gedt_core/
+
+├── agents/
+
+│   ├── base.py
+
+│   ├── monitor.py
+
+│   ├── reasoning.py
+
+│   ├── simulation.py
+
+│   ├── optimizer.py
+
+│   ├── safety.py
+
+│   └── coordinator.py
+
+
+└── main.py
+
+
+
+
+
+class Agent:
+
+
+    def __init__(self, name):
+
+        self.name = name
+
+
+    def report(self, message):
+
+        return {
+
+            "agent": self.name,
+
+            "message": message
+
+        }
+
+
+
+from .base import Agent
+
+
+class MonitoringAgent(Agent):
+
+
+    def analyze(self, state):
+
+        alerts=[]
+
+
+        if state["temperature"] > 80:
+
+            alerts.append(
+                "High temperature detected"
+            )
+
+
+        if state["vibration"] > 5:
+
+            alerts.append(
+                "High vibration detected"
+            )
+
+
+        return self.report(alerts)
+
+
+
+from .base import Agent
+
+
+class ReasoningAgent(Agent):
+
+
+    def explain(self, alerts):
+
+        return self.report(
+
+            {
+
+            "cause":
+
+            "Thermal and mechanical stress",
+
+            "alerts":
+
+            alerts
+
+            }
+
+        )
+
+
+from .base import Agent
+
+
+class SimulationAgent(Agent):
+
+
+    def test_actions(self):
+
+        return self.report(
+
+            [
+
+            {
+
+            "action":
+
+            "Maintenance",
+
+            "risk":
+
+            20
+
+            },
+
+
+            {
+
+            "action":
+
+            "Continue Operation",
+
+            "risk":
+
+            80
+
+            }
+
+            ]
+
+        )
+
+
+from .base import Agent
+
+
+class OptimizationAgent(Agent):
+
+
+    def select(self, options):
+
+
+        best=min(
+
+            options,
+
+            key=lambda x:
+
+            x["risk"]
+
+        )
+
+
+        return self.report(best)
+
+
+
+from .base import Agent
+
+
+class SafetyAgent(Agent):
+
+
+    def validate(self, decision):
+
+        return self.report(
+
+            {
+
+            "approved":
+
+            True,
+
+            "decision":
+
+            decision
+
+            }
+
+        )
+
+
+
+from .monitor import MonitoringAgent
+from .reasoning import ReasoningAgent
+from .simulation import SimulationAgent
+from .optimizer import OptimizationAgent
+from .safety import SafetyAgent
+
+
+
+class GEDTCoordinator:
+
+
+    def __init__(self):
+
+        self.monitor = MonitoringAgent(
+            "Monitor"
+        )
+
+        self.reasoner = ReasoningAgent(
+            "Reasoner"
+        )
+
+        self.simulator = SimulationAgent(
+            "Simulator"
+        )
+
+        self.optimizer = OptimizationAgent(
+            "Optimizer"
+        )
+
+        self.safety = SafetyAgent(
+            "Safety"
+        )
+
+
+    def run(self, state):
+
+        monitoring = self.monitor.analyze(
+            state
+        )
+
+
+        reasoning = self.reasoner.explain(
+            monitoring
+        )
+
+
+        simulations = self.simulator.test_actions()
+
+
+        decision = self.optimizer.select(
+            simulations["message"]
+        )
+
+
+        approval = self.safety.validate(
+            decision
+        )
+
+
+        return {
+
+            "monitoring":
+
+            monitoring,
+
+            "reasoning":
+
+            reasoning,
+
+            "decision":
+
+            approval
+
+        }
+
+
+
+from agents.coordinator import GEDTCoordinator
+
+
+
+system_state = {
+
+
+"temperature": 92,
+
+"vibration": 8,
+
+"pressure": 110
+
+}
+
+
+
+gedt = GEDTCoordinator()
+
+
+
+result = gedt.run(
+
+    system_state
+
+)
+
+
+
+print(result)
+
+
+Decision
+
+↓
+
+Real Outcome
+
+↓
+
+Memory Update
+
+↓
+
+Learning
+
+↓
+
+Better Future Decisions
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
