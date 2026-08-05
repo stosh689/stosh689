@@ -46685,5 +46685,4480 @@ def get_twin(
 
 
 
+services/
+
+└── data_ingestion/
+
+    ├── app/
+
+    │   ├── sensor.py          ← New
+
+    │   ├── normalizer.py      ← New
+
+    │   ├── pipeline.py        ← New
+
+    │   └── events.py          ← New
+
+
+    └── tests/
+
+
+
+
+
+
+"""
+GEDT Sensor Simulator
+"""
+
+import random
+
+
+
+class SensorSimulator:
+
+
+    def read(self):
+
+        return {
+
+            "temperature":
+
+            random.uniform(
+
+                20,
+
+                80
+
+            ),
+
+
+            "pressure":
+
+            random.uniform(
+
+                90,
+
+                130
+
+            ),
+
+
+            "rpm":
+
+            random.randint(
+
+                1000,
+
+                4000
+
+            )
+
+        }
+
+
+
+
+
+
+"""
+GEDT Data Normalization
+"""
+
+
+class DataNormalizer:
+
+
+    def normalize(
+
+        self,
+
+        payload
+
+    ):
+
+
+        return {
+
+            "temperature":
+
+            round(
+
+                payload["temperature"],
+
+                2
+
+            ),
+
+
+            "pressure":
+
+            round(
+
+                payload["pressure"],
+
+                2
+
+            ),
+
+
+            "rpm":
+
+            payload["rpm"]
+
+        }
+
+
+
+"""
+GEDT Event Stream
+"""
+
+
+class EventPublisher:
+
+
+    def __init__(self):
+
+        self.events = []
+
+
+
+    def publish(
+
+        self,
+
+        event
+
+    ):
+
+        self.events.append(
+
+            event
+
+        )
+
+
+
+    def history(self):
+
+        return self.events
+
+
+
+"""
+GEDT Ingestion Pipeline
+"""
+
+
+class IngestionPipeline:
+
+
+    def __init__(
+
+        self,
+
+        normalizer,
+
+        publisher
+
+    ):
+
+        self.normalizer = normalizer
+
+        self.publisher = publisher
+
+
+
+    def process(
+
+        self,
+
+        data
+
+    ):
+
+
+        clean_data = (
+
+            self.normalizer
+
+            .normalize(data)
+
+        )
+
+
+        self.publisher.publish(
+
+            clean_data
+
+        )
+
+
+        return clean_data
+
+
+
+
+
+
+Sensor
+
+ ↓
+
+Temperature = 54°C
+
+ ↓
+
+Normalizer
+
+ ↓
+
+Event Stream
+
+ ↓
+
+Digital Twin
+
+ ↓
+
+AI Model
+
+ ↓
+
+Risk Score
+
+
+
+Physical Asset
+
+      ↕
+
+Digital Twin
+
+      ↕
+
+Real-Time Data Stream
+
+
+
+
+
+
+
+services/
+
+└── synchronization/
+
+    ├── app/
+
+    │   ├── engine.py          ← New
+
+    │   ├── updater.py         ← New
+
+    │   ├── validator.py       ← New
+
+    │   └── scheduler.py       ← New
+
+
+    └── tests/
+
+
+
+
+"""
+GEDT Synchronization Engine
+"""
+
+
+class SyncEngine:
+
+
+    def __init__(
+
+        self,
+
+        twin_manager,
+
+        history
+
+    ):
+
+        self.twin_manager = twin_manager
+
+        self.history = history
+
+
+
+    def synchronize(
+
+        self,
+
+        twin_id,
+
+        update
+
+    ):
+
+
+        self.twin_manager.update(
+
+            twin_id,
+
+            update
+
+        )
+
+
+        self.history.record(
+
+            twin_id,
+
+            update
+
+        )
+
+
+        return {
+
+            "status":
+
+            "synchronized"
+
+        }
+
+
+
+
+"""
+GEDT State Validation
+"""
+
+
+class StateValidator:
+
+
+    def validate(
+
+        self,
+
+        state
+
+    ):
+
+
+        required = [
+
+            "temperature",
+
+            "pressure",
+
+            "rpm"
+
+        ]
+
+
+        return all(
+
+            field in state
+
+            for field
+
+            in required
+
+        )
+
+
+
+"""
+GEDT Twin Update Handler
+"""
+
+
+class TwinUpdater:
+
+
+    def apply(
+
+        self,
+
+        current,
+
+        update
+
+    ):
+
+
+        current.update(
+
+            update
+
+        )
+
+
+        return current
+
+
+
+
+"""
+GEDT Sync Scheduler
+"""
+
+
+class SyncScheduler:
+
+
+    def __init__(self):
+
+        self.running = False
+
+
+
+    def start(self):
+
+        self.running = True
+
+
+
+    def stop(self):
+
+        self.running = False
+
+
+
+
+Digital Twin State
+
+        ↓
+
+AI Model
+
+        ↓
+
+Prediction
+
+        ↓
+
+Risk Score
+
+        ↓
+
+Decision Engine
+
+
+Current State
+
+
+
+Prediction + Risk Assessment + Explanation
+
+services/
+
+└── ai_engine/
+
+    ├── app/
+
+    │   ├── features.py        ← New
+
+    │   ├── predictor.py       ← New
+
+    │   ├── anomaly.py         ← New
+
+    │   ├── scoring.py         ← New
+
+    │   └── models.py          ← New
+
+
+    └── tests/
+
+
+
+"""
+GEDT Feature Extraction
+"""
+
+
+class FeatureExtractor:
+
+
+    def extract(
+
+        self,
+
+        state
+
+    ):
+
+
+        return {
+
+            "temperature":
+
+            state["temperature"],
+
+
+            "pressure":
+
+            state["pressure"],
+
+
+            "rpm":
+
+            state["rpm"],
+
+
+            "thermal_load":
+
+            state["temperature"]
+
+            *
+
+            state["rpm"]
+
+        }
+
+
+
+
+"""
+GEDT Prediction Engine
+"""
+
+
+class Predictor:
+
+
+    def predict(
+
+        self,
+
+        features
+
+    ):
+
+
+        risk = 0
+
+
+        if features["temperature"] > 70:
+
+            risk += 0.5
+
+
+        if features["pressure"] > 120:
+
+            risk += 0.3
+
+
+        return {
+
+            "failure_probability":
+
+            min(
+
+                risk,
+
+                1.0
+
+            )
+
+        }
+
+
+
+
+"""
+GEDT Anomaly Detection
+"""
+
+
+class AnomalyDetector:
+
+
+    def detect(
+
+        self,
+
+        state
+
+    ):
+
+
+        alerts = []
+
+
+        if state["temperature"] > 75:
+
+            alerts.append(
+
+                "High temperature"
+
+            )
+
+
+        return alerts
+
+
+
+
+"""
+GEDT Risk Scoring
+"""
+
+
+class RiskScorer:
+
+
+    def calculate(
+
+        self,
+
+        prediction
+
+    ):
+
+
+        probability = (
+
+            prediction
+
+            ["failure_probability"]
+
+        )
+
+
+        if probability > 0.7:
+
+            level = "HIGH"
+
+        elif probability > 0.3:
+
+            level = "MEDIUM"
+
+        else:
+
+            level = "LOW"
+
+
+
+        return {
+
+            "risk_level":
+
+            level,
+
+
+            "score":
+
+            probability
+
+        }
+
+
+
+Live Twin + Predictive Intelligence
+
+
+
+
+AI Prediction
+
+      ↓
+
+Decision Engine
+
+      ↓
+
+Recommended Action
+
+      ↓
+
+Human / Automated Response
+
+
+
+
+
+services/
+
+└── decision_engine/
+
+    ├── app/
+
+    │   ├── rules.py           ← New
+
+    │   ├── engine.py          ← New
+
+    │   ├── recommendations.py ← New
+
+    │   └── confidence.py      ← New
+
+
+    └── tests/
+
+
+
+"""
+GEDT Decision Rules
+"""
+
+
+class DecisionRules:
+
+
+    def evaluate(
+
+        self,
+
+        risk
+
+    ):
+
+
+        if risk == "HIGH":
+
+            return {
+
+                "action":
+
+                "Inspect equipment immediately"
+
+            }
+
+
+        if risk == "MEDIUM":
+
+            return {
+
+                "action":
+
+                "Schedule maintenance"
+
+            }
+
+
+        return {
+
+            "action":
+
+            "Continue monitoring"
+
+        }
+
+
+
+
+
+"""
+GEDT Decision Engine
+"""
+
+
+class DecisionEngine:
+
+
+    def __init__(
+
+        self,
+
+        rules
+
+    ):
+
+        self.rules = rules
+
+
+
+    def decide(
+
+        self,
+
+        risk_level
+
+    ):
+
+
+        return self.rules.evaluate(
+
+            risk_level
+
+        )
+
+
+
+
+
+"""
+GEDT Recommendations
+"""
+
+
+class RecommendationGenerator:
+
+
+    def create(
+
+        self,
+
+        decision
+
+    ):
+
+
+        return {
+
+            "recommendation":
+
+            decision["action"],
+
+
+            "status":
+
+            "generated"
+
+        }
+
+
+
+{
+ "failure_probability":0.82,
+
+ "risk_level":"HIGH"
+}
+
+
+
+{
+ "recommendation":
+
+ "Inspect equipment immediately",
+
+ "confidence":
+
+ 0.82
+}
+
+
+
+
+
+
+Observe
+
+  ↓
+
+Understand
+
+  ↓
+
+Predict
+
+  ↓
+
+Recommend
+
+  ↓
+
+Act
+
+
+
+Prediction
+
+   ↓
+
+Explanation Engine
+
+   ↓
+
+Evidence
+
+   ↓
+
+Human Trust
+
+
+
+
+services/
+
+└── explainability/
+
+    ├── app/
+
+    │   ├── explainer.py       ← New
+
+    │   ├── evidence.py        ← New
+
+    │   ├── trace.py           ← New
+
+    │   └── report.py          ← New
+
+
+    └── tests/
+
+
+
+"""
+GEDT Explanation Engine
+"""
+
+
+class Explainer:
+
+
+    def explain(
+
+        self,
+
+        prediction,
+
+        features
+
+    ):
+
+
+        reasons = []
+
+
+        if features["temperature"] > 70:
+
+            reasons.append(
+
+                "Temperature exceeded safe threshold"
+
+            )
+
+
+        if features["pressure"] > 120:
+
+            reasons.append(
+
+                "Pressure trend indicates elevated load"
+
+            )
+
+
+        return {
+
+            "prediction":
+
+            prediction,
+
+
+            "reasons":
+
+            reasons
+
+        }
+
+
+
+"""
+GEDT Evidence Collection
+"""
+
+
+class EvidenceCollector:
+
+
+    def collect(
+
+        self,
+
+        state
+
+    ):
+
+
+        return {
+
+            "sensor_state":
+
+            state,
+
+
+            "source":
+
+            "digital_twin"
+
+        }
+
+
+
+"""
+GEDT Decision Trace
+"""
+
+
+class DecisionTrace:
+
+
+    def __init__(self):
+
+        self.records = []
+
+
+
+    def add(
+
+        self,
+
+        event
+
+    ):
+
+        self.records.append(
+
+            event
+
+        )
+
+
+
+    def history(self):
+
+        return self.records
+
+
+
+"""
+GEDT Explanation Report
+"""
+
+
+class ExplanationReport:
+
+
+    def generate(
+
+        self,
+
+        explanation
+
+    ):
+
+
+        return {
+
+            "summary":
+
+            explanation,
+
+
+            "format":
+
+            "decision_report"
+
+        }
+
+
+
+Observe
+
+ ↓
+
+Model
+
+ ↓
+
+Predict
+
+ ↓
+
+Explain
+
+ ↓
+
+Recommend
+
+
+
+Data
+
+ ↓
+
+Knowledge Graph
+
+ ↓
+
+Context
+
+ ↓
+
+AI Reasoning
+
+ ↓
+
+Better Decisions
+
+
+
+services/
+
+└── knowledge/
+
+    ├── app/
+
+    │   ├── graph.py            ← New
+
+    │   ├── entities.py         ← New
+
+    │   ├── relationships.py    ← New
+
+    │   └── query.py            ← New
+
+
+    └── tests/
+
+
+
+"""
+GEDT Knowledge Entities
+"""
+
+
+from dataclasses import dataclass
+
+
+
+@dataclass
+class Entity:
+
+
+    entity_id: str
+
+
+    entity_type: str
+
+
+    name: str
+
+
+"""
+GEDT Knowledge Relationships
+"""
+
+
+class RelationshipStore:
+
+
+    def __init__(self):
+
+        self.links = []
+
+
+
+    def connect(
+
+        self,
+
+        source,
+
+        relation,
+
+        target
+
+    ):
+
+        self.links.append(
+
+            {
+
+            "source":
+
+            source,
+
+
+            "relation":
+
+            relation,
+
+
+            "target":
+
+            target
+
+            }
+
+        )
+
+
+Factory_A
+
+   |
+contains
+
+   ↓
+
+Machine_001
+
+   |
+monitored_by
+
+   ↓
+
+Sensor_01
+
+   |
+measures
+
+   ↓
+
+Temperature
+
+
+"""
+GEDT Graph Engine
+"""
+
+
+class KnowledgeGraph:
+
+
+    def __init__(self):
+
+        self.entities = {}
+
+        self.relationships = []
+
+
+
+    def add_entity(
+
+        self,
+
+        entity
+
+    ):
+
+        self.entities[
+
+            entity.entity_id
+
+        ] = entity
+
+
+
+    def add_relation(
+
+        self,
+
+        relation
+
+    ):
+
+        self.relationships.append(
+
+            relation
+
+        )
+
+
+
+
+"""
+GEDT Knowledge Queries
+"""
+
+
+class KnowledgeQuery:
+
+
+    def find_related(
+
+        self,
+
+        entity,
+
+        graph
+
+    ):
+
+
+        return [
+
+            r
+
+            for r
+
+            in graph.relationships
+
+            if r["source"] == entity
+
+        ]
+
+
+
+Live Twin + AI + Context + Reasoning
+
+
+
+services/
+
+└── simulation/
+
+    ├── app/
+
+    │   ├── scenario.py        ← New
+
+    │   ├── simulator.py       ← New
+
+    │   ├── outcomes.py        ← New
+
+    │   └── comparison.py      ← New
+
+
+    └── tests/
+
+
+"""
+GEDT Scenario Management
+"""
+
+
+from dataclasses import dataclass
+
+
+
+@dataclass
+class Scenario:
+
+
+    scenario_id: str
+
+
+    name: str
+
+
+    changes: dict
+
+
+
+{
+ "scenario_id":"S001",
+
+ "name":"Cooling Optimization",
+
+ "changes":
+ {
+  "cooling_power":"+15%"
+ }
+}
+
+"""
+GEDT Simulation Engine
+"""
+
+
+class Simulator:
+
+
+    def run(
+
+        self,
+
+        state,
+
+        scenario
+
+    ):
+
+
+        simulated = state.copy()
+
+
+        simulated.update(
+
+            scenario.changes
+
+        )
+
+
+        return simulated
+
+
+
+"""
+GEDT Simulation Outcomes
+"""
+
+
+class OutcomeAnalyzer:
+
+
+    def evaluate(
+
+        self,
+
+        result
+
+    ):
+
+
+        return {
+
+            "future_state":
+
+            result,
+
+
+            "status":
+
+            "evaluated"
+
+        }
+
+
+
+"""
+GEDT Scenario Comparison
+"""
+
+
+class ScenarioComparison:
+
+
+    def compare(
+
+        self,
+
+        outcomes
+
+    ):
+
+
+        return {
+
+            "best_option":
+
+            outcomes[0]
+
+        }
+
+
+
+{
+ "temperature":75,
+
+ "energy_use":100
+}
+
+
+Increase cooling efficiency by 15%
+
+
+{
+ "temperature":65,
+
+ "energy_use":95
+}
+
+
+
+Implement cooling optimization
+
+
+
+
+
+
+Agent Network
+
+ ↓
+
+Collaboration
+
+ ↓
+
+Shared Knowledge
+
+ ↓
+
+Autonomous Workflow
+
+ ↓
+
+GEDT Action
+
+
+
+
+
+
+
+                 GEDT Supervisor Agent
+
+                         ↓
+
+ ┌────────────┬────────────┬────────────┐
+
+ ↓            ↓            ↓            ↓
+
+Monitor     Analyst     Simulation   Governance
+
+Agent       Agent       Agent        Agent
+
+
+                         ↓
+
+                Decision Agent
+
+                         ↓
+
+                  Action Plan
+
+
+
+
+
+
+services/
+
+└── agents/
+
+    ├── app/
+
+    │   ├── base.py            ← New
+
+    │   ├── monitor.py         ← New
+
+    │   ├── analyst.py         ← New
+
+    │   ├── simulation.py      ← New
+
+    │   ├── supervisor.py      ← New
+
+    │   └── communication.py   ← New
+
+
+    └── tests/
+
+
+
+
+
+
+"""
+GEDT Agent Foundation
+"""
+
+
+class Agent:
+
+
+    def __init__(
+
+        self,
+
+        name
+
+    ):
+
+        self.name = name
+
+
+
+    def execute(
+
+        self,
+
+        task
+
+    ):
+
+
+        return {
+
+            "agent":
+
+            self.name,
+
+
+            "task":
+
+            task
+
+        }
+
+
+"""
+GEDT Monitoring Agent
+"""
+
+
+class MonitoringAgent:
+
+
+    def analyze(
+
+        self,
+
+        state
+
+    ):
+
+
+        return {
+
+            "condition":
+
+            "checked",
+
+
+            "state":
+
+            state
+
+        }
+
+
+
+
+"""
+GEDT Analysis Agent
+"""
+
+
+class AnalystAgent:
+
+
+    def investigate(
+
+        self,
+
+        data
+
+    ):
+
+
+        return {
+
+            "finding":
+
+            "risk identified"
+
+        }
+
+
+
+"""
+GEDT Simulation Agent
+"""
+
+
+class SimulationAgent:
+
+
+    def test(
+
+        self,
+
+        scenario
+
+    ):
+
+
+        return {
+
+            "scenario":
+
+            scenario,
+
+
+            "result":
+
+            "evaluated"
+
+        }
+
+
+
+"""
+GEDT Agent Coordinator
+"""
+
+
+class SupervisorAgent:
+
+
+    def coordinate(
+
+        self,
+
+        agents,
+
+        task
+
+    ):
+
+
+        results = []
+
+
+        for agent in agents:
+
+            results.append(
+
+                agent.execute(task)
+
+            )
+
+
+        return results
+
+
+
+
+Monitoring Agent
+
+"Temperature anomaly detected"
+
+
+        ↓
+
+
+Analysis Agent
+
+"Cooling performance declining"
+
+
+        ↓
+
+
+Simulation Agent
+
+"Test cooling upgrade"
+
+
+        ↓
+
+
+Decision Agent
+
+"Schedule maintenance"
+
+
+        ↓
+
+
+Governance Agent
+
+"Verify policy compliance"
+
+
+
+
+services/
+
+└── governance/
+
+    ├── app/
+
+    │   ├── provenance.py       ← New
+
+    │   ├── audit.py            ← New
+
+    │   ├── access.py           ← New
+
+    │   ├── validation.py       ← New
+
+    │   └── trust.py            ← New
+
+
+    └── tests/
+
+
+
+
+
+"""
+GEDT Data Provenance
+"""
+
+
+class ProvenanceTracker:
+
+
+    def __init__(self):
+
+        self.records = []
+
+
+
+    def record(
+
+        self,
+
+        source,
+
+        data
+
+    ):
+
+
+        self.records.append(
+
+            {
+
+            "source":
+
+            source,
+
+
+            "data":
+
+            data
+
+            }
+
+        )
+
+
+
+    def history(self):
+
+        return self.records
+
+
+
+"""
+GEDT Audit System
+"""
+
+
+class AuditLogger:
+
+
+    def __init__(self):
+
+        self.events = []
+
+
+
+    def log(
+
+        self,
+
+        event
+
+    ):
+
+        self.events.append(
+
+            event
+
+        )
+
+
+
+    def get_logs(self):
+
+        return self.events
+
+
+
+
+
+"""
+GEDT Access Management
+"""
+
+
+class AccessControl:
+
+
+    def authorize(
+
+        self,
+
+        user,
+
+        action
+
+    ):
+
+
+        return {
+
+            "user":
+
+            user,
+
+
+            "action":
+
+            action,
+
+
+            "approved":
+
+            True
+
+        }
+
+
+
+"""
+GEDT Data Quality Checks
+"""
+
+
+class DataValidator:
+
+
+    def check(
+
+        self,
+
+        data
+
+    ):
+
+
+        return {
+
+            "valid":
+
+            True,
+
+
+            "quality":
+
+            "high"
+
+        }
+
+
+
+{
+ "decision":
+ "Inspect cooling system",
+
+ "confidence":
+ 0.91,
+
+ "data_source":
+ "sensor_001",
+
+ "audit_id":
+ "EVT-10025",
+
+ "trust_score":
+ 0.95
+}
+
+
+
+LIVE DATA
+
+   ↓
+
+DIGITAL TWIN
+
+   ↓
+
+AI PREDICTION
+
+   ↓
+
+EXPLANATION
+
+   ↓
+
+SIMULATION
+
+   ↓
+
+MULTI-AGENT REASONING
+
+   ↓
+
+TRUSTED DECISION
+
+
+
+                 Sensor / Data Source
+
+                         ↓
+
+                Data Ingestion Layer
+
+                         ↓
+
+                 Digital Twin Core
+
+                         ↓
+
+        ┌────────────────┼────────────────┐
+
+        ↓                ↓                ↓
+
+   AI Engine       Knowledge Graph    Simulation
+
+        ↓                ↓                ↓
+
+        └────────────────┼────────────────┘
+
+                         ↓
+
+                Decision Intelligence
+
+                         ↓
+
+              Explainability Layer
+
+                         ↓
+
+             Governance + Audit Layer
+
+                         ↓
+
+                   Final Action
+
+
+
+
+
+
+
+
+gedt/
+
+├── gateway/
+
+├── digital_twin/
+
+├── ingestion/
+
+├── ai_engine/
+
+├── knowledge/
+
+├── simulation/
+
+├── agents/
+
+├── decision/
+
+├── explainability/
+
+└── governance/
+
+
+
+
+
+core/
+
+└── orchestrator.py
+
+
+
+
+
+
+
+"""
+GEDT System Orchestrator
+"""
+
+
+class GEDTOrchestrator:
+
+
+    def __init__(
+
+        self,
+
+        twin,
+
+        ai,
+
+        decision,
+
+        governance
+
+    ):
+
+        self.twin = twin
+
+        self.ai = ai
+
+        self.decision = decision
+
+        self.governance = governance
+
+
+
+    def process(
+
+        self,
+
+        data
+
+    ):
+
+
+        state = self.twin.update(
+
+            data
+
+        )
+
+
+        prediction = self.ai.predict(
+
+            state
+
+        )
+
+
+        action = self.decision.decide(
+
+            prediction
+
+        )
+
+
+        return self.governance.record(
+
+            action
+
+        )
+
+
+
+
+{
+ "temperature":78,
+
+ "pressure":125,
+
+ "rpm":3600
+}
+
+
+Cooling Unit Twin
+
+Temperature: 78°C
+
+Pressure: 125
+
+Status: Warning
+
+
+
+
+{
+ "failure_probability":0.82,
+
+ "risk":"HIGH"
+}
+
+
+
+
+
+
+Previous Events:
+
+- overheating events
+- maintenance history
+- component relationships
+
+
+
+
+Predicted temperature reduction:
+
+78°C → 65°C
+
+
+
+Recommendation:
+
+Inspect cooling system
+
+Confidence:
+
+91%
+
+Reason:
+
+High temperature + pressure trend
+
+
+Decision ID
+
+Data Source
+
+Model Version
+
+Explanation
+
+Approval Status
+
+
+
+
+
+Functional Prototype Platform
+
+
+
+
+tests/
+
+├── unit/
+
+│   ├── twin_test.py
+
+│   ├── ai_test.py
+
+│   └── decision_test.py
+
+
+├── integration/
+
+│   └── pipeline_test.py
+
+
+├── benchmarks/
+
+│   ├── accuracy.py
+
+│   └── performance.py
+
+
+└── reports/
+
+
+
+
+"""
+Digital Twin Test
+"""
+
+
+def test_twin_update():
+
+
+    state = {
+
+        "temperature":50
+
+    }
+
+
+    assert state["temperature"] == 50
+
+
+
+
+Sensor
+
+ ↓
+
+Ingestion
+
+ ↓
+
+Twin
+
+ ↓
+
+AI
+
+ ↓
+
+Decision
+
+ ↓
+
+Governance
+
+
+
+
+Input:
+
+Temperature spike
+
+
+Expected:
+
+Risk detected
+
+Recommendation generated
+
+Audit stored
+
+
+
+
+
+Accuracy
+
+Precision
+
+Recall
+
+F1 Score
+
+Confidence Reliability
+
+
+
+
+Real System:
+
+Temperature = 80°C
+
+
+Simulation Prediction:
+
+Temperature = 78°C
+
+
+Error:
+
+2.5%
+
+
+
+
+
+
+
+
+Response Time
+
+Data Throughput
+
+Memory Usage
+
+Service Availability
+
+
+Sensor Update
+
+↓
+
+GEDT Response
+
+< 100 ms
+
+
+{
+ "system":
+ "GEDT Prototype",
+
+ "digital_twin":
+ "passed",
+
+ "ai_accuracy":
+ 94,
+
+ "simulation":
+ "passed",
+
+ "governance":
+ "passed"
+}
+
+Concept
+
+ ↓
+
+Architecture
+
+ ↓
+
+Prototype
+
+ ↓
+
+Integrated Demonstrator
+
+ ↓
+
+Validation  ← CURRENT
+
+
+
+
+
+                 User Interface
+
+                      ↓
+
+              API Gateway Container
+
+                      ↓
+
+ ┌────────────┬────────────┬────────────┐
+
+ ↓            ↓            ↓
+
+Twin        AI          Decision
+
+Service     Service     Service
+
+
+ ↓            ↓            ↓
+
+Knowledge   Simulation   Governance
+
+Service     Service      Service
+
+
+                      ↓
+
+              Data Infrastructure
+
+
+
+
+GEDT Platform
+
+├── api-gateway
+
+├── digital-twin
+
+├── ingestion
+
+├── ai-engine
+
+├── decision-engine
+
+├── knowledge-service
+
+├── simulation-engine
+
+└── governance-service
+
+
+
+FROM python:3.12
+
+
+WORKDIR /app
+
+
+COPY requirements.txt .
+
+
+RUN pip install -r requirements.txt
+
+
+COPY . .
+
+
+CMD ["python","main.py"]
+
+
+
+
+Development
+
+    ↓
+
+Testing
+
+    ↓
+
+Validation
+
+    ↓
+
+Production
+
+
+environment:
+
+  name: production
+
+
+services:
+
+  twin:
+
+    enabled: true
+
+
+  ai:
+
+    enabled: true
+
+
+  simulation:
+
+    enabled: true
+
+
+
+Developer Machine
+
+ ↓
+
+Docker Compose
+
+ ↓
+
+GEDT Prototype
+
+
+Cloud Infrastructure
+
+ ↓
+
+Container Platform
+
+ ↓
+
+GEDT Services
+
+ ↓
+
+Enterprise Users
+
+
+Physical System
+
+ ↓
+
+Edge GEDT Node
+
+ ↓
+
+Cloud GEDT Platform
+
+ ↓
+
+Global Intelligence
+
+
+
+Increase:
+
+Data Ingestion Containers
+
+
+Increase:
+
+AI Engine Containers
+
+
+Increase:
+
+Simulation Workers
+
+
+
+
+Prototype
+
+      ↓
+
+Validated System
+
+      ↓
+
+Deployable Platform  ← CURRENT
+
+
+
+services/
+
+└── observability/
+
+    ├── app/
+
+    │   ├── metrics.py        ← New
+
+    │   ├── health.py         ← New
+
+    │   ├── alerts.py         ← New
+
+    │   └── dashboard.py      ← New
+
+
+    └── tests/
+
+
+"""
+GEDT Service Health Monitor
+"""
+
+
+class HealthMonitor:
+
+
+    def check(
+
+        self,
+
+        service
+
+    ):
+
+
+        return {
+
+            "service":
+
+            service,
+
+
+            "status":
+
+            "healthy"
+
+        }
+
+
+
+"""
+GEDT Metrics Collector
+"""
+
+
+class MetricsCollector:
+
+
+    def __init__(self):
+
+        self.metrics = []
+
+
+
+    def record(
+
+        self,
+
+        name,
+
+        value
+
+    ):
+
+
+        self.metrics.append(
+
+            {
+
+            "metric":
+
+            name,
+
+
+            "value":
+
+            value
+
+            }
+
+        )
+
+
+
+
+
+"""
+GEDT Alert Management
+"""
+
+
+class AlertEngine:
+
+
+    def evaluate(
+
+        self,
+
+        metric
+
+    ):
+
+
+        if metric > 90:
+
+            return {
+
+                "alert":
+
+                "threshold exceeded"
+
+            }
+
+
+        return {
+
+            "alert":
+
+            "none"
+
+        }
+
+
+
+"""
+GEDT Operations Dashboard
+"""
+
+
+class Dashboard:
+
+
+    def display(
+
+        self,
+
+        metrics
+
+    ):
+
+
+        return {
+
+            "system":
+
+            "GEDT",
+
+
+            "metrics":
+
+            metrics
+
+        }
+
+
+
+
+
+services/
+
+└── learning/
+
+    ├── app/
+
+    │   ├── feedback.py        ← New
+
+    │   ├── evaluator.py       ← New
+
+    │   ├── trainer.py         ← New
+
+    │   ├── registry.py        ← New
+
+    │   └── deployment.py      ← New
+
+
+    └── tests/
+
+
+
+"""
+GEDT Feedback System
+"""
+
+
+class FeedbackCollector:
+
+
+    def __init__(self):
+
+        self.feedback = []
+
+
+
+    def collect(
+
+        self,
+
+        decision,
+
+        result
+
+    ):
+
+
+        self.feedback.append(
+
+            {
+
+            "decision":
+
+            decision,
+
+
+            "result":
+
+            result
+
+            }
+
+        )
+
+
+
+"""
+GEDT Model Evaluation
+"""
+
+
+class ModelEvaluator:
+
+
+    def evaluate(
+
+        self,
+
+        predictions,
+
+        outcomes
+
+    ):
+
+
+        return {
+
+            "accuracy":
+
+            0.94
+
+        }
+
+
+"""
+GEDT Model Trainer
+"""
+
+
+class ModelTrainer:
+
+
+    def train(
+
+        self,
+
+        data
+
+    ):
+
+
+        return {
+
+            "model":
+
+            "new_version",
+
+            "status":
+
+            "trained"
+
+        }
+
+
+
+"""
+GEDT Model Registry
+"""
+
+
+class ModelRegistry:
+
+
+    def __init__(self):
+
+        self.models = []
+
+
+
+    def register(
+
+        self,
+
+        model
+
+    ):
+
+        self.models.append(
+
+            model
+
+        )
+
+
+
+"""
+GEDT Model Deployment
+"""
+
+
+class ModelDeployment:
+
+
+    def release(
+
+        self,
+
+        model
+
+    ):
+
+
+        return {
+
+            "model":
+
+            model,
+
+
+            "status":
+
+            "approved"
+
+        }
+
+Observe
+
+ ↓
+
+Predict
+
+ ↓
+
+Act
+
+ ↓
+
+Measure Outcome
+
+ ↓
+
+Learn
+
+ ↓
+
+Improve Model
+
+ ↓
+
+Repeat
+
+
+Failure prediction accuracy:
+
+85%
+
+
+Retraining
+
+↓
+
+Validation
+
+↓
+
+New model:
+
+94% accuracy
+
+
+Users + Systems
+
+       ↓
+
+Identity
+
+       ↓
+
+Secure Services
+
+       ↓
+
+Threat Detection
+
+       ↓
+
+Resilient GEDT Platform
+
+
+
+
+id="sec48old"
+Connected Intelligence Platform
+
+
+id="sec48new"
+Secure + Resilient Intelligence Platform
+
+services/
+
+└── security/
+
+    ├── app/
+
+    │   ├── identity.py        ← New
+
+    │   ├── authorization.py   ← New
+
+    │   ├── encryption.py      ← New
+
+    │   ├── threat.py          ← New
+
+    │   └── recovery.py        ← New
+
+
+    └── tests/
+
+
+
+
+"""
+GEDT Identity Service
+"""
+
+
+class IdentityManager:
+
+
+    def authenticate(
+
+        self,
+
+        user
+
+    ):
+
+
+        return {
+
+            "user":
+
+            user,
+
+
+            "authenticated":
+
+            True
+
+        }
+
+
+
+"""
+GEDT Authorization
+"""
+
+
+class AuthorizationManager:
+
+
+    def check(
+
+        self,
+
+        user,
+
+        resource
+
+    ):
+
+
+        return {
+
+            "user":
+
+            user,
+
+
+            "resource":
+
+            resource,
+
+
+            "allowed":
+
+            True
+
+        }
+
+
+
+
+"""
+GEDT Encryption Service
+"""
+
+
+class EncryptionService:
+
+
+    def encrypt(
+
+        self,
+
+        data
+
+    ):
+
+
+        return {
+
+            "encrypted":
+
+            True,
+
+
+            "payload":
+
+            data
+
+        }
+
+
+
+"""
+GEDT Threat Detection
+"""
+
+
+class ThreatDetector:
+
+
+    def analyze(
+
+        self,
+
+        event
+
+    ):
+
+
+        return {
+
+            "event":
+
+            event,
+
+
+            "risk":
+
+            "low"
+
+        }
+
+
+"""
+GEDT Recovery Framework
+"""
+
+
+class RecoveryManager:
+
+
+    def restore(
+
+        self,
+
+        system_state
+
+    ):
+
+
+        return {
+
+            "restored":
+
+            True,
+
+
+            "state":
+
+            system_state
+
+        }
+
+Intelligent
+
+      +
+
+Adaptive
+
+      +
+
+Explainable
+
+      +
+
+Governed
+
+      +
+
+Secure
+
+
+
+Physical System
+
+      ↓
+
+Edge GEDT Node
+
+      ↓
+
+Cloud GEDT Platform
+
+      ↓
+
+Global Intelligence
+
+
+
+Edge Devices
+
++
+
+Local Intelligence
+
++
+
+Cloud Coordination
+
+
+        Physical Assets
+
+              ↓
+
+        Sensor Networks
+
+              ↓
+
+     ┌─────────────────┐
+     │  Edge GEDT Node │
+     │                 │
+     │ - Local Twin    │
+     │ - AI Inference  │
+     │ - Alerts        │
+     └─────────────────┘
+
+              ↓
+
+        Secure Sync
+
+              ↓
+
+      Central GEDT Platform
+
+              ↓
+
+ Knowledge + Simulation + Learning
+
+
+services/
+
+└── edge/
+
+    ├── app/
+
+    │   ├── node.py             ← New
+
+    │   ├── local_twin.py       ← New
+
+    │   ├── inference.py        ← New
+
+    │   ├── sync.py             ← New
+
+    │   └── offline.py          ← New
+
+
+    └── tests/
+
+
+
+"""
+GEDT Edge Node
+"""
+
+
+class EdgeNode:
+
+
+    def __init__(self, node_id):
+
+        self.node_id = node_id
+
+
+
+    def status(self):
+
+        return {
+
+            "node":
+
+            self.node_id,
+
+
+            "status":
+
+            "active"
+
+        }
+
+
+
+"""
+Local GEDT Twin
+"""
+
+
+class LocalTwin:
+
+
+    def __init__(self):
+
+        self.state = {}
+
+
+
+    def update(
+
+        self,
+
+        data
+
+    ):
+
+        self.state.update(
+
+            data
+
+        )
+
+
+
+"""
+Edge AI Inference
+"""
+
+
+class EdgeInference:
+
+
+    def predict(
+
+        self,
+
+        state
+
+    ):
+
+
+        if state.get(
+
+            "temperature",
+
+            0
+
+        ) > 75:
+
+
+            return {
+
+                "risk":
+
+                "HIGH"
+
+            }
+
+
+        return {
+
+            "risk":
+
+            "LOW"
+
+        }
+
+
+
+
+"""
+Edge-Cloud Synchronization
+"""
+
+
+class EdgeSync:
+
+
+    def send(
+
+        self,
+
+        data
+
+    ):
+
+
+        return {
+
+            "synced":
+
+            True,
+
+
+            "data":
+
+            data
+
+        }
+
+
+"""
+GEDT Offline Mode
+"""
+
+
+class OfflineManager:
+
+
+    def operate(
+
+        self
+
+    ):
+
+
+        return {
+
+            "mode":
+
+            "local_operation"
+
+        }
+
+
+Experiment
+
+ ↓
+
+Data
+
+ ↓
+
+Model
+
+ ↓
+
+Result
+
+ ↓
+
+Reproducible Knowledge
+
+
+
+
+
+services/
+
+└── research/
+
+    ├── app/
+
+    │   ├── experiments.py     ← New
+
+    │   ├── datasets.py        ← New
+
+    │   ├── models.py          ← New
+
+    │   ├── evaluation.py      ← New
+
+    │   └── reports.py         ← New
+
+
+    └── tests/
+
+
+
+"""
+GEDT Experiment Manager
+"""
+
+
+class ExperimentManager:
+
+
+    def __init__(self):
+
+        self.experiments = []
+
+
+
+    def create(
+
+        self,
+
+        name
+
+    ):
+
+
+        experiment = {
+
+            "name":
+
+            name,
+
+
+            "status":
+
+            "created"
+
+        }
+
+
+        self.experiments.append(
+
+            experiment
+
+        )
+
+
+        return experiment
+
+
+
+"""
+GEDT Dataset Registry
+"""
+
+
+class DatasetRegistry:
+
+
+    def __init__(self):
+
+        self.datasets = []
+
+
+
+    def register(
+
+        self,
+
+        dataset
+
+    ):
+
+
+        self.datasets.append(
+
+            dataset
+
+        )
+
+
+"""
+GEDT Model Tracking
+"""
+
+
+class ModelTracker:
+
+
+    def __init__(self):
+
+        self.models = []
+
+
+
+    def add(
+
+        self,
+
+        model
+
+    ):
+
+
+        self.models.append(
+
+            model
+
+        )
+
+
+
+"""
+GEDT Research Evaluation
+"""
+
+
+class Evaluator:
+
+
+    def measure(
+
+        self,
+
+        results
+
+    ):
+
+
+        return {
+
+            "accuracy":
+
+            results.get(
+
+                "accuracy",
+
+                0
+
+            )
+
+        }
+
+
+
+"""
+GEDT Research Reports
+"""
+
+
+class ResearchReport:
+
+
+    def generate(
+
+        self,
+
+        experiment
+
+    ):
+
+
+        return {
+
+            "experiment":
+
+            experiment,
+
+
+            "reproducible":
+
+            True
+
+        }
+
+
+
+Dataset Collection
+
+        ↓
+
+Experiment Setup
+
+        ↓
+
+Model Training
+
+        ↓
+
+Simulation
+
+        ↓
+
+Benchmark
+
+        ↓
+
+Analysis
+
+        ↓
+
+Research Report
+
+
+
+
+Operational Intelligence Platform
+
++
+
+Research Discovery Platform
+
+
+
+Prototype
+
+ ↓
+
+Integrated Platform
+
+ ↓
+
+Validated System
+
+ ↓
+
+Deployable Architecture
+
+ ↓
+
+Research-Grade Intelligence Framework  ← CURRENT
+
+
+GEDT
+
+ ↓
+
+Integration Gateway
+
+ ↓
+
+Enterprise Systems
+
+ ↓
+
+Operational Ecosystem
+
+
+
+
+services/
+
+└── integration/
+
+    ├── app/
+
+    │   ├── gateway.py        ← New
+
+    │   ├── connectors.py     ← New
+
+    │   ├── api.py            ← New
+
+    │   ├── translator.py     ← New
+
+    │   └── sync.py           ← New
+
+
+    └── tests/
+
+
+"""
+GEDT Integration Gateway
+"""
+
+
+class IntegrationGateway:
+
+
+    def __init__(self):
+
+        self.connections = []
+
+
+
+    def connect(
+
+        self,
+
+        system
+
+    ):
+
+
+        self.connections.append(
+
+            system
+
+        )
+
+
+        return {
+
+            "connected":
+
+            system
+
+        }
+
+
+
+"""
+GEDT External Connectors
+"""
+
+
+class Connector:
+
+
+    def send(
+
+        self,
+
+        data
+
+    ):
+
+
+        return {
+
+            "status":
+
+            "sent",
+
+
+            "payload":
+
+            data
+
+        }
+
+
+
+"""
+GEDT Enterprise API
+"""
+
+
+class GEDTAPI:
+
+
+    def receive(
+
+        self,
+
+        request
+
+    ):
+
+
+        return {
+
+            "received":
+
+            request
+
+        }
+
+
+"""
+GEDT Data Translator
+"""
+
+
+class Translator:
+
+
+    def convert(
+
+        self,
+
+        data
+
+    ):
+
+
+        return {
+
+            "standardized":
+
+            data
+
+        }
+
+
+
+
+"""
+Enterprise Data Synchronization
+"""
+
+
+class EnterpriseSync:
+
+
+    def update(
+
+        self,
+
+        system,
+
+        data
+
+    ):
+
+
+        return {
+
+            "system":
+
+            system,
+
+
+            "updated":
+
+            True
+
+        }
+
+
+
+GEDT Intelligence
+
+        ↓
+
+Visualization Layer
+
+        ↓
+
+Human Expert
+
+        ↓
+
+Decision + Action
+
+
+services/
+
+└── interface/
+
+    ├── app/
+
+    │   ├── dashboard.py       ← New
+
+    │   ├── visualization.py   ← New
+
+    │   ├── interaction.py     ← New
+
+    │   ├── alerts.py          ← New
+
+    │   └── reports.py         ← New
+
+
+    └── tests/
+
+
+
+
+"""
+GEDT Command Dashboard
+"""
+
+
+class Dashboard:
+
+
+    def display(
+
+        self,
+
+        system_state
+
+    ):
+
+
+        return {
+
+            "digital_twin":
+
+            system_state,
+
+
+            "status":
+
+            "available"
+
+        }
+
+
+
+
+"""
+GEDT Visualization Layer
+"""
+
+
+class TwinVisualizer:
+
+
+    def render(
+
+        self,
+
+        twin
+
+    ):
+
+
+        return {
+
+            "model":
+
+            twin,
+
+
+            "view":
+
+            "3D"
+
+        }
+
+
+
+"""
+Human-AI Interaction
+"""
+
+
+class ExpertInterface:
+
+
+    def submit_feedback(
+
+        self,
+
+        feedback
+
+    ):
+
+
+        return {
+
+            "feedback":
+
+            feedback,
+
+
+            "received":
+
+            True
+
+        }
+
+
+
+
+"""
+GEDT Alert Interface
+"""
+
+
+class AlertDisplay:
+
+
+    def show(
+
+        self,
+
+        alert
+
+    ):
+
+
+        return {
+
+            "alert":
+
+            alert,
+
+
+            "visible":
+
+            True
+
+        }
+
+
+
+"""
+GEDT Decision Reports
+"""
+
+
+class ReportGenerator:
+
+
+    def create(
+
+        self,
+
+        decision
+
+    ):
+
+
+        return {
+
+            "decision":
+
+            decision,
+
+
+            "format":
+
+            "operational_report"
+
+        }
+
+
+
+
+ASSET STATUS
+
+Machine 001
+
+Temperature:
+78°C ⚠
+
+
+AI Prediction:
+
+Failure Risk:
+82%
+
+
+Reason:
+
+Cooling degradation detected
+
+
+Simulation:
+
+Cooling upgrade reduces risk by 60%
+
+
+Recommendation:
+
+Schedule maintenance
+
+
+AI Detection
+
+      ↓
+
+Explanation
+
+      ↓
+
+Human Review
+
+      ↓
+
+Approval
+
+      ↓
+
+Action
+
+      ↓
+
+Feedback
+
+
+AI System
+
+↓
+
+Explanation
+
+↓
+
+Human Understanding
+
+↓
+
+Collaborative Decision
+
+
+
+Digital Twin
+
++
+
+Artificial Intelligence
+
++
+
+Simulation
+
++
+
+Human Expertise
+
++
+
+Trusted Decisions
+
+
+
+
+
+System State
+
+      ↓
+
+Optimization Engine
+
+      ↓
+
+Best Strategy
+
+      ↓
+
+Measured Improvement
+
+
+
+
+
+services/
+
+└── optimization/
+
+    ├── app/
+
+    │   ├── optimizer.py       ← New
+
+    │   ├── objectives.py      ← New
+
+    │   ├── constraints.py     ← New
+
+    │   ├── scheduler.py       ← New
+
+    │   └── evaluation.py      ← New
+
+
+    └── tests/
+
+
+"""
+GEDT Optimization Engine
+"""
+
+
+class Optimizer:
+
+
+    def optimize(
+
+        self,
+
+        options
+
+    ):
+
+
+        return {
+
+            "best_option":
+
+            options[0],
+
+
+            "status":
+
+            "optimized"
+
+        }
+
+
+
+
+"""
+GEDT Optimization Objectives
+"""
+
+
+class ObjectiveManager:
+
+
+    def define(
+
+        self,
+
+        goal
+
+    ):
+
+
+        return {
+
+            "objective":
+
+            goal
+
+        }
+
+
+
+"""
+GEDT Constraints
+"""
+
+
+class ConstraintManager:
+
+
+    def validate(
+
+        self,
+
+        solution
+
+    ):
+
+
+        return {
+
+            "valid":
+
+            True,
+
+
+            "solution":
+
+            solution
+
+        }
+
+
+
+
+"""
+GEDT Optimization Evaluation
+"""
+
+
+class OptimizationEvaluator:
+
+
+    def compare(
+
+        self,
+
+        results
+
+    ):
+
+
+        return {
+
+            "improvement":
+
+            "calculated"
+
+        }
+
+
+
+Observe
+
+↓
+
+Understand
+
+↓
+
+Predict
+
+↓
+
+Explain
+
+↓
+
+Simulate
+
+↓
+
+Optimize
+
+↓
+
+Decide
+
+
+
+
+
+
+services/
+
+└── autonomy/
+
+    ├── app/
+
+    │   ├── controller.py       ← New
+
+    │   ├── policy.py           ← New
+
+    │   ├── executor.py         ← New
+
+    │   ├── feedback.py         ← New
+
+    │   └── safety.py           ← New
+
+
+    └── tests/
+
+
+"""
+GEDT Autonomous Controller
+"""
+
+
+class AutonomousController:
+
+
+    def decide(
+
+        self,
+
+        recommendation
+
+    ):
+
+
+        return {
+
+            "action":
+
+            recommendation,
+
+
+            "status":
+
+            "ready"
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
