@@ -39761,6 +39761,441 @@ def status():
 
 
 
+uvicorn app.api.main:app --reload
+
+
+
+{
+ "system":"GEDT",
+ "status":"online"
+}
+
+http://localhost:8000
+{
+ "system":"GEDT",
+ "status":"online"
+}
+
+
+GET /health
+
+{
+ "service":"GEDT",
+ "healthy":true
+}
+
+http://localhost:8000/docs
+
+
+http://localhost:8000/redoc
+
+
+app/
+
+├── api/
+
+│   ├── main.py
+
+│   ├── routes/
+
+│   │   ├── health.py
+
+│   │   ├── system.py
+
+│   │   └── workflow.py      ← New
+
+│   │
+
+│   └── schemas/
+
+│       └── workflow.py      ← New
+
+
+"""
+GEDT Workflow API Schemas
+"""
+
+from pydantic import BaseModel
+from typing import Dict, Any
+
+
+class WorkflowRequest(BaseModel):
+
+    workflow_name: str
+
+    parameters: Dict[str, Any] = {}
+
+
+class WorkflowResponse(BaseModel):
+
+    workflow_name: str
+
+    status: str
+
+    results: Dict[str, Any]
+
+    execution_time: float
+
+
+"""
+GEDT Workflow Execution API
+"""
+
+from fastapi import APIRouter
+
+from time import time
+
+from app.api.schemas.workflow import (
+    WorkflowRequest,
+    WorkflowResponse
+)
+
+
+router = APIRouter(
+    prefix="/workflow",
+    tags=["Workflow"]
+)
+
+
+@router.post("/run",
+             response_model=WorkflowResponse)
+def run_workflow(
+
+    request: WorkflowRequest
+
+):
+
+    start = time()
+
+
+    # Future integration:
+    # workflow_engine.execute(
+    #     request.workflow_name,
+    #     request.parameters
+    # )
+
+
+    result = {
+
+        "message":
+        "Workflow executed",
+
+        "workflow":
+        request.workflow_name,
+
+        "parameters":
+        request.parameters
+
+    }
+
+
+    duration = time() - start
+
+
+    return WorkflowResponse(
+
+        workflow_name=
+        request.workflow_name,
+
+        status=
+        "completed",
+
+        results=
+        result,
+
+        execution_time=
+        duration
+
+    )
+
+from app.api.routes import workflow
+
+
+app.include_router(
+    workflow.router
+)
+
+uvicorn app.api.main:app --reload
+
+POST /workflow/run
+
+{
+    "workflow_name":
+    "environment_analysis",
+
+    "parameters":
+    {
+        "region":
+        "test_area",
+
+        "mode":
+        "simulation"
+    }
+}
+
+
+
+{
+    "workflow_name":
+    "environment_analysis",
+
+    "status":
+    "completed",
+
+    "results":
+    {
+        "message":
+        "Workflow executed",
+
+        "workflow":
+        "environment_analysis"
+    },
+
+    "execution_time":
+    0.001
+}
+
+
+
+app/
+
+├── api/
+
+│   ├── main.py
+
+│   ├── routes/
+
+│   │   ├── workflow.py
+
+│   │   └── system.py        ← New
+│
+└── core/
+
+    ├── health.py
+
+    └── registry.py
+
+"""
+GEDT System API
+
+Provides:
+- Platform status
+- Health information
+- Registered services
+- Runtime information
+"""
+
+from fastapi import APIRouter
+
+from datetime import datetime
+
+
+router = APIRouter(
+
+    prefix="/system",
+
+    tags=["System"]
+
+)
+
+
+# Temporary runtime references
+# These will later be injected
+# through the dependency container.
+
+registry = None
+
+health_monitor = None
+
+
+
+def initialize_system_services(
+
+    registry_instance,
+
+    health_instance
+
+):
+
+    global registry
+
+    global health_monitor
+
+
+    registry = registry_instance
+
+    health_monitor = health_instance
+
+
+
+@router.get("/status")
+def system_status():
+
+    return {
+
+        "platform":
+
+        "GEDT",
+
+
+        "version":
+
+        "2.2.1",
+
+
+        "status":
+
+        "operational",
+
+
+        "timestamp":
+
+        datetime.utcnow().isoformat()
+
+    }
+
+
+
+@router.get("/health")
+def system_health():
+
+    if health_monitor:
+
+        return health_monitor.system_status()
+
+
+    return {
+
+        "healthy":
+
+        True,
+
+        "message":
+
+        "Health monitor not connected"
+
+    }
+
+
+
+@router.get("/services")
+def services():
+
+    if registry:
+
+        return registry.summary()
+
+
+    return {
+
+        "services":
+
+        []
+
+    }
+
+
+from app.api.routes import system
+
+
+app.include_router(
+
+    system.router
+
+)
+
+
+uvicorn app.api.main:app --reload
+
+GET /system/status
+
+
+{
+ "platform":"GEDT",
+ "version":"2.2.1",
+ "status":"operational"
+}
+
+
+GET /system/health
+
+
+GET /system/services
+
+
+{
+ "models":
+ [
+   "vision_model_v1"
+ ],
+
+ "plugins":
+ [
+   "weather_plugin"
+ ],
+
+ "workflows":
+ [
+   "environment_analysis"
+ ]
+}
+
+
+
+
+                API Client
+
+                    ↓
+
+              FastAPI Layer
+
+                    ↓
+
+        ┌───────────┴───────────┐
+
+        ↓                       ↓
+
+ Health Monitor            Registry
+
+        ↓                       ↓
+
+ System State             Components
+
+                    ↓
+
+             GEDT Runtime
+
+
+storage/
+
+├── database.py
+
+├── models.py
+
+├── repositories.py
+
+└── migrations/
+
+
+This will allow GEDT to persist:
+
+* experiments
+* workflows
+* model versions
+* digital twin snapshots
+* audit logs
+* user activity
+
+
+
+
+
+
+
+
+
+
+
 
 
 
