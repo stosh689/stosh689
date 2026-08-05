@@ -40196,6 +40196,704 @@ This will allow GEDT to persist:
 
 
 
+app/
+
+├── storage/
+
+│   ├── database.py          ← New
+
+│   ├── models.py            ← New
+
+│   ├── repository.py        ← New
+
+│   └── __init__.py
+
+│
+├── api/
+
+├── core/
+
+└── workflow/
+
+pip install sqlalchemy
+
+"""
+GEDT Database Connection Layer
+"""
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+
+DATABASE_URL = "sqlite:///gedt.db"
+
+
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={
+        "check_same_thread": False
+    }
+)
+
+
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
+
+
+def get_database():
+
+    db = SessionLocal()
+
+    try:
+
+        yield db
+
+    finally:
+
+        db.close()
+
+"""
+GEDT Persistent Data Models
+"""
+
+from sqlalchemy.orm import declarative_base
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    DateTime,
+    JSON
+)
+
+from datetime import datetime
+
+
+Base = declarative_base()
+
+
+
+class WorkflowExecution(Base):
+
+    __tablename__ = "workflow_executions"
+
+
+    id = Column(
+        Integer,
+        primary_key=True
+    )
+
+
+    workflow_name = Column(
+        String,
+        nullable=False
+    )
+
+
+    status = Column(
+        String,
+        default="created"
+    )
+
+
+    results = Column(
+        JSON
+    )
+
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+
+
+class ModelRegistryEntry(Base):
+
+    __tablename__ = "models"
+
+
+    id = Column(
+        Integer,
+        primary_key=True
+    )
+
+
+    name = Column(
+        String
+    )
+
+
+    version = Column(
+        String
+    )
+
+
+    metadata_json = Column(
+        JSON
+    )
+
+
+
+"""
+GEDT Repository Interface
+
+Separates business logic
+from database implementation.
+"""
+
+
+class Repository:
+
+
+    def __init__(self, database):
+
+        self.db = database
+
+
+
+    def save_workflow(
+
+        self,
+
+        workflow
+
+    ):
+
+        self.db.add(workflow)
+
+        self.db.commit()
+
+        self.db.refresh(workflow)
+
+        return workflow
+
+
+
+    def get_models(self):
+
+        from app.storage.models import (
+            ModelRegistryEntry
+        )
+
+        return (
+
+            self.db
+
+            .query(ModelRegistryEntry)
+
+            .all()
+
+        )
+
+
+from app.storage.database import engine
+from app.storage.models import Base
+
+
+def initialize_database():
+
+    Base.metadata.create_all(
+
+        bind=engine
+
+    )
+
+
+if __name__ == "__main__":
+
+    initialize_database()
+
+
+python -m app.storage.init_db
+
+gedt.db
+
+                API
+
+                 ↓
+
+          Service Layer
+
+                 ↓
+
+       ┌─────────┴─────────┐
+
+       ↓                   ↓
+
+   Runtime             Database
+
+       ↓                   ↓
+
+ Models | Workflows | Digital Twin History
+
+
+
+User
+
+ ↓
+
+Authentication
+
+ ↓
+
+Authorization
+
+ ↓
+
+GEDT API
+
+ ↓
+
+Runtime Services
+
+
+app/
+
+├── security/
+
+│   ├── auth.py              ← New
+
+│   ├── users.py             ← New
+
+│   ├── permissions.py       ← New
+
+│   └── tokens.py            ← New
+
+│
+├── api/
+
+├── core/
+
+└── storage/
+
+
+
+
+"""
+GEDT User Management
+"""
+
+from dataclasses import dataclass
+from typing import List
+
+
+@dataclass
+class User:
+
+    username: str
+
+    hashed_password: str
+
+    roles: List[str]
+
+
+users = {}
+
+
+def create_user(
+
+    username,
+
+    password_hash,
+
+    roles=None
+
+):
+
+    users[username] = User(
+
+        username,
+
+        password_hash,
+
+        roles or ["viewer"]
+
+    )
+
+
+def get_user(username):
+
+    return users.get(username)
+
+
+
+"""
+GEDT Role Permissions
+"""
+
+
+ROLE_PERMISSIONS = {
+
+    "admin":
+
+    [
+
+        "system",
+
+        "workflow",
+
+        "models",
+
+        "simulation"
+
+    ],
+
+
+    "researcher":
+
+    [
+
+        "workflow",
+
+        "simulation",
+
+        "models"
+
+    ],
+
+
+    "operator":
+
+    [
+
+        "workflow",
+
+        "monitoring"
+
+    ],
+
+
+    "viewer":
+
+    [
+
+        "monitoring"
+
+    ]
+
+}
+
+
+
+def has_permission(
+
+    user,
+
+    permission
+
+):
+
+    for role in user.roles:
+
+        if permission in ROLE_PERMISSIONS.get(
+
+            role,
+
+            []
+
+        ):
+
+            return True
+
+
+    return False
+
+
+
+"""
+GEDT Authentication Service
+"""
+
+from passlib.context import CryptContext
+
+from app.security.users import (
+    get_user
+)
+
+
+password_context = CryptContext(
+
+    schemes=["bcrypt"],
+
+    deprecated="auto"
+
+)
+
+
+
+def hash_password(password):
+
+    return password_context.hash(
+
+        password
+
+    )
+
+
+
+def verify_password(
+
+    password,
+
+    hashed
+
+):
+
+    return password_context.verify(
+
+        password,
+
+        hashed
+
+    )
+
+
+
+def authenticate(
+
+    username,
+
+    password
+
+):
+
+    user = get_user(username)
+
+
+    if not user:
+
+        return None
+
+
+    if verify_password(
+
+        password,
+
+        user.hashed_password
+
+    ):
+
+        return user
+
+
+    return None
+
+
+
+app/
+
+├── security/
+
+│   ├── auth.py
+
+│   ├── users.py
+
+│   ├── permissions.py
+
+│   └── tokens.py        ← New
+
+│
+
+├── api/
+
+│   ├── routes/
+
+│   │   ├── auth.py      ← New
+
+│   │   └── workflow.py
+
+
+
+pip install python-jose[cryptography]
+
+
+"""
+GEDT JWT Token Management
+"""
+
+from datetime import datetime, timedelta
+
+from jose import jwt
+
+
+SECRET_KEY = "GEDT_DEVELOPMENT_SECRET"
+
+ALGORITHM = "HS256"
+
+
+TOKEN_EXPIRATION_MINUTES = 60
+
+
+
+def create_token(data: dict):
+
+    payload = data.copy()
+
+    payload["expires"] = (
+
+        datetime.utcnow()
+
+        +
+
+        timedelta(
+            minutes=
+            TOKEN_EXPIRATION_MINUTES
+        )
+
+    ).isoformat()
+
+
+    return jwt.encode(
+
+        payload,
+
+        SECRET_KEY,
+
+        algorithm=ALGORITHM
+
+    )
+
+
+
+def decode_token(token: str):
+
+    return jwt.decode(
+
+        token,
+
+        SECRET_KEY,
+
+        algorithms=[ALGORITHM]
+
+    )
+
+"""
+GEDT Authentication API
+"""
+
+from fastapi import APIRouter, HTTPException
+
+from pydantic import BaseModel
+
+from app.security.auth import authenticate
+
+from app.security.tokens import create_token
+
+
+
+router = APIRouter(
+
+    prefix="/auth",
+
+    tags=["Authentication"]
+
+)
+
+
+
+class LoginRequest(BaseModel):
+
+    username: str
+
+    password: str
+
+
+
+@router.post("/login")
+def login(
+
+    request: LoginRequest
+
+):
+
+    user = authenticate(
+
+        request.username,
+
+        request.password
+
+    )
+
+
+    if not user:
+
+        raise HTTPException(
+
+            status_code=401,
+
+            detail="Invalid credentials"
+
+        )
+
+
+    token = create_token({
+
+        "username":
+
+        user.username,
+
+        "roles":
+
+        user.roles
+
+    })
+
+
+    return {
+
+        "access_token":
+
+        token,
+
+        "token_type":
+
+        "bearer"
+
+    }
+
+
+
+                  Users
+
+                    ↓
+
+              Authentication
+
+                    ↓
+
+                 JWT
+
+                    ↓
+
+              FastAPI Layer
+
+                    ↓
+
+        ┌───────────┴───────────┐
+
+        ↓                       ↓
+
+   Workflow API            System API
+
+        ↓                       ↓
+
+     Runtime              Registry
+
+        ↓                       ↓
+
+        AI + Digital Twin + Simulation
+
+
+
+
+
+
+
+
+
 
 
 
