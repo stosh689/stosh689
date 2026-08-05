@@ -46411,4 +46411,279 @@ Approved Action
 
 
 
+        Physical System
+
+              ↓
+
+        Data Ingestion
+
+              ↓
+
+       Digital Twin Core
+
+       ┌───────────────┐
+
+       │ Current State │
+
+       │ History       │
+
+       │ Metadata      │
+
+       └───────────────┘
+
+              ↓
+
+      AI / Simulation / Decision
+
+
+
+services/
+
+└── digital_twin/
+
+    ├── app/
+
+    │   ├── models.py        ← New
+
+    │   ├── state.py         ← New
+
+    │   ├── twin.py          ← New
+
+    │   ├── history.py       ← New
+
+    │   └── routes.py        ← New
+
+
+    └── tests/
+
+
+"""
+GEDT Digital Twin Models
+"""
+
+from dataclasses import dataclass
+from datetime import datetime
+
+
+
+@dataclass
+class Twin:
+
+
+    twin_id: str
+
+
+    name: str
+
+
+    twin_type: str
+
+
+    created_at: str = (
+
+        datetime.utcnow()
+
+        .isoformat()
+
+    )
+
+
+
+
+"""
+GEDT Twin State Management
+"""
+
+
+class TwinState:
+
+
+    def __init__(self):
+
+        self.states = {}
+
+
+
+    def update(
+
+        self,
+
+        twin_id,
+
+        values
+
+    ):
+
+        self.states[twin_id] = values
+
+
+
+    def get(
+
+        self,
+
+        twin_id
+
+    ):
+
+        return self.states.get(
+
+            twin_id
+
+        )
+
+
+
+"""
+GEDT Twin Manager
+"""
+
+
+class DigitalTwinManager:
+
+
+    def __init__(self):
+
+        self.twins = {}
+
+
+
+    def create(
+
+        self,
+
+        twin
+
+    ):
+
+        self.twins[
+
+            twin.twin_id
+
+        ] = twin
+
+
+
+    def get(
+
+        self,
+
+        twin_id
+
+    ):
+
+        return self.twins.get(
+
+            twin_id
+
+        )
+
+
+
+
+"""
+GEDT Twin History
+"""
+
+
+class TwinHistory:
+
+
+    def __init__(self):
+
+        self.records = []
+
+
+
+    def record(
+
+        self,
+
+        twin_id,
+
+        state
+
+    ):
+
+        self.records.append(
+
+            {
+
+            "twin":
+
+            twin_id,
+
+
+            "state":
+
+            state
+
+            }
+
+        )
+
+
+
+    def retrieve(
+
+        self,
+
+        twin_id
+
+    ):
+
+        return [
+
+            r
+
+            for r
+
+            in self.records
+
+            if r["twin"] == twin_id
+
+        ]
+
+
+
+"""
+GEDT Digital Twin API
+"""
+
+from fastapi import APIRouter
+
+
+router = APIRouter(
+
+    prefix="/twins",
+
+    tags=["Digital Twins"]
+
+)
+
+
+@router.get("/{twin_id}")
+
+def get_twin(
+
+    twin_id: str
+
+):
+
+    return {
+
+        "twin_id":
+
+        twin_id,
+
+
+        "status":
+
+        "active"
+
+    }
+
+
+
+
 
