@@ -53108,10 +53108,7538 @@ Better Future Decisions
 
 
 
+gedt_core/
+│
+├── learning/
+│   ├── __init__.py
+│   ├── experience.py
+│   ├── learner.py
+│   └── metrics.py
+│
+├── memory/
+│   ├── __init__.py
+│   ├── experience_store.py
+│   └── knowledge.py
 
 
 
 
+
+
+
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Dict, Any
+
+
+@dataclass
+class Experience:
+
+    asset_id: str
+
+    state: Dict[str, Any]
+
+    decision: str
+
+    predicted_risk: float
+
+    actual_outcome: str | None = None
+
+    success: bool | None = None
+
+    timestamp: datetime = field(default_factory=datetime.utcnow)
+
+
+
+from typing import List
+
+from learning.experience import Experience
+
+
+class ExperienceStore:
+
+    def __init__(self):
+
+        self._experiences: List[Experience] = []
+
+    def add(self, experience: Experience):
+
+        self._experiences.append(experience)
+
+    def all(self):
+
+        return list(self._experiences)
+
+    def successful(self):
+
+        return [
+
+            e for e in self._experiences
+
+            if e.success
+
+        ]
+
+    def failed(self):
+
+        return [
+
+            e for e in self._experiences
+
+            if e.success is False
+
+        ]
+
+
+from memory.experience_store import ExperienceStore
+
+
+class AdaptiveLearner:
+
+    def __init__(self, store: ExperienceStore):
+
+        self.store = store
+
+    def learn(self):
+
+        total = len(self.store.all())
+
+        success = len(self.store.successful())
+
+        if total == 0:
+
+            return {
+
+                "accuracy": 0.0,
+
+                "recommendation": "No experience available."
+
+            }
+
+        accuracy = success / total
+
+        recommendation = (
+
+            "Current strategy is effective."
+
+            if accuracy >= 0.80
+
+            else
+
+            "Model retraining recommended."
+
+        )
+
+        return {
+
+            "accuracy": round(accuracy, 3),
+
+            "recommendation": recommendation
+
+        }
+
+
+
+class Metrics:
+
+    @staticmethod
+    def decision_accuracy(total, correct):
+
+        if total == 0:
+
+            return 0
+
+        return round(correct / total, 3)
+
+    @staticmethod
+    def failure_rate(total, failures):
+
+        if total == 0:
+
+            return 0
+
+        return round(failures / total, 3)
+
+
+
+id="apiarch01"
+
+gedt_core/
+
+├── api/
+
+│   ├── main.py
+
+│   ├── models.py
+
+│   ├── routes.py
+
+│   └── services.py
+
+
+├── agents/
+
+├── simulation/
+
+├── optimization/
+
+├── learning/
+
+└── memory/
+
+
+
+pip install fastapi uvicorn pydantic
+
+
+from pydantic import BaseModel
+from typing import Dict
+
+
+class SensorInput(BaseModel):
+
+    asset_id: str
+
+    temperature: float
+
+    vibration: float
+
+    pressure: float
+
+
+
+class DecisionResponse(BaseModel):
+
+    asset_id: str
+
+    risk_score: float
+
+    recommendation: str
+
+    explanation: Dict
+from intelligence.analyzer import Analyzer
+from decision.engine import DecisionEngine
+
+
+class GEDTService:
+
+
+    def __init__(self):
+
+        self.analyzer = Analyzer()
+
+        self.decision = DecisionEngine()
+
+
+
+    def process(self, data):
+
+
+        analysis = self.analyzer.analyze(data)
+
+
+        action = self.decision.decide(
+
+            {
+
+            "failure_probability":
+
+            analysis["risk_score"]/100
+
+            }
+
+        )
+
+
+        return {
+
+            "risk_score":
+
+            analysis["risk_score"],
+
+
+            "recommendation":
+
+            action["action"],
+
+
+            "explanation":
+
+            analysis
+
+        }
+
+
+
+from fastapi import APIRouter
+
+from api.models import SensorInput
+
+from api.services import GEDTService
+
+
+router = APIRouter()
+
+service = GEDTService()
+
+
+
+@router.post("/analyze")
+
+def analyze_system(
+
+    sensor: SensorInput
+
+):
+
+
+    result = service.process(
+
+        sensor.dict()
+
+    )
+
+
+    return {
+
+        "asset_id":
+
+        sensor.asset_id,
+
+
+        **result
+
+    }
+
+
+from fastapi import FastAPI
+
+from api.routes import router
+
+
+app = FastAPI(
+
+    title="GEDT Intelligence API",
+
+    version="0.1"
+
+)
+
+
+app.include_router(router)
+
+
+
+@app.get("/")
+
+def home():
+
+    return {
+
+        "system":
+
+        "GEDT",
+
+        "status":
+
+        "running"
+
+    }
+
+
+uvicorn api.main:app --reload
+
+/analyze
+
+
+
+{
+ "asset_id":"Cooling_A001",
+ "temperature":92,
+ "vibration":8,
+ "pressure":110
+}
+
+
+{
+ "asset_id":"Cooling_A001",
+
+ "risk_score":100,
+
+ "recommendation":
+ "Schedule maintenance",
+
+ "explanation":
+ {
+   "status":"warning",
+   "risk_score":100
+ }
+}
+
+
+
+
+gedt_core/
+
+├── streaming/
+
+│   ├── sensor.py
+
+│   ├── broker.py
+
+│   ├── processor.py
+
+│   └── events.py
+
+
+├── digital_twin/
+
+│   └── realtime.py
+
+
+from dataclasses import dataclass
+from datetime import datetime
+
+
+@dataclass
+class SensorEvent:
+
+    asset_id: str
+
+    metric: str
+
+    value: float
+
+    timestamp: datetime
+
+
+import random
+import time
+
+from datetime import datetime
+
+from streaming.events import SensorEvent
+
+
+class SensorSimulator:
+
+
+    def generate(self, asset_id):
+
+        return [
+
+            SensorEvent(
+
+                asset_id,
+
+                "temperature",
+
+                random.uniform(70,100),
+
+                datetime.utcnow()
+
+            ),
+
+            SensorEvent(
+
+                asset_id,
+
+                "vibration",
+
+                random.uniform(1,10),
+
+                datetime.utcnow()
+
+            )
+
+        ]
+
+
+
+
+
+
+class EventBroker:
+
+
+    def __init__(self):
+
+        self.queue=[]
+
+
+
+    def publish(self,event):
+
+        self.queue.append(event)
+
+
+
+    def consume(self):
+
+        events=self.queue
+
+        self.queue=[]
+
+        return events
+
+
+class StreamProcessor:
+
+
+    def __init__(self,twin):
+
+        self.twin=twin
+
+
+
+    def process(self,events):
+
+
+        for event in events:
+
+
+            self.twin.update_metric(
+
+                event.asset_id,
+
+                event.metric,
+
+                event.value
+
+            )
+
+
+class RealtimeTwin:
+
+
+    def __init__(self):
+
+        self.assets={}
+
+
+
+    def update_metric(
+
+        self,
+
+        asset_id,
+
+        metric,
+
+        value
+
+    ):
+
+
+        if asset_id not in self.assets:
+
+            self.assets[asset_id]={}
+
+
+        self.assets[asset_id][metric]=value
+
+
+
+    def get_state(
+
+        self,
+
+        asset_id
+
+    ):
+
+        return self.assets.get(
+
+            asset_id,
+
+            {}
+
+        )
+
+
+from streaming.sensor import SensorSimulator
+from streaming.broker import EventBroker
+from streaming.processor import StreamProcessor
+
+from digital_twin.realtime import RealtimeTwin
+
+
+
+twin=RealtimeTwin()
+
+sensor=SensorSimulator()
+
+broker=EventBroker()
+
+processor=StreamProcessor(twin)
+
+
+
+events=sensor.generate(
+
+    "Cooling_A001"
+
+)
+
+
+
+for event in events:
+
+    broker.publish(event)
+
+
+
+incoming=broker.consume()
+
+
+processor.process(incoming)
+
+
+
+print(
+
+twin.get_state(
+
+"Cooling_A001"
+
+)
+
+)
+
+gedt_core/
+
+├── ml/
+
+│   ├── dataset.py
+
+│   ├── features.py
+
+│   ├── model.py
+
+│   ├── trainer.py
+
+│   └── predictor.py
+
+
+├── evaluation/
+
+│   └── metrics.py
+
+
+import pandas as pd
+
+
+def create_dataset():
+
+    data = {
+
+        "temperature":
+        [70,75,80,85,90,95],
+
+        "vibration":
+        [2,3,4,5,7,9],
+
+        "pressure":
+        [90,95,100,105,110,120],
+
+        "failure":
+        [0,0,0,0,1,1]
+
+    }
+
+
+    return pd.DataFrame(data)
+
+
+def prepare_features(df):
+
+
+    X = df[
+
+        [
+
+        "temperature",
+
+        "vibration",
+
+        "pressure"
+
+        ]
+
+    ]
+
+
+    y = df["failure"]
+
+
+    return X,y
+
+
+
+from sklearn.ensemble import RandomForestClassifier
+
+
+class FailureModel:
+
+
+    def __init__(self):
+
+        self.model = RandomForestClassifier(
+
+            n_estimators=100
+
+        )
+
+
+    def train(self,X,y):
+
+        self.model.fit(
+
+            X,
+
+            y
+
+        )
+
+
+    def predict(self,X):
+
+        return self.model.predict_proba(
+
+            X
+
+        )[:,1]
+
+
+from ml.dataset import create_dataset
+
+from ml.features import prepare_features
+
+from ml.model import FailureModel
+
+
+
+dataset=create_dataset()
+
+
+X,y=prepare_features(dataset)
+
+
+model=FailureModel()
+
+
+model.train(
+
+    X,
+
+    y
+
+)
+
+
+print(
+
+"GEDT ML Model Trained"
+
+)
+
+
+
+
+class MLPredictor:
+
+
+    def __init__(self,model):
+
+        self.model=model
+
+
+
+    def predict_risk(self,data):
+
+
+        probability = (
+
+            self.model.predict(
+
+                data
+
+            )[0]
+
+        )
+
+
+        return {
+
+            "failure_probability":
+
+            round(
+
+                float(probability),
+
+                3
+
+            )
+
+        }
+
+
+import pandas as pd
+
+
+new_state=pd.DataFrame(
+
+[
+
+{
+
+"temperature":92,
+
+"vibration":8,
+
+"pressure":115
+
+}
+
+]
+
+)
+
+
+risk=model.predict(
+
+new_state
+
+)
+
+
+print(risk)
+
+
+
+pip install streamlit pandas plotly
+
+
+gedt_core/
+
+├── dashboard/
+
+│   ├── app.py
+
+│   ├── charts.py
+
+│   └── data.pyv
+
+
+
+
+import pandas as pd
+
+
+def get_asset_data():
+
+    return pd.DataFrame(
+
+        {
+
+        "time":
+        [
+
+        "10:00",
+
+        "10:05",
+
+        "10:10",
+
+        "10:15"
+
+        ],
+
+        "temperature":
+        [
+
+        70,
+
+        75,
+
+        85,
+
+        92
+
+        ],
+
+        "risk":
+        [
+
+        0.10,
+
+        0.25,
+
+        0.60,
+
+        0.90
+
+        ]
+
+        }
+
+    )
+
+
+import plotly.express as px
+
+
+def temperature_chart(df):
+
+    return px.line(
+
+        df,
+
+        x="time",
+
+        y="temperature",
+
+        title="Temperature Trend"
+
+    )
+
+
+
+def risk_chart(df):
+
+    return px.line(
+
+        df,
+
+        x="time",
+
+        y="risk",
+
+        title="Failure Risk"
+
+    )
+
+
+
+import streamlit as st
+
+
+from dashboard.data import get_asset_data
+
+from dashboard.charts import (
+
+temperature_chart,
+
+risk_chart
+
+)
+
+
+
+st.title(
+
+"GEDT Intelligence Dashboard"
+
+)
+
+
+
+st.sidebar.header(
+
+"Asset Control"
+
+)
+
+
+asset = st.sidebar.selectbox(
+
+"Select Asset",
+
+[
+
+"Cooling_A001",
+
+"Pump_A002"
+
+]
+
+)
+
+
+
+data=get_asset_data()
+
+
+
+st.subheader(
+
+f"Asset: {asset}"
+
+)
+
+
+
+st.metric(
+
+"Current Temperature",
+
+f"{data.temperature.iloc[-1]} °C"
+
+)
+
+
+st.metric(
+
+"Current Risk",
+
+f"{data.risk.iloc[-1]*100}%"
+
+)
+
+
+
+st.plotly_chart(
+
+temperature_chart(data)
+
+)
+
+
+
+st.plotly_chart(
+
+risk_chart(data)
+
+)
+
+
+
+st.success(
+
+"GEDT Recommendation: Schedule Maintenance"
+
+)
+
+
+streamlit run dashboard/app.py
+
+pip install sqlalchemy
+
+
+gedt_core/
+
+├── database/
+
+│   ├── connection.py
+
+│   ├── models.py
+
+│   ├── repository.py
+
+│   └── memory.py
+
+
+
+
+
+
+
+
+
+
+from sqlalchemy import create_engine
+
+from sqlalchemy.orm import sessionmaker
+
+
+DATABASE_URL = "sqlite:///gedt_memory.db"
+
+
+engine = create_engine(
+
+    DATABASE_URL,
+
+    echo=False
+
+)
+
+
+SessionLocal = sessionmaker(
+
+    bind=engine
+
+)
+
+from sqlalchemy.orm import declarative_base
+
+from sqlalchemy import Column, Integer, String, Float
+
+
+Base = declarative_base()
+
+
+
+class SensorRecord(Base):
+
+    __tablename__ = "sensor_records"
+
+
+    id = Column(
+
+        Integer,
+
+        primary_key=True
+
+    )
+
+
+    asset_id = Column(
+
+        String
+
+    )
+
+
+    temperature = Column(
+
+        Float
+
+    )
+
+
+    vibration = Column(
+
+        Float
+
+    )
+
+
+    risk = Column(
+
+        Float
+
+    )
+
+
+
+from database.connection import engine
+
+from database.models import Base
+
+
+
+def initialize():
+
+    Base.metadata.create_all(
+
+        engine
+
+    )
+
+
+
+
+
+from database.memory import initialize
+
+initialize()
+
+
+
+
+
+
+from database.connection import SessionLocal
+
+from database.models import SensorRecord
+
+
+
+class GEDTRepository:
+
+
+    def save_state(
+
+        self,
+
+        asset_id,
+
+        temperature,
+
+        vibration,
+
+        risk
+
+    ):
+
+
+        session = SessionLocal()
+
+
+        record = SensorRecord(
+
+            asset_id=asset_id,
+
+            temperature=temperature,
+
+            vibration=vibration,
+
+            risk=risk
+
+        )
+
+
+        session.add(record)
+
+        session.commit()
+
+        session.close()
+
+
+
+    def history(
+
+        self,
+
+        asset_id
+
+    ):
+
+
+        session = SessionLocal()
+
+
+        results=session.query(
+
+            SensorRecord
+
+        ).filter(
+
+            SensorRecord.asset_id==asset_id
+
+        ).all()
+
+
+        session.close()
+
+
+        return results
+
+
+
+ from database.repository import GEDTRepository
+
+
+db = GEDTRepository()
+
+
+
+db.save_state(
+
+    "Cooling_A001",
+
+    92,
+
+    8,
+
+    0.91
+
+)
+
+
+
+history = db.history(
+
+    "Cooling_A001"
+
+)
+
+
+for item in history:
+
+    print(
+
+        item.temperature,
+
+        item.risk
+
+    )
+
+
+
+
+
+                  Users / Operators
+
+                         ↓
+
+                  Web Dashboard
+
+                         ↓
+
+                    API Gateway
+
+                         ↓
+
+ ┌──────────────┬──────────────┬──────────────┐
+
+ ↓              ↓              ↓
+
+Twin Service   AI Service    Simulation Service
+
+
+ ↓              ↓              ↓
+
+
+Database      Model Store    Knowledge Store
+
+
+                         ↓
+
+
+                 Monitoring System
+
+
+
+
+
+
+
+
+gedt_core/
+
+├── Dockerfile
+
+├── requirements.txt
+
+├── api/
+
+├── dashboard/
+
+├── agents/
+
+├── database/
+
+└── ml/
+
+
+
+fastapi
+uvicorn
+sqlalchemy
+pandas
+scikit-learn
+streamlit
+plotly
+pydantic
+
+
+
+FROM python:3.12
+
+
+WORKDIR /app
+
+
+COPY requirements.txt .
+
+
+RUN pip install -r requirements.txt
+
+
+COPY . .
+
+
+CMD [
+
+"uvicorn",
+
+"api.main:app",
+
+"--host",
+
+"0.0.0.0",
+
+"--port",
+
+"8000"
+
+]
+
+
+
+docker build -t gedt-core .
+
+
+docker run -p 8000:8000 gedt-core
+
+gedt-api
+
+     ↓
+
+gedt-agent-engine
+
+     ↓
+
+gedt-simulation
+
+     ↓
+
+gedt-ml-service
+
+     ↓
+
+gedt-database
+
+     ↓
+
+gedt-dashboard
+
+
+apiVersion: apps/v1
+
+kind: Deployment
+
+metadata:
+
+  name: gedt-api
+
+
+spec:
+
+  replicas: 3
+
+
+  template:
+
+    spec:
+
+      containers:
+
+      - name: gedt
+
+        image: gedt-core:latest
+
+        ports:
+
+        - containerPort: 8000
+
+
+Adaptive General Intelligence for Complex Systems
+
+
+gedt_core/
+
+├── research/
+
+│
+├── discovery.py
+
+│
+├── hypothesis.py
+
+│
+├── experiment.py
+
+│
+├── evaluator.py
+
+│
+└── coordinator.py
+
+
+from dataclasses import dataclass
+
+
+@dataclass
+class Hypothesis:
+
+    description: str
+
+    expected_improvement: float
+
+    confidence: float
+
+
+
+
+
+
+from research.hypothesis import Hypothesis
+
+
+class DiscoveryAgent:
+
+
+    def analyze(self, system):
+
+        if system["temperature"] > 85:
+
+
+            return Hypothesis(
+
+                description=
+
+                "Improve cooling strategy",
+
+                expected_improvement=
+
+                0.30,
+
+                confidence=
+
+                0.80
+
+            )
+
+
+        return Hypothesis(
+
+            description=
+
+            "No improvement required",
+
+            expected_improvement=
+
+            0,
+
+            confidence=
+
+            0.90
+
+        )
+
+
+
+class ExperimentAgent:
+
+
+    def simulate(self, hypothesis):
+
+
+        improvement = (
+
+            hypothesis.expected_improvement
+
+        )
+
+
+        return {
+
+
+            "hypothesis":
+
+            hypothesis.description,
+
+
+            "result":
+
+            improvement,
+
+
+            "success":
+
+            improvement > 0.15
+
+        }
+
+
+
+
+
+
+class EvaluationAgent:
+
+
+    def evaluate(self, experiment):
+
+
+        if experiment["success"]:
+
+
+            return {
+
+            "recommendation":
+
+            "Approve improvement test",
+
+            "confidence":
+
+            experiment["result"]
+
+            }
+
+
+        return {
+
+            "recommendation":
+
+            "Reject proposal",
+
+            "confidence":
+
+            0
+
+        }
+
+
+
+from research.discovery import DiscoveryAgent
+
+from research.experiment import ExperimentAgent
+
+from research.evaluator import EvaluationAgent
+
+
+
+class ResearchCoordinator:
+
+
+    def __init__(self):
+
+        self.discovery = DiscoveryAgent()
+
+        self.experiment = ExperimentAgent()
+
+        self.evaluator = EvaluationAgent()
+
+
+
+    def investigate(self, system):
+
+
+        hypothesis = self.discovery.analyze(
+
+            system
+
+        )
+
+
+        experiment = self.experiment.simulate(
+
+            hypothesis
+
+        )
+
+
+        result = self.evaluator.evaluate(
+
+            experiment
+
+        )
+
+
+        return {
+
+
+            "hypothesis":
+
+            hypothesis,
+
+
+            "experiment":
+
+            experiment,
+
+
+            "evaluation":
+
+            result
+
+        }
+
+
+
+
+
+
+from research.coordinator import ResearchCoordinator
+
+
+
+system = {
+
+"temperature":92,
+
+"vibration":8,
+
+"failure_history":5
+
+}
+
+
+
+agent = ResearchCoordinator()
+
+
+
+result = agent.investigate(
+
+    system
+
+)
+
+
+print(result)
+
+
+
+Learning + Research System
+
+
+
+
+
+              GEDT Foundation Model
+
+
+                       ↑
+
+
+ ┌──────────┬──────────┬──────────┬──────────┐
+
+ ↓          ↓          ↓          ↓
+
+
+Industrial  Energy    Transport  Environment
+
+Twin Data   Data      Data       Data
+
+
+                       ↓
+
+
+              Universal Representation
+
+
+                       ↓
+
+
+              Prediction + Reasoning
+
+
+
+
+
+
+
+gedt_core/
+
+├── foundation/
+
+│
+├── encoder.py
+
+│
+├── embedding.py
+
+│
+├── model.py
+
+│
+├── trainer.py
+
+│
+└── inference.py
+
+
+
+
+import numpy as np
+
+
+class SystemEmbedding:
+
+
+    def encode(self, state):
+
+
+        vector = np.array(
+
+            [
+
+            state.get(
+                "temperature",
+                0
+            ),
+
+            state.get(
+                "pressure",
+                0
+            ),
+
+            state.get(
+                "vibration",
+                0
+            ),
+
+            state.get(
+                "energy",
+                0
+            )
+
+            ]
+
+        )
+
+
+        return vector
+
+
+
+
+Machine State
+
+↓
+
+[92,110,8,100]
+
+↓
+
+System Behavior Vector
+
+
+
+
+
+
+class UniversalEncoder:
+
+
+    def __init__(self):
+
+        self.embedding_size = 4
+
+
+
+    def transform(self, vector):
+
+
+        magnitude = sum(vector)
+
+
+        return {
+
+
+            "embedding":
+
+            vector,
+
+
+            "system_intensity":
+
+            magnitude
+
+        }
+
+
+
+
+class GEDTFoundationModel:
+
+
+    def __init__(self):
+
+        self.memory=[]
+
+
+
+    def learn(self, representation):
+
+
+        self.memory.append(
+
+            representation
+
+        )
+
+
+
+    def predict(self, representation):
+
+
+        if representation["system_intensity"] > 200:
+
+
+            return {
+
+            "risk":
+
+            "high",
+
+            "confidence":
+
+            0.85
+
+            }
+
+
+        return {
+
+
+        "risk":
+
+        "normal",
+
+
+        "confidence":
+
+        0.75
+
+        }
+
+
+
+
+class FoundationTrainer:
+
+
+    def train(
+
+        self,
+
+        model,
+
+        dataset
+
+    ):
+
+
+        for item in dataset:
+
+
+            model.learn(
+
+                item
+
+            )
+
+
+        return model
+
+
+class InferenceEngine:
+
+
+    def __init__(self, model):
+
+        self.model=model
+
+
+
+    def analyze(self, representation):
+
+
+        return self.model.predict(
+
+            representation
+
+        )
+
+
+
+from foundation.embedding import SystemEmbedding
+
+from foundation.encoder import UniversalEncoder
+
+from foundation.model import GEDTFoundationModel
+
+
+
+sensor_state = {
+
+
+"temperature":92,
+
+"pressure":110,
+
+"vibration":8,
+
+"energy":100
+
+}
+
+
+
+embedder=SystemEmbedding()
+
+
+vector=embedder.encode(
+
+    sensor_state
+
+)
+
+
+encoder=UniversalEncoder()
+
+
+representation=encoder.transform(
+
+    vector
+
+)
+
+
+model=GEDTFoundationModel()
+
+
+model.learn(
+
+    representation
+
+)
+
+
+result=model.predict(
+
+    representation
+
+)
+
+
+print(result)
+
+
+gedt_core/
+
+├── federation/
+
+│
+├── node.py
+
+│
+├── message.py
+
+│
+├── coordinator.py
+
+│
+├── knowledge_share.py
+
+│
+└── network.py
+
+
+
+
+class TwinNode:
+
+
+    def __init__(
+
+        self,
+
+        name,
+
+        domain
+
+    ):
+
+        self.name = name
+
+        self.domain = domain
+
+        self.knowledge = []
+
+
+
+    def learn(self, information):
+
+        self.knowledge.append(
+
+            information
+
+        )
+
+
+
+    def share(self):
+
+        return {
+
+            "node":
+
+            self.name,
+
+
+            "domain":
+
+            self.domain,
+
+
+            "knowledge":
+
+            self.knowledge
+
+        }
+
+
+
+
+from dataclasses import dataclass
+
+
+@dataclass
+
+class KnowledgeMessage:
+
+
+    sender: str
+
+    topic: str
+
+    information: dict
+
+
+
+class KnowledgeExchange:
+
+
+    def transfer(
+
+        self,
+
+        message,
+
+        receiver
+
+    ):
+
+
+        receiver.learn(
+
+            {
+
+            "source":
+
+            message.sender,
+
+
+            "topic":
+
+            message.topic,
+
+
+            "data":
+
+            message.information
+
+            }
+
+        )
+
+class FederationCoordinator:
+
+
+    def __init__(self):
+
+        self.nodes=[]
+
+
+
+    def register(
+
+        self,
+
+        node
+
+    ):
+
+        self.nodes.append(
+
+            node
+
+        )
+
+
+
+    def network_status(self):
+
+
+        return [
+
+            node.share()
+
+            for node in self.nodes
+
+        ]
+
+
+
+from federation.node import TwinNode
+
+from federation.message import KnowledgeMessage
+
+from federation.knowledge_share import KnowledgeExchange
+
+from federation.coordinator import FederationCoordinator
+
+
+
+factory = TwinNode(
+
+    "Factory_A",
+
+    "Manufacturing"
+
+)
+
+
+energy = TwinNode(
+
+    "Energy_System",
+
+    "Power"
+
+)
+
+
+
+factory.learn(
+
+    {
+
+    "failure_pattern":
+
+    "Cooling degradation"
+
+    }
+
+)
+
+
+
+message = KnowledgeMessage(
+
+    sender="Factory_A",
+
+    topic="Maintenance",
+
+    information={
+
+    "solution":
+
+    "Preventive cooling service"
+
+    }
+
+)
+
+
+
+exchange = KnowledgeExchange()
+
+
+
+exchange.transfer(
+
+    message,
+
+    energy
+
+)
+
+
+
+network = FederationCoordinator()
+
+
+network.register(factory)
+
+network.register(energy)
+
+
+
+print(
+
+network.network_status()
+
+)
+
+
+
+
+
+
+gedt_core/
+
+├── edge/
+
+│
+├── node.py
+
+│
+├── inference.py
+
+│
+├── cache.py
+
+│
+├── sync.py
+
+│
+└── decision.py
+
+
+
+
+class EdgeNode:
+
+
+    def __init__(
+
+        self,
+
+        node_id
+
+    ):
+
+        self.node_id=node_id
+
+        self.status="offline"
+
+
+
+    def activate(self):
+
+        self.status="active"
+
+
+
+    def info(self):
+
+        return {
+
+            "node":
+
+            self.node_id,
+
+
+            "status":
+
+            self.status
+
+        } 
+
+
+
+
+class EdgeInference:
+
+
+    def predict(
+
+        self,
+
+        sensor_state
+
+    ):
+
+
+        risk = 0
+
+
+        if sensor_state["temperature"] > 85:
+
+            risk += 0.5
+
+
+        if sensor_state["vibration"] > 6:
+
+            risk += 0.5
+
+
+
+        return {
+
+            "risk":
+
+            min(risk,1.0)
+
+        }
+
+
+
+
+
+
+
+class EdgeDecision:
+
+
+    def decide(
+
+        self,
+
+        prediction
+
+    ):
+
+
+        if prediction["risk"] > 0.7:
+
+
+            return {
+
+            "action":
+
+            "Emergency inspection"
+
+            }
+
+
+        return {
+
+            "action":
+
+            "Continue operation"
+
+        }
+
+
+class EdgeCache:
+
+
+    def __init__(self):
+
+        self.events=[]
+
+
+
+    def store(self,event):
+
+        self.events.append(event)
+
+
+
+    def retrieve(self):
+
+        return self.events
+
+
+
+
+
+
+
+class Synchronizer:
+
+
+    def upload(
+
+        self,
+
+        cache
+
+    ):
+
+
+        return {
+
+            "uploaded_events":
+
+            len(cache.retrieve())
+
+        }
+
+
+
+
+
+from edge.node import EdgeNode
+
+from edge.inference import EdgeInference
+
+from edge.decision import EdgeDecision
+
+from edge.cache import EdgeCache
+
+from edge.sync import Synchronizer
+
+
+
+node = EdgeNode(
+
+    "Factory_Edge_01"
+
+)
+
+
+node.activate()
+
+
+
+sensor = {
+
+
+"temperature":92,
+
+"vibration":8
+
+}
+
+
+
+model = EdgeInference()
+
+
+prediction = model.predict(
+
+    sensor
+
+)
+
+
+
+decision = EdgeDecision().decide(
+
+    prediction
+
+)
+
+
+
+cache = EdgeCache()
+
+
+cache.store(
+
+    {
+
+    "prediction":
+
+    prediction,
+
+    "decision":
+
+    decision
+
+    }
+
+)
+
+
+
+sync = Synchronizer()
+
+
+print(node.info())
+
+print(prediction)
+
+print(decision)
+
+print(sync.upload(cache))
+
+
+
+gedt_alpha.py
+
+
+
+
+"""
+GEDT Alpha v0.1
+Generalized Engineering Digital Twin Prototype
+
+Capabilities:
+- Digital Twin State
+- Risk Assessment
+- Scenario Simulation
+- Decision Optimization
+- Experience Memory
+"""
+
+
+from datetime import datetime
+
+
+
+class DigitalTwin:
+
+
+    def __init__(self, asset_id):
+
+        self.asset_id = asset_id
+
+        self.state = {}
+
+
+
+    def update(self, sensor_data):
+
+        self.state.update(sensor_data)
+
+
+
+    def get_state(self):
+
+        return self.state
+
+
+
+class RiskEngine:
+
+
+    def calculate(self, state):
+
+        temperature = state.get(
+            "temperature",
+            0
+        )
+
+        vibration = state.get(
+            "vibration",
+            0
+        )
+
+        pressure = state.get(
+            "pressure",
+            0
+        )
+
+
+        risk = (
+
+            temperature * 0.4
+
+            +
+
+            vibration * 5
+
+            +
+
+            pressure * 0.2
+
+        )
+
+
+        return min(
+            round(risk,2),
+            100
+        )
+
+
+
+class SimulationEngine:
+
+
+    def run(self, state):
+
+
+        temperature = state["temperature"]
+
+
+        scenarios = [
+
+            {
+
+            "action":
+            "Increase Cooling",
+
+            "temperature":
+            temperature - 15,
+
+            "cost":
+            20,
+
+            "risk":
+            35
+
+            },
+
+
+            {
+
+            "action":
+            "Reduce Load",
+
+            "temperature":
+            temperature - 8,
+
+            "cost":
+            10,
+
+            "risk":
+            25
+
+            },
+
+
+            {
+
+            "action":
+            "Maintenance",
+
+            "temperature":
+            temperature - 12,
+
+            "cost":
+            30,
+
+            "risk":
+            10
+
+            }
+
+        ]
+
+
+        return scenarios
+
+
+
+class OptimizationEngine:
+
+
+    def select(self, scenarios):
+
+
+        best = None
+
+        best_score = float(
+            "inf"
+        )
+
+
+        for option in scenarios:
+
+
+            score = (
+
+                option["risk"] * 0.7
+
+                +
+
+                option["cost"] * 0.3
+
+            )
+
+
+            if score < best_score:
+
+                best_score = score
+
+                best = option
+
+
+
+        return best
+
+
+
+class Memory:
+
+
+    def __init__(self):
+
+        self.history=[]
+
+
+
+    def store(self,event):
+
+        self.history.append(event)
+
+
+
+    def show(self):
+
+        return self.history
+
+
+
+class GEDT:
+
+
+    def __init__(self,asset_id):
+
+        self.twin = DigitalTwin(
+            asset_id
+        )
+
+        self.risk = RiskEngine()
+
+        self.simulator = SimulationEngine()
+
+        self.optimizer = OptimizationEngine()
+
+        self.memory = Memory()
+
+
+
+    def run(self,sensor_data):
+
+
+        # Update Digital Twin
+
+        self.twin.update(
+            sensor_data
+        )
+
+
+        state = self.twin.get_state()
+
+
+
+        # Analyze Risk
+
+        risk_score = self.risk.calculate(
+            state
+        )
+
+
+
+        # Simulate Futures
+
+        scenarios = self.simulator.run(
+            state
+        )
+
+
+
+        # Select Best Action
+
+        decision = self.optimizer.select(
+            scenarios
+        )
+
+
+
+        result = {
+
+
+            "asset":
+            self.twin.asset_id,
+
+
+            "timestamp":
+            str(datetime.utcnow()),
+
+
+            "state":
+            state,
+
+
+            "risk":
+            risk_score,
+
+
+            "decision":
+            decision
+
+
+        }
+
+
+
+        # Store Experience
+
+        self.memory.store(
+            result
+        )
+
+
+        return result
+
+
+
+
+
+# --------------------------
+# GEDT TEST
+# --------------------------
+
+
+if __name__ == "__main__":
+
+
+    gedt = GEDT(
+
+        "Cooling-System-A01"
+
+    )
+
+
+    sensor_reading = {
+
+
+        "temperature":
+        92,
+
+
+        "vibration":
+        8,
+
+
+        "pressure":
+        110
+
+    }
+
+
+
+    output = gedt.run(
+
+        sensor_reading
+
+    )
+
+
+    print("\nGEDT RESULT\n")
+
+    print(output)
+
+
+
+pip install scikit-learn pandas
+
+
+
+gedt_ml.py
+
+
+import pandas as pd
+
+from sklearn.ensemble import RandomForestClassifier
+
+
+
+class FailurePredictor:
+
+
+    def __init__(self):
+
+        self.model = RandomForestClassifier(
+
+            n_estimators=100,
+
+            random_state=42
+
+        )
+
+
+        self.train()
+
+
+
+    def train(self):
+
+
+        # Historical operational examples
+
+        data = pd.DataFrame(
+
+        [
+
+        {
+        "temperature":70,
+        "vibration":2,
+        "pressure":90,
+        "failure":0
+        },
+
+
+        {
+        "temperature":78,
+        "vibration":3,
+        "pressure":95,
+        "failure":0
+        },
+
+
+        {
+        "temperature":85,
+        "vibration":5,
+        "pressure":105,
+        "failure":0
+        },
+
+
+        {
+        "temperature":92,
+        "vibration":8,
+        "pressure":115,
+        "failure":1
+        },
+
+
+        {
+        "temperature":98,
+        "vibration":10,
+        "pressure":120,
+        "failure":1
+        }
+
+        ]
+
+        )
+
+
+        X = data[
+
+        [
+
+        "temperature",
+
+        "vibration",
+
+        "pressure"
+
+        ]
+
+        ]
+
+
+        y = data["failure"]
+
+
+
+        self.model.fit(
+
+            X,
+
+            y
+
+        )
+
+
+
+    def predict(self,state):
+
+
+        input_data = pd.DataFrame(
+
+            [state]
+
+        )
+
+
+        probability = self.model.predict_proba(
+
+            input_data
+
+        )[0][1]
+
+
+        return round(
+
+            float(probability),
+
+            3
+
+        )
+
+
+
+
+
+class GEDT_ML:
+
+
+    def __init__(self):
+
+        self.predictor = FailurePredictor()
+
+
+
+    def analyze(self,state):
+
+
+        failure_probability = self.predictor.predict(
+
+            state
+
+        )
+
+
+        if failure_probability > 0.7:
+
+            recommendation = (
+
+            "Immediate maintenance"
+
+            )
+
+
+        elif failure_probability > 0.4:
+
+            recommendation = (
+
+            "Schedule inspection"
+
+            )
+
+
+        else:
+
+            recommendation = (
+
+            "Continue monitoring"
+
+            )
+
+
+
+        return {
+
+
+        "failure_probability":
+
+        failure_probability,
+
+
+        "recommendation":
+
+        recommendation
+
+        }
+
+
+
+
+
+if __name__ == "__main__":
+
+
+    gedt = GEDT_ML()
+
+
+
+    machine_state = {
+
+
+    "temperature":92,
+
+    "vibration":8,
+
+    "pressure":115
+
+    }
+
+
+
+    result = gedt.analyze(
+
+        machine_state
+
+    )
+
+
+    print(result)
+
+
+
+
+
+GEDT Alpha v0.2
+
+✓ Digital Twin
+✓ Simulation Engine
+✓ Optimization Engine
+✓ Memory
+✓ Machine Learning Predictor
+
+
+gedt_alpha_complete.py
+
+
+"""
+GEDT Alpha Complete v0.3
+
+Generalized Engineering Digital Twin
+
+Capabilities:
+- Digital Twin State
+- Risk Prediction
+- Scenario Simulation
+- Optimization
+- Decision Making
+- Experience Memory
+"""
+
+from datetime import datetime
+
+
+# -----------------------------
+# Digital Twin
+# -----------------------------
+
+class DigitalTwin:
+
+    def __init__(self, asset_id):
+        self.asset_id = asset_id
+        self.state = {}
+
+    def update(self, data):
+        self.state.update(data)
+
+    def get_state(self):
+        return self.state
+
+
+
+# -----------------------------
+# ML-Inspired Predictor
+# -----------------------------
+
+class FailurePredictor:
+
+    def predict(self, state):
+
+        temperature = state.get(
+            "temperature", 0
+        )
+
+        vibration = state.get(
+            "vibration", 0
+        )
+
+        pressure = state.get(
+            "pressure", 0
+        )
+
+
+        score = (
+
+            temperature * 0.005
+
+            +
+
+            vibration * 0.05
+
+            +
+
+            pressure * 0.002
+
+        )
+
+
+        return min(
+            round(score,3),
+            1.0
+        )
+
+
+
+# -----------------------------
+# Simulation Engine
+# -----------------------------
+
+class SimulationEngine:
+
+
+    def simulate(self,state):
+
+        temperature = state["temperature"]
+
+
+        return [
+
+            {
+            "action":
+            "Increase Cooling",
+
+            "risk":
+            0.35,
+
+            "cost":
+            20,
+
+            "temperature":
+            temperature - 15
+
+            },
+
+
+            {
+            "action":
+            "Reduce Load",
+
+            "risk":
+            0.25,
+
+            "cost":
+            10,
+
+            "temperature":
+            temperature - 8
+
+            },
+
+
+            {
+            "action":
+            "Maintenance",
+
+            "risk":
+            0.10,
+
+            "cost":
+            30,
+
+            "temperature":
+            temperature - 12
+
+            }
+
+        ]
+
+
+
+# -----------------------------
+# Optimization
+# -----------------------------
+
+class Optimizer:
+
+
+    def choose(self,options):
+
+        best = None
+
+        lowest_score = 999
+
+
+        for option in options:
+
+
+            score = (
+
+                option["risk"] * 0.7
+
+                +
+
+                option["cost"] * 0.3
+
+            )
+
+
+            if score < lowest_score:
+
+                lowest_score = score
+
+                best = option
+
+
+        return best
+
+
+
+# -----------------------------
+# Memory
+# -----------------------------
+
+class Memory:
+
+
+    def __init__(self):
+
+        self.records = []
+
+
+    def store(self,event):
+
+        self.records.append(event)
+
+
+
+    def history(self):
+
+        return self.records
+
+
+
+# -----------------------------
+# GEDT CORE
+# -----------------------------
+
+class GEDT:
+
+
+    def __init__(self,asset_id):
+
+        self.twin = DigitalTwin(
+            asset_id
+        )
+
+        self.predictor = FailurePredictor()
+
+        self.simulator = SimulationEngine()
+
+        self.optimizer = Optimizer()
+
+        self.memory = Memory()
+
+
+
+    def run(self,sensor_data):
+
+
+        # Update Twin
+
+        self.twin.update(
+            sensor_data
+        )
+
+
+        state = self.twin.get_state()
+
+
+
+        # Predict Failure
+
+        probability = self.predictor.predict(
+
+            state
+
+        )
+
+
+        # Simulate Options
+
+        scenarios = self.simulator.simulate(
+
+            state
+
+        )
+
+
+        # Select Best Action
+
+        decision = self.optimizer.choose(
+
+            scenarios
+
+        )
+
+
+        result = {
+
+
+        "asset":
+
+        self.twin.asset_id,
+
+
+        "time":
+
+        str(datetime.utcnow()),
+
+
+        "state":
+
+        state,
+
+
+        "failure_probability":
+
+        probability,
+
+
+        "recommended_action":
+
+        decision
+
+
+        }
+
+
+        self.memory.store(
+
+            result
+
+        )
+
+
+        return result
+
+
+
+# -----------------------------
+# TEST RUN
+# -----------------------------
+
+if __name__ == "__main__":
+
+
+    gedt = GEDT(
+
+        "Cooling-System-A01"
+
+    )
+
+
+    sensor_data = {
+
+
+        "temperature":
+        92,
+
+
+        "vibration":
+        8,
+
+
+        "pressure":
+        115
+
+    }
+
+
+    result = gedt.run(
+
+        sensor_data
+
+    )
+
+
+    print("\n===== GEDT ANALYSIS =====\n")
+
+
+    for key,value in result.items():
+
+        print(
+
+            key,
+
+            ":",
+
+            value
+
+        )
+
+
+
+
+gedt_alpha_v04.py
+
+
+
+"""
+GEDT Alpha v0.4
+
+Multi-Asset Digital Twin Platform
+
+Features:
+- Multiple assets
+- Simulated sensors
+- Risk prediction
+- Decision engine
+- Memory
+- Continuous monitoring
+"""
+
+import random
+import time
+from datetime import datetime
+
+
+
+# -----------------------------
+# Digital Twin
+# -----------------------------
+
+class DigitalTwin:
+
+    def __init__(self, asset_id):
+
+        self.asset_id = asset_id
+
+        self.state = {}
+
+        self.history = []
+
+
+
+    def update(self, data):
+
+        self.state = data
+
+        self.history.append(
+
+            {
+
+            "time": datetime.now(),
+
+            "state": data
+
+            }
+
+        )
+
+
+
+    def status(self):
+
+        return self.state
+
+
+
+# -----------------------------
+# Sensor Simulator
+# -----------------------------
+
+class SensorSimulator:
+
+
+    def read(self):
+
+        return {
+
+
+        "temperature":
+        random.randint(70,100),
+
+
+        "vibration":
+        round(random.uniform(1,10),2),
+
+
+        "pressure":
+        random.randint(90,120)
+
+        }
+
+
+
+# -----------------------------
+# Risk Prediction Engine
+# -----------------------------
+
+class RiskEngine:
+
+
+    def predict(self,state):
+
+
+        risk = (
+
+            state["temperature"] * 0.004
+
+            +
+
+            state["vibration"] * 0.05
+
+            +
+
+            state["pressure"] * 0.002
+
+        )
+
+
+        return round(
+
+            min(risk,1),
+
+            3
+
+        )
+
+
+
+# -----------------------------
+# Decision Engine
+# -----------------------------
+
+class DecisionEngine:
+
+
+    def decide(self,risk):
+
+
+        if risk >= 0.75:
+
+            return "Emergency Maintenance"
+
+
+        elif risk >= 0.45:
+
+            return "Schedule Inspection"
+
+
+        else:
+
+            return "Continue Operation"
+
+
+
+# -----------------------------
+# GEDT Platform
+# -----------------------------
+
+class GEDTPlatform:
+
+
+    def __init__(self):
+
+
+        self.assets = {}
+
+
+        self.sensor = SensorSimulator()
+
+        self.risk = RiskEngine()
+
+        self.decision = DecisionEngine()
+
+        self.memory = []
+
+
+
+    def register_asset(self,asset_id):
+
+
+        self.assets[asset_id] = DigitalTwin(
+
+            asset_id
+
+        )
+
+
+
+    def monitor(self):
+
+
+        for asset_id,twin in self.assets.items():
+
+
+            data = self.sensor.read()
+
+
+            twin.update(data)
+
+
+            risk = self.risk.predict(
+
+                data
+
+            )
+
+
+            action = self.decision.decide(
+
+                risk
+
+            )
+
+
+            report = {
+
+
+            "asset":
+
+            asset_id,
+
+
+            "state":
+
+            data,
+
+
+            "risk":
+
+            risk,
+
+
+            "action":
+
+            action,
+
+
+            "time":
+
+            str(datetime.now())
+
+            }
+
+
+            self.memory.append(
+
+                report
+
+            )
+
+
+            print("\nGEDT REPORT")
+
+            print("----------------")
+
+            print(report)
+
+
+
+# -----------------------------
+# RUN SYSTEM
+# -----------------------------
+
+if __name__ == "__main__":
+
+
+    gedt = GEDTPlatform()
+
+
+
+    # Register assets
+
+    gedt.register_asset(
+
+        "Cooling_A001"
+
+    )
+
+
+    gedt.register_asset(
+
+        "Pump_A002"
+
+    )
+
+
+    gedt.register_asset(
+
+        "Generator_A003"
+
+    )
+
+
+
+    # Continuous monitoring
+
+    for cycle in range(5):
+
+
+        print(
+
+        "\n===== MONITORING CYCLE",
+
+        cycle + 1,
+
+        "====="
+
+        )
+
+
+        gedt.monitor()
+
+
+        time.sleep(2)
+
+
+GEDT Engine
+
+↓
+
+FastAPI
+
+↓
+
+Web Dashboard
+
+↓
+
+Human Operator
+
+
+
+pip install fastapi uvicorn
+
+
+
+"""
+GEDT Alpha v0.5
+
+Digital Twin Intelligence API
+
+Features:
+- Multi Asset Monitoring
+- Risk Prediction
+- Automated Decisions
+- REST API
+"""
+
+from fastapi import FastAPI
+from pydantic import BaseModel
+import random
+from datetime import datetime
+
+
+# -----------------------------
+# Digital Twin
+# -----------------------------
+
+class DigitalTwin:
+
+    def __init__(self, asset_id):
+
+        self.asset_id = asset_id
+        self.state = {}
+
+
+    def update(self, data):
+
+        self.state = data
+
+
+
+# -----------------------------
+# Sensor Engine
+# -----------------------------
+
+class SensorEngine:
+
+
+    def generate(self):
+
+        return {
+
+            "temperature":
+            random.randint(70,100),
+
+            "vibration":
+            round(
+                random.uniform(1,10),
+                2
+            ),
+
+            "pressure":
+            random.randint(90,120)
+
+        }
+
+
+
+# -----------------------------
+# Intelligence Engine
+# -----------------------------
+
+class GEDTCore:
+
+
+    def __init__(self):
+
+        self.assets = {}
+
+        self.sensor = SensorEngine()
+
+
+
+    def add_asset(self,asset_id):
+
+        self.assets[asset_id] = DigitalTwin(
+
+            asset_id
+
+        )
+
+
+
+    def analyze(self,asset_id):
+
+        twin = self.assets[asset_id]
+
+
+        data = self.sensor.generate()
+
+
+        twin.update(data)
+
+
+
+        risk = (
+
+            data["temperature"]*0.004
+
+            +
+
+            data["vibration"]*0.05
+
+            +
+
+            data["pressure"]*0.002
+
+        )
+
+
+        if risk > 0.75:
+
+            action = "Emergency Maintenance"
+
+        elif risk > 0.45:
+
+            action = "Inspection Required"
+
+        else:
+
+            action = "Normal Operation"
+
+
+
+        return {
+
+            "asset":
+
+            asset_id,
+
+            "time":
+
+            str(datetime.now()),
+
+            "sensor":
+
+            data,
+
+            "risk":
+
+            round(risk,3),
+
+            "recommendation":
+
+            action
+
+        }
+
+
+
+# -----------------------------
+# API
+# -----------------------------
+
+app = FastAPI(
+
+    title="GEDT Alpha v0.5"
+
+)
+
+
+
+gedt = GEDTCore()
+
+
+
+gedt.add_asset(
+
+    "Cooling_A001"
+
+)
+
+gedt.add_asset(
+
+    "Pump_A002"
+
+)
+
+gedt.add_asset(
+
+    "Generator_A003"
+
+)
+
+
+
+class AssetRequest(BaseModel):
+
+    asset_id: str
+
+
+
+@app.get("/")
+
+def home():
+
+    return {
+
+        "system":
+
+        "GEDT Alpha",
+
+        "status":
+
+        "running"
+
+    }
+
+
+
+@app.post("/analyze")
+
+def analyze(request: AssetRequest):
+
+
+    return gedt.analyze(
+
+        request.asset_id
+
+    )
+
+
+uvicorn gedt_alpha_v05:app --reload
+
+http://127.0.0.1:8000/docs
+
+
+{
+ "asset_id":
+ "Cooling_A001"
+}
+
+
+pip install sqlalchemy
+
+
+
+
+gedt_alpha_v06.py
+
+
+"""
+GEDT Alpha v0.6
+
+Digital Twin Intelligence Platform
+
+Added:
+- Persistent Database
+- Decision History
+- Asset Memory
+- Performance Tracking
+"""
+
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+from sqlalchemy import (
+    create_engine,
+    Column,
+    Integer,
+    String,
+    Float
+)
+
+from sqlalchemy.orm import (
+    declarative_base,
+    sessionmaker
+)
+
+import random
+from datetime import datetime
+
+
+
+# =============================
+# DATABASE
+# =============================
+
+engine = create_engine(
+    "sqlite:///gedt_memory.db"
+)
+
+
+Session = sessionmaker(
+    bind=engine
+)
+
+
+Base = declarative_base()
+
+
+
+class DecisionRecord(Base):
+
+    __tablename__ = "decisions"
+
+
+    id = Column(
+        Integer,
+        primary_key=True
+    )
+
+    asset = Column(
+        String
+    )
+
+    temperature = Column(
+        Float
+    )
+
+    vibration = Column(
+        Float
+    )
+
+    risk = Column(
+        Float
+    )
+
+    action = Column(
+        String
+    )
+
+
+
+Base.metadata.create_all(
+    engine
+)
+
+
+
+# =============================
+# DIGITAL TWIN
+# =============================
+
+class DigitalTwin:
+
+
+    def __init__(self,asset):
+
+        self.asset = asset
+
+        self.state={}
+
+
+
+    def update(self,data):
+
+        self.state=data
+
+
+
+# =============================
+# SENSOR
+# =============================
+
+class Sensor:
+
+
+    def read(self):
+
+        return {
+
+        "temperature":
+        random.randint(70,100),
+
+        "vibration":
+        round(
+            random.uniform(1,10),
+            2
+        )
+
+        }
+
+
+
+# =============================
+# GEDT ENGINE
+# =============================
+
+class GEDT:
+
+
+    def __init__(self):
+
+        self.assets={}
+
+        self.sensor=Sensor()
+
+
+
+    def register(self,name):
+
+        self.assets[name]=DigitalTwin(
+            name
+        )
+
+
+
+    def analyze(self,name):
+
+
+        data=self.sensor.read()
+
+
+        twin=self.assets[name]
+
+
+        twin.update(data)
+
+
+
+        risk=(
+
+        data["temperature"]*0.005
+
+        +
+
+        data["vibration"]*0.05
+
+        )
+
+
+        if risk > 0.75:
+
+            action="Maintenance"
+
+        elif risk > 0.45:
+
+            action="Inspection"
+
+        else:
+
+            action="Continue"
+
+
+
+        self.save(
+
+            name,
+
+            data,
+
+            risk,
+
+            action
+
+        )
+
+
+        return {
+
+        "asset":name,
+
+        "sensor":data,
+
+        "risk":round(risk,3),
+
+        "action":action
+
+        }
+
+
+
+    def save(
+
+        self,
+
+        asset,
+
+        data,
+
+        risk,
+
+        action
+
+    ):
+
+
+        db=Session()
+
+
+        record=DecisionRecord(
+
+            asset=asset,
+
+            temperature=data["temperature"],
+
+            vibration=data["vibration"],
+
+            risk=risk,
+
+            action=action
+
+        )
+
+
+        db.add(record)
+
+        db.commit()
+
+        db.close()
+
+
+
+# =============================
+# API
+# =============================
+
+app=FastAPI(
+
+title="GEDT Alpha v0.6"
+
+)
+
+
+
+system=GEDT()
+
+
+system.register(
+"Cooling_A001"
+)
+
+
+system.register(
+"Pump_A002"
+)
+
+
+
+class Request(BaseModel):
+
+    asset_id:str
+
+
+
+@app.get("/")
+
+def home():
+
+    return {
+
+    "GEDT":
+
+    "running",
+
+    "version":
+
+    "0.6"
+
+    }
+
+
+
+@app.post("/analyze")
+
+def analyze(req:Request):
+
+    return system.analyze(
+
+        req.asset_id
+
+    )
+
+
+
+@app.get("/history")
+
+def history():
+
+    db=Session()
+
+
+    records=db.query(
+
+        DecisionRecord
+
+    ).all()
+
+
+    result=[]
+
+
+    for r in records:
+
+        result.append(
+
+        {
+
+        "asset":r.asset,
+
+        "risk":r.risk,
+
+        "action":r.action
+
+        }
+
+        )
+
+
+    db.close()
+
+
+    return result
+
+
+uvicorn gedt_alpha_v06:app --reload
+
+
+
+POST /analyze
+
+
+pip install scikit-learn sqlalchemy pandas
+
+
+gedt_alpha_v07.py
+
+
+
+"""
+GEDT Alpha v0.7
+
+Self Learning Digital Twin Platform
+
+Features:
+- Digital Twin
+- Database Memory
+- ML Training
+- Prediction
+- Continuous Improvement
+"""
+
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+from sqlalchemy import (
+    create_engine,
+    Column,
+    Integer,
+    Float,
+    String
+)
+
+from sqlalchemy.orm import (
+    declarative_base,
+    sessionmaker
+)
+
+from sklearn.ensemble import RandomForestClassifier
+
+import pandas as pd
+import random
+
+
+
+# =============================
+# DATABASE
+# =============================
+
+engine = create_engine(
+    "sqlite:///gedt_learning.db"
+)
+
+Session = sessionmaker(
+    bind=engine
+)
+
+Base = declarative_base()
+
+
+
+class Experience(Base):
+
+    __tablename__="experience"
+
+
+    id=Column(
+        Integer,
+        primary_key=True
+    )
+
+    temperature=Column(
+        Float
+    )
+
+    vibration=Column(
+        Float
+    )
+
+    pressure=Column(
+        Float
+    )
+
+    failure=Column(
+        Integer
+    )
+
+
+
+Base.metadata.create_all(
+    engine
+)
+
+
+
+# =============================
+# SENSOR
+# =============================
+
+class Sensor:
+
+
+    def read(self):
+
+        temperature=random.randint(
+            70,100
+        )
+
+        vibration=round(
+            random.uniform(1,10),
+            2
+        )
+
+        pressure=random.randint(
+            90,120
+        )
+
+
+        failure = 1 if (
+
+            temperature > 90
+
+            and vibration > 7
+
+        ) else 0
+
+
+        return {
+
+        "temperature":temperature,
+
+        "vibration":vibration,
+
+        "pressure":pressure,
+
+        "failure":failure
+
+        }
+
+
+
+# =============================
+# LEARNING ENGINE
+# =============================
+
+class LearningEngine:
+
+
+    def __init__(self):
+
+        self.model = RandomForestClassifier(
+
+            n_estimators=50
+
+        )
+
+
+
+    def train(self):
+
+        db=Session()
+
+
+        records=db.query(
+            Experience
+        ).all()
+
+
+        db.close()
+
+
+        if len(records)<5:
+
+            return False
+
+
+        data=[]
+
+
+        for r in records:
+
+            data.append(
+
+            {
+
+            "temperature":
+            r.temperature,
+
+            "vibration":
+            r.vibration,
+
+            "pressure":
+            r.pressure,
+
+            "failure":
+            r.failure
+
+            }
+
+            )
+
+
+        df=pd.DataFrame(data)
+
+
+        X=df[
+
+        [
+
+        "temperature",
+
+        "vibration",
+
+        "pressure"
+
+        ]
+
+        ]
+
+
+        y=df["failure"]
+
+
+        self.model.fit(
+            X,
+            y
+        )
+
+
+        return True
+
+
+
+    def predict(self,data):
+
+
+        sample=pd.DataFrame(
+
+        [data]
+
+        )
+
+
+        return int(
+
+        self.model.predict(
+
+            sample
+
+        )[0]
+
+        )
+
+
+
+# =============================
+# GEDT CORE
+# =============================
+
+class GEDT:
+
+
+    def __init__(self):
+
+        self.sensor=Sensor()
+
+        self.learning=LearningEngine()
+
+
+
+    def run(self):
+
+
+        data=self.sensor.read()
+
+
+        db=Session()
+
+
+        db.add(
+
+        Experience(**data)
+
+        )
+
+
+        db.commit()
+
+        db.close()
+
+
+
+        trained=self.learning.train()
+
+
+
+        prediction = None
+
+
+        if trained:
+
+            prediction=self.learning.predict(
+
+            data
+
+            )
+
+
+        return {
+
+
+        "sensor":
+
+        data,
+
+
+        "model_trained":
+
+        trained,
+
+
+        "prediction":
+
+        prediction
+
+
+        }
+
+
+
+# =============================
+# API
+# =============================
+
+app=FastAPI(
+
+title="GEDT Alpha v0.7"
+
+)
+
+
+
+gedt=GEDT()
+
+
+
+@app.get("/learn")
+
+def learn_cycle():
+
+    return gedt.run()
+
+
+
+uvicorn gedt_alpha_v07:app --reload
+
+
+GET /learn 
+
+
+
+"""
+GEDT Alpha v0.8
+
+Autonomous Multi-Agent Digital Twin
+
+Features:
+- Digital Twin
+- Learning Prediction
+- Agent Coordination
+- Simulation
+- Optimization
+- Decision Recommendation
+"""
+
+from datetime import datetime
+import random
+
+
+
+# =============================
+# DIGITAL TWIN
+# =============================
+
+class DigitalTwin:
+
+
+    def __init__(self,asset):
+
+        self.asset=asset
+
+        self.state={}
+
+
+
+    def update(self,data):
+
+        self.state=data
+
+
+
+# =============================
+# MONITORING AGENT
+# =============================
+
+class MonitoringAgent:
+
+
+    def observe(self,state):
+
+
+        return {
+
+
+        "temperature":
+        state["temperature"],
+
+
+        "vibration":
+        state["vibration"],
+
+
+        "status":
+
+        "active"
+
+        }
+
+
+
+# =============================
+# REASONING AGENT
+# =============================
+
+class ReasoningAgent:
+
+
+    def analyze(self,state):
+
+
+        risk=(
+
+        state["temperature"]*0.005
+
+        +
+
+        state["vibration"]*0.05
+
+        )
+
+
+        return {
+
+
+        "risk":
+
+        round(risk,3),
+
+
+        "severity":
+
+        (
+
+        "HIGH"
+
+        if risk>0.7
+
+        else
+
+        "NORMAL"
+
+        )
+
+        }
+
+
+
+# =============================
+# SIMULATION AGENT
+# =============================
+
+class SimulationAgent:
+
+
+    def generate(self,state):
+
+
+        return [
+
+        {
+
+        "action":
+        "Maintenance",
+
+        "risk":
+        0.10,
+
+        "cost":
+        30
+
+        },
+
+
+        {
+
+        "action":
+        "Reduce Load",
+
+        "risk":
+        0.25,
+
+        "cost":
+        15
+
+        },
+
+
+        {
+
+        "action":
+        "Continue",
+
+        "risk":
+        0.80,
+
+        "cost":
+        5
+
+        }
+
+        ]
+
+
+
+# =============================
+# OPTIMIZATION AGENT
+# =============================
+
+class OptimizationAgent:
+
+
+    def optimize(self,options):
+
+
+        best=min(
+
+            options,
+
+            key=lambda x:
+
+            (
+
+            x["risk"]*0.7
+
+            +
+
+            x["cost"]*0.3
+
+            )
+
+        )
+
+
+        return best
+
+
+
+# =============================
+# DECISION AGENT
+# =============================
+
+class DecisionAgent:
+
+
+    def decide(
+
+        self,
+
+        analysis,
+
+        choice
+
+    ):
+
+
+        return {
+
+
+        "risk_level":
+
+        analysis["severity"],
+
+
+        "recommended_action":
+
+        choice["action"],
+
+
+        "confidence":
+
+        round(
+
+        1-choice["risk"],
+
+        2
+
+        )
+
+        }
+
+
+
+# =============================
+# COORDINATOR
+# =============================
+
+class GEDTCoordinator:
+
+
+    def __init__(self,asset):
+
+
+        self.twin=DigitalTwin(
+
+            asset
+
+        )
+
+
+        self.monitor=MonitoringAgent()
+
+        self.reason=ReasoningAgent()
+
+        self.sim=SimulationAgent()
+
+        self.optimize=OptimizationAgent()
+
+        self.decision=DecisionAgent()
+
+
+
+    def run(self,data):
+
+
+        self.twin.update(
+
+            data
+
+        )
+
+
+        observation=self.monitor.observe(
+
+            data
+
+        )
+
+
+        analysis=self.reason.analyze(
+
+            data
+
+        )
+
+
+        scenarios=self.sim.generate(
+
+            data
+
+        )
+
+
+        best=self.optimize.optimize(
+
+            scenarios
+
+        )
+
+
+        final=self.decision.decide(
+
+            analysis,
+
+            best
+
+        )
+
+
+        return {
+
+
+        "asset":
+
+        self.twin.asset,
+
+
+        "time":
+
+        str(datetime.now()),
+
+
+        "observation":
+
+        observation,
+
+
+        "analysis":
+
+        analysis,
+
+
+        "decision":
+
+        final
+
+        }
+
+
+
+# =============================
+# TEST
+# =============================
+
+if __name__=="__main__":
+
+
+    gedt=GEDTCoordinator(
+
+        "Cooling_A001"
+
+    )
+
+
+    sensor={
+
+
+    "temperature":
+
+    94,
+
+
+    "vibration":
+
+    8.5
+
+    }
+
+
+
+    result=gedt.run(
+
+        sensor
+
+    )
+
+
+    print(result)
+
+
+
+"""
+GEDT Alpha v0.9
+
+Autonomous World Model Simulator
+
+Features:
+- Digital Twin
+- Future Scenario Generation
+- Monte Carlo Simulation
+- Risk Evaluation
+- Strategy Optimization
+"""
+
+import random
+from datetime import datetime
+
+
+
+# =============================
+# DIGITAL TWIN
+# =============================
+
+class DigitalTwin:
+
+
+    def __init__(self,asset):
+
+        self.asset=asset
+
+        self.state={}
+
+
+
+    def update(self,data):
+
+        self.state=data
+
+
+
+# =============================
+# WORLD MODEL
+# =============================
+
+class WorldModel:
+
+
+    def simulate_future(
+
+        self,
+
+        state,
+
+        action
+
+    ):
+
+
+        temperature = state["temperature"]
+
+        vibration = state["vibration"]
+
+
+
+        if action=="Maintenance":
+
+            temperature -= random.randint(
+                10,20
+            )
+
+            vibration -= random.uniform(
+                2,4
+            )
+
+
+        elif action=="Reduce Load":
+
+            temperature -= random.randint(
+                5,10
+            )
+
+            vibration -= random.uniform(
+                1,2
+            )
+
+
+        else:
+
+            temperature += random.randint(
+                5,15
+            )
+
+            vibration += random.uniform(
+                1,3
+            )
+
+
+
+        risk=(
+
+            temperature*0.005
+
+            +
+
+            vibration*0.05
+
+        )
+
+
+        return {
+
+
+        "future_temperature":
+
+        round(temperature,2),
+
+
+        "future_vibration":
+
+        round(vibration,2),
+
+
+        "future_risk":
+
+        round(
+
+        min(risk,1),
+
+        3
+
+        )
+
+
+        }
+
+
+
+# =============================
+# MONTE CARLO SIMULATOR
+# =============================
+
+class SimulationEngine:
+
+
+    def __init__(self):
+
+        self.world=WorldModel()
+
+
+
+    def run(
+
+        self,
+
+        state,
+
+        action,
+
+        trials=100
+
+    ):
+
+
+        results=[]
+
+
+        for _ in range(trials):
+
+
+            result=self.world.simulate_future(
+
+                state,
+
+                action
+
+            )
+
+
+            results.append(result)
+
+
+
+        average_risk=sum(
+
+            r["future_risk"]
+
+            for r in results
+
+        )/trials
+
+
+
+        return {
+
+
+        "action":
+
+        action,
+
+
+        "average_future_risk":
+
+        round(
+
+        average_risk,
+
+        3
+
+        ),
+
+
+        "trials":
+
+        trials
+
+        }
+
+
+
+# =============================
+# OPTIMIZER
+# =============================
+
+class FutureOptimizer:
+
+
+    def choose(
+
+        self,
+
+        simulations
+
+    ):
+
+
+        return min(
+
+            simulations,
+
+            key=lambda x:
+
+            x["average_future_risk"]
+
+        )
+
+
+
+# =============================
+# GEDT WORLD ENGINE
+# =============================
+
+class GEDTWorldEngine:
+
+
+    def __init__(self,asset):
+
+        self.twin=DigitalTwin(
+
+            asset
+
+        )
+
+        self.simulator=SimulationEngine()
+
+        self.optimizer=FutureOptimizer()
+
+
+
+    def analyze(self,state):
+
+
+        self.twin.update(
+
+            state
+
+        )
+
+
+        actions=[
+
+        "Maintenance",
+
+        "Reduce Load",
+
+        "Continue"
+
+        ]
+
+
+
+        simulations=[]
+
+
+        for action in actions:
+
+
+            simulations.append(
+
+                self.simulator.run(
+
+                    state,
+
+                    action
+
+                )
+
+            )
+
+
+
+        best=self.optimizer.choose(
+
+            simulations
+
+        )
+
+
+        return {
+
+
+        "asset":
+
+        self.twin.asset,
+
+
+        "time":
+
+        str(datetime.now()),
+
+
+        "future_analysis":
+
+        simulations,
+
+
+        "recommended_strategy":
+
+        best
+
+        }
+
+
+
+# =============================
+# TEST
+# =============================
+
+if __name__=="__main__":
+
+
+    gedt=GEDTWorldEngine(
+
+        "Cooling_A001"
+
+    )
+
+
+    current_state={
+
+
+    "temperature":
+
+    94,
+
+
+    "vibration":
+
+    8.5
+
+    }
+
+
+    result=gedt.analyze(
+
+        current_state
+
+    )
+
+
+    print(result)
+
+
+
+
+"""
+GEDT Alpha v1.0
+
+Integrated Autonomous Digital Twin
+
+Modules:
+- Digital Twin
+- Risk Prediction
+- Multi-Agent Reasoning
+- Future Simulation
+- Optimization
+- Memory
+"""
+
+from datetime import datetime
+import random
+
+
+
+class DigitalTwin:
+
+
+    def __init__(self,asset):
+
+        self.asset=asset
+        self.state={}
+
+
+    def update(self,data):
+
+        self.state=data
+
+
+
+class Predictor:
+
+
+    def predict(self,state):
+
+        risk=(
+
+        state["temperature"]*0.005
+
+        +
+
+        state["vibration"]*0.05
+
+        )
+
+
+        return round(
+
+            min(risk,1),
+
+            3
+
+        )
+
+
+
+class AgentSystem:
+
+
+    def analyze(self,risk):
+
+
+        if risk>0.75:
+
+            return "Critical"
+
+
+        elif risk>0.45:
+
+            return "Warning"
+
+
+        return "Normal"
+
+
+
+class WorldModel:
+
+
+    def simulate(self,state,action):
+
+
+        temperature=state["temperature"]
+
+
+        if action=="Maintenance":
+
+            temperature-=15
+
+
+        elif action=="Reduce Load":
+
+            temperature-=8
+
+
+        else:
+
+            temperature+=10
+
+
+
+        risk=min(
+
+            temperature*0.005,
+
+            1
+
+        )
+
+
+        return {
+
+        "action":action,
+
+        "future_risk":
+
+        round(risk,3)
+
+        }
+
+
+
+class Optimizer:
+
+
+    def select(self,scenarios):
+
+
+        return min(
+
+            scenarios,
+
+            key=lambda x:
+
+            x["future_risk"]
+
+        )
+
+
+
+class Memory:
+
+
+    def __init__(self):
+
+        self.records=[]
+
+
+
+    def store(self,data):
+
+        self.records.append(data)
+
+
+
+class GEDT:
+
+
+    def __init__(self,asset):
+
+
+        self.twin=DigitalTwin(asset)
+
+        self.predictor=Predictor()
+
+        self.agent=AgentSystem()
+
+        self.world=WorldModel()
+
+        self.optimizer=Optimizer()
+
+        self.memory=Memory()
+
+
+
+    def run(self,sensor):
+
+
+        self.twin.update(sensor)
+
+
+        risk=self.predictor.predict(
+
+            sensor
+
+        )
+
+
+        status=self.agent.analyze(
+
+            risk
+
+        )
+
+
+        actions=[
+
+        "Maintenance",
+
+        "Reduce Load",
+
+        "Continue"
+
+        ]
+
+
+        futures=[]
+
+
+        for action in actions:
+
+            futures.append(
+
+                self.world.simulate(
+
+                    sensor,
+
+                    action
+
+                )
+
+            )
+
+
+        decision=self.optimizer.select(
+
+            futures
+
+        )
+
+
+        report={
+
+
+        "asset":
+
+        self.twin.asset,
+
+
+        "time":
+
+        str(datetime.now()),
+
+
+        "risk":
+
+        risk,
+
+
+        "status":
+
+        status,
+
+
+        "decision":
+
+        decision
+
+
+        }
+
+
+        self.memory.store(report)
+
+
+        return report
+
+
+
+
+if __name__=="__main__":
+
+
+    system=GEDT(
+
+        "Cooling_A001"
+
+    )
+
+
+    sensor={
+
+
+    "temperature":94,
+
+    "vibration":8.5
+
+    }
+
+
+
+    result=system.run(
+
+        sensor
+
+    )
+
+
+    print(result)
+
+
+
+class DataValidator:
+
+
+    def validate(self,data):
+
+        required=[
+        "temperature",
+        "vibration"
+        ]
+
+
+        for field in required:
+
+            if field not in data:
+
+                return False
+
+
+        return True
+
+
+class ModelManager:
+
+
+    def __init__(self):
+
+        self.version="1.0"
+
+
+
+    def update(self,new_model):
+
+        self.version += ".1"
+
+
+pip install paho-mqtt
+
+
+"""
+GEDT Alpha v1.2
+
+Real-Time IoT Streaming Prototype
+
+Features:
+- Sensor Events
+- Stream Processing
+- Digital Twin Updates
+- AI Risk Detection
+- Automatic Alerts
+"""
+
+import json
+import random
+import time
+
+from datetime import datetime
+
+
+
+# =============================
+# DIGITAL TWIN
+# =============================
+
+class DigitalTwin:
+
+
+    def __init__(self,asset):
+
+        self.asset = asset
+
+        self.state = {}
+
+
+
+    def update(self,data):
+
+        self.state.update(data)
+
+
+
+# =============================
+# SENSOR STREAM SIMULATOR
+# =============================
+
+class SensorStream:
+
+
+    def generate(self,asset):
+
+
+        return {
+
+
+        "asset":
+
+        asset,
+
+
+        "temperature":
+
+        random.randint(70,100),
+
+
+        "vibration":
+
+        round(
+
+        random.uniform(1,10),
+
+        2
+
+        ),
+
+
+        "timestamp":
+
+        str(datetime.now())
+
+
+        }
+
+
+
+# =============================
+# AI ANALYZER
+# =============================
+
+class AIAnalyzer:
+
+
+    def analyze(self,state):
+
+
+        risk=(
+
+        state["temperature"]
+
+        *
+
+        0.005
+
+        +
+
+        state["vibration"]
+
+        *
+
+        0.05
+
+        )
+
+
+        if risk > 0.75:
+
+            status="CRITICAL"
+
+            action="Maintenance"
+
+
+        elif risk > 0.45:
+
+            status="WARNING"
+
+            action="Inspection"
+
+
+        else:
+
+            status="NORMAL"
+
+            action="Continue"
+
+
+
+        return {
+
+
+        "risk":
+
+        round(risk,3),
+
+
+        "status":
+
+        status,
+
+
+        "action":
+
+        action
+
+        }
+
+
+
+# =============================
+# STREAM ENGINE
+# =============================
+
+class GEDTStreamEngine:
+
+
+    def __init__(self):
+
+
+        self.twins={}
+
+        self.sensor=SensorStream()
+
+        self.ai=AIAnalyzer()
+
+
+
+    def register(self,asset):
+
+
+        self.twins[asset]=DigitalTwin(
+
+            asset
+
+        )
+
+
+
+    def process(self,event):
+
+
+        asset=event["asset"]
+
+
+        twin=self.twins[asset]
+
+
+        twin.update(event)
+
+
+
+        decision=self.ai.analyze(
+
+            event
+
+        )
+
+
+        return {
+
+
+        "asset":
+
+        asset,
+
+
+        "state":
+
+        event,
+
+
+        "decision":
+
+        decision
+
+
+        }
+
+
+
+# =============================
+# LIVE TEST
+# =============================
+
+if __name__=="__main__":
+
+
+    gedt=GEDTStreamEngine()
+
+
+    gedt.register(
+        "Cooling_A001"
+    )
+
+    gedt.register(
+        "Pump_A002"
+    )
+
+
+
+    while True:
+
+
+        for asset in gedt.twins:
+
+
+            event = gedt.sensor.generate(
+
+                asset
+
+            )
+
+
+            result=gedt.process(
+
+                event
+
+            )
+
+
+            print(
+
+            json.dumps(
+
+                result,
+
+                indent=4
+
+            )
+
+            )
+
+
+        time.sleep(3)
+
+
+pip install streamlit plotly pandas
+
+
+"""
+GEDT Alpha v1.3
+
+Live Intelligence Dashboard
+
+Features:
+- Asset Monitoring
+- Risk Visualization
+- AI Recommendation Display
+"""
+
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+import random
+from datetime import datetime
+
+
+
+# -----------------------------
+# GEDT DATA ENGINE
+# -----------------------------
+
+class GEDTMonitor:
+
+
+    def generate(self,asset):
+
+
+        temperature=random.randint(
+            70,100
+        )
+
+
+        vibration=round(
+
+            random.uniform(1,10),
+
+            2
+
+        )
+
+
+        risk=(
+
+            temperature*0.005
+
+            +
+
+            vibration*0.05
+
+        )
+
+
+        if risk>0.75:
+
+            action="Maintenance"
+
+        elif risk>0.45:
+
+            action="Inspection"
+
+        else:
+
+            action="Normal"
+
+
+
+        return {
+
+
+        "asset":
+
+        asset,
+
+
+        "temperature":
+
+        temperature,
+
+
+        "vibration":
+
+        vibration,
+
+
+        "risk":
+
+        round(risk,3),
+
+
+        "action":
+
+        action,
+
+
+        "time":
+
+        datetime.now()
+
+        }
+
+
+
+
+# -----------------------------
+# DASHBOARD
+# -----------------------------
+
+
+st.set_page_config(
+
+    page_title="GEDT Intelligence",
+
+    layout="wide"
+
+)
+
+
+st.title(
+"GEDT Real-Time Intelligence Dashboard"
+)
+
+
+
+engine=GEDTMonitor()
+
+
+
+assets=[
+
+"Cooling_A001",
+
+"Pump_A002",
+
+"Generator_A003"
+
+]
+
+
+records=[]
+
+
+
+for asset in assets:
+
+    records.append(
+
+        engine.generate(asset)
+
+    )
+
+
+
+df=pd.DataFrame(records)
+
+
+
+# -----------------------------
+# SUMMARY
+# -----------------------------
+
+
+col1,col2,col3=st.columns(3)
+
+
+
+col1.metric(
+
+"Assets Monitored",
+
+len(df)
+
+)
+
+
+col2.metric(
+
+"Highest Risk",
+
+f"{df.risk.max()*100:.1f}%"
+
+)
+
+
+critical=len(
+
+df[df.risk>0.75]
+
+)
+
+
+col3.metric(
+
+"Critical Assets",
+
+critical
+
+)
+
+
+
+# -----------------------------
+# TABLE
+# -----------------------------
+
+
+st.subheader(
+"Asset Status"
+)
+
+
+st.dataframe(
+
+df
+
+)
+
+
+
+# -----------------------------
+# RISK GRAPH
+# -----------------------------
+
+
+chart=px.bar(
+
+df,
+
+x="asset",
+
+y="risk",
+
+title="Asset Risk Level"
+
+)
+
+
+st.plotly_chart(
+
+chart,
+
+use_container_width=True
+
+)
+
+
+
+# -----------------------------
+# ACTION PANEL
+# -----------------------------
+
+
+st.subheader(
+
+"GEDT Recommendations"
+
+)
+
+
+for _,row in df.iterrows():
+
+    st.write(
+
+    f"{row.asset}: {row.action}"
+
+    )
+
+
+
+
+
+id="controlarch14"
+
+              GEDT Brain
+
+
+Sensor Data
+     |
+     ↓
+Digital Twin
+     |
+     ↓
+AI Decision
+     |
+     ↓
+Safety Controller
+     |
+     ↓
+Action Executor
+     |
+     ↓
+System Response
+     |
+     ↓
+Learning Memory
+
+
+
+
+
+"""
+GEDT Alpha v1.4
+
+Closed Loop Autonomous Digital Twin
+
+Features:
+- Monitoring
+- Decision Making
+- Safety Control
+- Action Execution
+- Feedback Learning
+"""
+
+from datetime import datetime
+import random
+import time
+
+
+
+# =============================
+# DIGITAL TWIN
+# =============================
+
+class DigitalTwin:
+
+
+    def __init__(self,asset):
+
+        self.asset=asset
+        self.state={}
+
+
+
+    def update(self,data):
+
+        self.state=data
+
+
+
+# =============================
+# AI DECISION ENGINE
+# =============================
+
+class IntelligenceEngine:
+
+
+    def analyze(self,state):
+
+
+        risk=(
+
+            state["temperature"]*0.005
+
+            +
+
+            state["vibration"]*0.05
+
+        )
+
+
+        if risk > 0.75:
+
+            action="COOLING"
+
+        elif risk > 0.45:
+
+            action="INSPECTION"
+
+        else:
+
+            action="NONE"
+
+
+
+        return {
+
+        "risk":
+
+        round(risk,3),
+
+        "action":
+
+        action
+
+        }
+
+
+
+# =============================
+# SAFETY CONTROLLER
+# =============================
+
+class SafetyController:
+
+
+    def approve(self,decision):
+
+
+        dangerous_actions=[
+
+            "SHUTDOWN",
+
+            "RESET"
+
+        ]
+
+
+        if decision["action"] in dangerous_actions:
+
+            return False
+
+
+        return True
+
+
+
+# =============================
+# ACTION EXECUTOR
+# =============================
+
+class Actuator:
+
+
+    def execute(self,action,state):
+
+
+        new_state=state.copy()
+
+
+
+        if action=="COOLING":
+
+            new_state["temperature"]-=15
+
+
+
+        elif action=="INSPECTION":
+
+            new_state["temperature"]-=5
+
+
+
+        return new_state
+
+
+
+# =============================
+# LEARNING MEMORY
+# =============================
+
+class FeedbackMemory:
+
+
+    def __init__(self):
+
+        self.records=[]
+
+
+
+    def store(self,data):
+
+        self.records.append(data)
+
+
+
+# =============================
+# GEDT AUTONOMOUS SYSTEM
+# =============================
+
+class GEDT:
+
+
+    def __init__(self,asset):
+
+
+        self.twin=DigitalTwin(asset)
+
+        self.ai=IntelligenceEngine()
+
+        self.safety=SafetyController()
+
+        self.actuator=Actuator()
+
+        self.memory=FeedbackMemory()
+
+
+
+    def run(self,sensor):
+
+
+        self.twin.update(sensor)
+
+
+
+        decision=self.ai.analyze(
+
+            sensor
+
+        )
+
+
+        approved=self.safety.approve(
+
+            decision
+
+        )
+
+
+        if approved:
+
+
+            result=self.actuator.execute(
+
+                decision["action"],
+
+                sensor
+
+            )
+
+
+        else:
+
+            result=sensor
+
+
+
+        feedback={
+
+
+        "time":
+
+        str(datetime.now()),
+
+
+        "before":
+
+        sensor,
+
+
+        "decision":
+
+        decision,
+
+
+        "approved":
+
+        approved,
+
+
+        "after":
+
+        result
+
+        }
+
+
+
+        self.memory.store(
+
+            feedback
+
+        )
+
+
+        return feedback
+
+
+
+
+# =============================
+# TEST
+# =============================
+
+if __name__=="__main__":
+
+
+    gedt=GEDT(
+
+        "Cooling_A001"
+
+    )
+
+
+    sensor={
+
+    "temperature":95,
+
+    "vibration":8
+
+    }
+
+
+
+    output=gedt.run(
+
+        sensor
+
+    )
+
+
+    print(output)
+
+
+
+Factory A
+  |
+  └── GEDT Edge Node
+          |
+          ↓
+      Local Decision
+
+
+Factory B
+  |
+  └── GEDT Edge Node
+          |
+          ↓
+      Local Decision
+
+
+Factory C
+  |
+  └── GEDT Edge Node
+          |
+          ↓
+      Local Decision
+
+
+          ↓
+
+   Federated Knowledge Layer
+
+          ↓
+
+   Global Intelligence Update
+
+
+
+              GLOBAL GEDT INTELLIGENCE
+
+
+                    Knowledge Hub
+
+                         ↑
+
+        ┌────────────────┼────────────────┐
+
+        ↓                ↓                ↓
+
+
+   Edge Node 1      Edge Node 2      Edge Node 3
+
+
+   Machine A        Machine B        Machine C
+
+
+        ↓                ↓                ↓
+
+
+   Sensors          Sensors          Sensors
+
+
+"""
+GEDT Alpha v1.5
+
+Federated Digital Twin Intelligence
+
+Features:
+- Multiple Edge Nodes
+- Local AI Decisions
+- Knowledge Sharing
+- Global Learning
+"""
+
+from datetime import datetime
+import random
+
+
+
+# =============================
+# EDGE DIGITAL TWIN
+# =============================
+
+class EdgeTwin:
+
+
+    def __init__(self,node_id,asset):
+
+        self.node_id=node_id
+
+        self.asset=asset
+
+        self.state={}
+
+
+
+    def update(self,data):
+
+        self.state=data
+
+
+
+# =============================
+# LOCAL INTELLIGENCE
+# =============================
+
+class LocalAI:
+
+
+    def analyze(self,state):
+
+
+        risk=(
+
+            state["temperature"]*0.005
+
+            +
+
+            state["vibration"]*0.05
+
+        )
+
+
+        if risk>0.75:
+
+            action="Maintenance"
+
+        elif risk>0.45:
+
+            action="Inspection"
+
+        else:
+
+            action="Continue"
+
+
+
+        return {
+
+        "risk":
+
+        round(risk,3),
+
+        "action":
+
+        action
+
+        }
+
+
+
+# =============================
+# FEDERATED KNOWLEDGE
+# =============================
+
+class KnowledgeHub:
+
+
+    def __init__(self):
+
+        self.shared_memory=[]
+
+
+
+    def receive(self,data):
+
+        self.shared_memory.append(
+
+            data
+
+        )
+
+
+
+    def global_pattern(self):
+
+
+        if not self.shared_memory:
+
+            return None
+
+
+        average=sum(
+
+            x["risk"]
+
+            for x in self.shared_memory
+
+        ) / len(
+
+            self.shared_memory
+
+        )
+
+
+        return {
+
+        "average_network_risk":
+
+        round(average,3),
+
+        "nodes":
+
+        len(self.shared_memory)
+
+        }
+
+
+
+# =============================
+# GEDT EDGE NODE
+# =============================
+
+class GEDTNode:
+
+
+    def __init__(self,node_id,asset,hub):
+
+        self.twin=EdgeTwin(
+
+            node_id,
+
+            asset
+
+        )
+
+        self.ai=LocalAI()
+
+        self.hub=hub
+
+
+
+    def operate(self,sensor):
+
+
+        self.twin.update(
+
+            sensor
+
+        )
+
+
+        decision=self.ai.analyze(
+
+            sensor
+
+        )
+
+
+        report={
+
+
+        "node":
+
+        self.twin.node_id,
+
+
+        "asset":
+
+        self.twin.asset,
+
+
+        "time":
+
+        str(datetime.now()),
+
+
+        "risk":
+
+        decision["risk"],
+
+
+        "action":
+
+        decision["action"]
+
+        }
+
+
+
+        self.hub.receive(
+
+            report
+
+        )
+
+
+        return report
+
+
+
+# =============================
+# TEST FEDERATION
+# =============================
+
+if __name__=="__main__":
+
+
+    hub=KnowledgeHub()
+
+
+
+    nodes=[
+
+    GEDTNode(
+
+    "EDGE_01",
+
+    "Cooling_System_A",
+
+    hub
+
+    ),
+
+
+    GEDTNode(
+
+    "EDGE_02",
+
+    "Pump_System_B",
+
+    hub
+
+    ),
+
+
+    GEDTNode(
+
+    "EDGE_03",
+
+    "Generator_C",
+
+    hub
+
+    )
+
+    ]
+
+
+
+    for node in nodes:
+
+
+        sensor={
+
+
+        "temperature":
+
+        random.randint(75,100),
+
+
+        "vibration":
+
+        round(
+
+        random.uniform(2,10),
+
+        2
+
+        )
+
+        }
+
+
+        print(
+
+        node.operate(sensor)
+
+        )
+
+
+
+    print(
+
+    "\nGLOBAL KNOWLEDGE"
+
+    )
+
+
+    print(
+
+    hub.global_pattern()
+
+    )
+
+
+"""
+GEDT Alpha v1.6
+
+Cognitive Digital Twin Intelligence
+
+Features:
+- Causal Reasoning
+- Root Cause Analysis
+- Explainable AI
+- Strategic Planning
+"""
+
+
+from datetime import datetime
+
+
+
+# =============================
+# CAUSAL ENGINE
+# =============================
+
+class CausalEngine:
+
+
+    def analyze(self,state):
+
+
+        causes=[]
+
+
+
+        if state["temperature"] > 90:
+
+            causes.append(
+
+            "High thermal load"
+
+            )
+
+
+        if state["vibration"] > 7:
+
+            causes.append(
+
+            "Mechanical imbalance"
+
+            )
+
+
+        if state["pressure"] > 110:
+
+            causes.append(
+
+            "Pressure stress"
+
+            )
+
+
+
+        if not causes:
+
+            causes.append(
+
+            "No abnormal cause detected"
+
+            )
+
+
+
+        return causes
+
+
+
+# =============================
+# EXPLANATION ENGINE
+# =============================
+
+class ExplanationEngine:
+
+
+    def explain(
+
+        self,
+
+        causes,
+
+        action
+
+    ):
+
+
+        return {
+
+
+        "reason":
+
+        causes,
+
+
+        "recommended_action":
+
+        action,
+
+
+        "confidence":
+
+        0.87
+
+        }
+
+
+
+# =============================
+# STRATEGY PLANNER
+# =============================
+
+class StrategyPlanner:
+
+
+    def plan(self,state):
+
+
+        plans=[]
+
+
+
+        plans.append(
+
+        {
+
+        "strategy":
+
+        "Preventive Maintenance",
+
+        "benefit":
+
+        "Reduce failure probability"
+
+        }
+
+        )
+
+
+
+        plans.append(
+
+        {
+
+        "strategy":
+
+        "Load Optimization",
+
+        "benefit":
+
+        "Reduce operating stress"
+
+        }
+
+        )
+
+
+
+        plans.append(
+
+        {
+
+        "strategy":
+
+        "Continue Monitoring",
+
+        "benefit":
+
+        "Lowest immediate cost"
+
+        }
+
+        )
+
+
+
+        return plans
+
+
+
+# =============================
+# GEDT COGNITIVE CORE
+# =============================
+
+class GEDTCognitive:
+
+
+    def __init__(self,asset):
+
+        self.asset=asset
+
+        self.causal=CausalEngine()
+
+        self.explainer=ExplanationEngine()
+
+        self.planner=StrategyPlanner()
+
+
+
+    def analyze(self,state):
+
+
+        causes=self.causal.analyze(
+
+            state
+
+        )
+
+
+        if len(causes)>1:
+
+            action="Maintenance"
+
+        else:
+
+            action="Monitoring"
+
+
+
+        explanation=self.explainer.explain(
+
+            causes,
+
+            action
+
+        )
+
+
+        strategies=self.planner.plan(
+
+            state
+
+        )
+
+
+
+        return {
+
+
+        "asset":
+
+        self.asset,
+
+
+        "time":
+
+        str(datetime.now()),
+
+
+        "causal_analysis":
+
+        causes,
+
+
+        "decision":
+
+        explanation,
+
+
+        "strategic_options":
+
+        strategies
+
+
+        }
+
+
+
+
+# =============================
+# TEST
+# =============================
+
+if __name__=="__main__":
+
+
+    gedt=GEDTCognitive(
+
+        "Generator_A01"
+
+    )
+
+
+    machine_state={
+
+
+    "temperature":
+
+    96,
+
+
+    "vibration":
+
+    8,
+
+
+    "pressure":
+
+    115
+
+    }
+
+
+
+    result=gedt.analyze(
+
+        machine_state
+
+    )
+
+
+    print(result)
 
 
 
