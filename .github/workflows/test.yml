@@ -33,3 +33,8 @@ jobs:
       - name: Test CIDAR import
         run: |
           python -c "import cidar; print('cidar import: PASS')"
+
+
+      - name: Test CIDAR ethical decisions
+        run: |
+          python -m pytest tests/test_cidar_decision.py -v
