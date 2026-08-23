@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install scikit-learn
+          pip install scikit-learn pytest
 
       - name: Test ethical decision module
         run: |
@@ -40,6 +40,6 @@ jobs:
           python -m pytest tests/test_cidar_decision.py -v
 
 
-pip install scikit-learn pytest
+
 
 
