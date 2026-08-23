@@ -42,25 +42,4 @@ def crisis_management_model(crisis_data, model, resource_constraints):
         return "Crisis response on hold: Ethical concerns raised."
         
         
-        ethical_decision.py
-        
-        """
-Ethical decision-making utilities for GEDT/CIDAR.
-"""
-
-import numpy as np
-
-
-def ethical_decision(weights, criteria):
-    """
-    Calculate a weighted ethical decision score.
-    """
-    weights = np.asarray(weights, dtype=float)
-    criteria = np.asarray(criteria, dtype=float)
-
-    if weights.shape != criteria.shape:
-        raise ValueError("weights and criteria must have the same shape")
-
-    return float(np.dot(weights, criteria))
-        
-        
+    
