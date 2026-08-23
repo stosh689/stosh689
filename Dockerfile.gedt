@@ -1,0 +1,15 @@
+FROM python:3.11-slim
+
+WORKDIR /gedt
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+COPY pyproject_clean.toml ./pyproject.toml
+COPY README.md ./
+COPY src ./src
+
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir .
+
+CMD ["python", "-c", "from gedt.simulation.engine import SimulationEngine; print(SimulationEngine().run(1000, 10, 0.05))"]
