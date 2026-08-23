@@ -41,5 +41,13 @@ def crisis_management_model(crisis_data, model, resource_constraints):
     else:
         return "Crisis response on hold: Ethical concerns raised."
         
-        
+        ethical_result = ethical_decision(
+    ethics_weights,
+    ethics_criteria,
+)
+
+if ethical_result.approved:
+    return optimize_resources(resource_constraints)
+
+return "Crisis response on hold: Ethical concerns raised."
     
