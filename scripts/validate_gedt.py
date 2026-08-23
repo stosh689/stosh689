@@ -1,12 +1,14 @@
 """
-GEDT Validation Runner
+GEDT Repository Validation
 
-Performs basic repository and configuration checks.
+Checks that the clean GEDT foundation files exist.
 """
 
 from pathlib import Path
 import sys
 
+
+ROOT = Path(__file__).resolve().parent.parent
 
 REQUIRED_FILES = [
     "pyproject_clean.toml",
@@ -18,13 +20,11 @@ REQUIRED_FILES = [
 
 
 def check_files() -> list[str]:
-    missing = []
-
-    for filename in REQUIRED_FILES:
-        if not Path(filename).exists():
-            missing.append(filename)
-
-    return missing
+    return [
+        filename
+        for filename in REQUIRED_FILES
+        if not (ROOT / filename).exists()
+    ]
 
 
 def main() -> int:
