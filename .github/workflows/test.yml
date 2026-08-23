@@ -40,6 +40,6 @@ jobs:
           python -m pytest tests/test_cidar_decision.py -v
 
 
-
+pip install scikit-learn pytest
 
 
