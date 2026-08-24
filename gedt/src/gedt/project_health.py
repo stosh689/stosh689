@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-import importlib.util
 
 
-@dataclass
+@dataclass(frozen=True)
 class HealthResult:
     name: str
     passed: bool
@@ -13,11 +12,11 @@ class HealthResult:
 
 
 def check_package() -> HealthResult:
-    """Verify that the GEDT package can be imported."""
     try:
         import gedt
 
         version = getattr(gedt, "__version__", "unknown")
+
         return HealthResult(
             "GEDT package",
             True,
@@ -32,19 +31,17 @@ def check_package() -> HealthResult:
 
 
 def check_project_files() -> HealthResult:
-    """Verify the essential package files exist."""
     package_dir = Path(__file__).resolve().parent
 
-    required = [
+    required = (
         "__init__.py",
         "__main__.py",
         "project_health.py",
-    ]
+    )
 
     missing = [
-        filename
-        for filename in required
-        if not (package_dir / filename).is_file()
+        name for name in required
+        if not (package_dir / name).is_file()
     ]
 
     if missing:
@@ -62,7 +59,6 @@ def check_project_files() -> HealthResult:
 
 
 def check_build_configuration() -> HealthResult:
-    """Verify that the GEDT package configuration exists."""
     package_root = Path(__file__).resolve().parents[2]
     pyproject = package_root / "pyproject.toml"
 
@@ -76,15 +72,14 @@ def check_build_configuration() -> HealthResult:
     try:
         text = pyproject.read_text(encoding="utf-8")
 
-        required_sections = (
+        required = (
             "[build-system]",
             "[project]",
             "[tool.setuptools]",
         )
 
         missing = [
-            section
-            for section in required_sections
+            section for section in required
             if section not in text
         ]
 
@@ -110,7 +105,6 @@ def check_build_configuration() -> HealthResult:
 
 
 def run_health_check() -> list[HealthResult]:
-    """Run the GEDT prototype health checks."""
     return [
         check_package(),
         check_project_files(),
@@ -124,19 +118,19 @@ def main() -> int:
 
     results = run_health_check()
 
-    all_passed = True
+    passed = True
 
     for result in results:
         status = "PASS" if result.passed else "FAIL"
         print(f"[{status}] {result.name}: {result.message}")
 
         if not result.passed:
-            all_passed = False
+            passed = False
 
     print("=" * 60)
-    print("OVERALL:", "PASS" if all_passed else "FAIL")
+    print("OVERALL:", "PASS" if passed else "FAIL")
 
-    return 0 if all_passed else 1
+    return 0 if passed else 1
 
 
 if __name__ == "__main__":
