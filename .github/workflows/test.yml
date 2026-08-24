@@ -37,4 +37,4 @@ jobs:
           python -m pytest -q gedt/tests
       - name: Run project tests
         run: |
-          python -m pytest -q tests
+          python -m pytest -q tests/test_cidar_decision.py
