@@ -3,7 +3,7 @@ name: CIDAR Tests
 on:
   workflow_dispatch:
   push:
-    paths:
+  paths:
   - "cidar.py"
   - "cidar_*.py"
   - "ethical_decision.py"
