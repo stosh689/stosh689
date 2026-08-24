@@ -20,4 +20,4 @@ def fuse_confidence_adjusted_evidence(
         confidence_adjusted_score(thermal_score, thermal_confidence),
     ]
 
-    return sum(adjusted_scores) / len(adjusted_scores)
+    return round(sum(adjusted_scores) / len(adjusted_scores), 10)
