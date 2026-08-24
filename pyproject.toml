@@ -30,9 +30,7 @@ python_files = ["test_*.py"]
 where = ["src"]
 
 
-[build-system]
-requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.build_meta"
+
 
 [project]
 name = "gedt"
