@@ -1,4 +1,5 @@
 name: Project Tests
+
 on:
   push:
     branches:
@@ -7,35 +8,49 @@ on:
     branches:
       - main
   workflow_dispatch:
+
 jobs:
   tests:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
       - name: Upgrade packaging tools
         run: |
           python -m pip install --upgrade pip setuptools wheel
-     - name: Install test dependencies
-  run: |
-    python -m pip install -r requirements-test.txt
-    python -m pip install numpy pandas requests
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install -r requirements-test.txt
+          python -m pip install numpy pandas requests
+
       - name: Install GEDT
         run: |
           python -m pip install -e ./gedt
+
       - name: Verify GEDT import
         run: |
           python -c "import gedt; print('GEDT import PASSED:', gedt.__version__)"
+
+      - name: Run CIDAR decision tests
+        run: |
+          python -m pytest -c pytest.ini -q tests/test_cidar_decision.py
+
       - name: Run GEDT package test
         run: |
-          python -m pytest -q gedt/tests/test_gedt_package.py
+          python -m pytest -c pytest.ini -q gedt/tests/test_gedt_package.py
+
       - name: Run GEDT tests
         run: |
-          python -m pytest -q gedt/tests
+          python -m pytest -c pytest.ini -q gedt/tests
+
       - name: Run project tests
         run: |
           python -m pytest -c pytest.ini -q tests
