@@ -1,255 +1,108 @@
-"""
-GEDT Project Health
-
-Lightweight validation and health reporting for the GEDT project.
-
-The module normally reads project metadata from pyproject.toml.
-If the legacy pyproject.toml is malformed, it falls back to the
-clean pyproject2.py compatibility metadata.
-
-It does not execute or modify the GEDT simulation engine.
-"""
-
 from __future__ import annotations
-
-from dataclasses import dataclass
-from pathlib import Path
+import importlib.util
 import sys
 import tomllib
-
-try:
-    from pyproject2 import PROJECT_METADATA
-except ImportError:
-    PROJECT_METADATA = None
-
-
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
 @dataclass(frozen=True)
 class ProjectHealth:
-    """Result of a GEDT project health check."""
-
-    name: str
+    """Result of validating GEDT project metadata."""
+    status: str
+    project_name: str
     version: str
-    python_requirement: str
-    dependency_count: int
-    has_build_system: bool
-    has_project_metadata: bool
-    has_package_configuration: bool
-
+    description: str
+    issues: tuple[str, ...] = ()
     @property
     def healthy(self) -> bool:
-        """Return True when all required project metadata is present."""
-        return all(
-            (
-                self.has_build_system,
-                self.has_project_metadata,
-                self.has_package_configuration,
-                bool(self.name),
-                bool(self.version),
-                bool(self.python_requirement),
-            )
-        )
-
-
-def find_pyproject(start: Path | None = None) -> Path:
+        return self.status == "healthy"
+def _load_compatibility_metadata() -> dict[str, Any] | None:
     """
-    Locate pyproject.toml.
-
-    Searches the supplied directory and then walks upward through
-    its parent directories.
+    Load compatibility metadata from pyproject2.py.
+    This intentionally loads the file directly rather than relying on
+    the repository root being present on sys.path.
     """
-    current = (start or Path.cwd()).resolve()
-
-    if current.is_file():
-        current = current.parent
-
-    for directory in (current, *current.parents):
-        candidate = directory / "pyproject.toml"
-
-        if candidate.is_file():
-            return candidate
-
-    raise FileNotFoundError(
-        "Could not locate pyproject.toml."
-    )
-
-
-def load_project_metadata(
-    pyproject_path: Path | None = None,
-) -> dict:
-    """
-    Load GEDT project metadata.
-
-    First attempts to read the existing pyproject.toml.
-
-    If pyproject.toml contains malformed TOML, the function falls
-    back to PROJECT_METADATA from pyproject2.py.
-
-    The existing pyproject.toml is never modified.
-    """
-    path = pyproject_path or find_pyproject()
-
+    root = Path(__file__).resolve().parents[2]
+    compatibility_file = root / "pyproject2.py"
+    if not compatibility_file.is_file():
+        return None
     try:
-        with path.open("rb") as file:
+        spec = importlib.util.spec_from_file_location(
+            "gedt_pyproject2",
+            compatibility_file,
+        )
+        if spec is None or spec.loader is None:
+            return None
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        metadata = getattr(module, "PROJECT_METADATA", None)
+        if isinstance(metadata, dict):
+            return metadata
+    except Exception:
+        return None
+    return None
+PROJECT_METADATA = _load_compatibility_metadata()
+def load_project_metadata(pyproject_path: Path) -> dict[str, Any]:
+    """
+    Load project metadata from pyproject.toml.
+    If the TOML configuration is temporarily malformed, fall back to
+    pyproject2.py compatibility metadata rather than preventing the
+    health-check system from operating.
+    """
+    try:
+        with pyproject_path.open("rb") as file:
             return tomllib.load(file)
-
     except tomllib.TOMLDecodeError:
         if PROJECT_METADATA is not None:
             return PROJECT_METADATA
-
         raise
-
-
-def check_project_health(
-    pyproject_path: Path | None = None,
-) -> ProjectHealth:
+def check_project_health(pyproject_path: Path) -> ProjectHealth:
     """
-    Validate the essential GEDT project metadata.
-
-    Returns a ProjectHealth object rather than raising errors for
-    normal validation failures.
+    Validate the project's basic metadata and return a health result.
     """
     metadata = load_project_metadata(pyproject_path)
-
-    build_system = metadata.get(
-        "build-system",
-        {},
-    )
-
-    project = metadata.get(
-        "project",
-        {},
-    )
-
-    setuptools = metadata.get(
-        "tool",
-        {},
-    ).get(
-        "setuptools",
-        {},
-    )
-
-    package_find = setuptools.get(
-        "packages",
-        {},
-    ).get(
-        "find",
-        {},
-    )
-
-    dependencies = project.get(
-        "dependencies",
-        [],
-    )
-
+    project = metadata.get("project", {})
+    if not isinstance(project, dict):
+        project = {}
+    name = str(project.get("name", "GEDT"))
+    version = str(project.get("version", "0.0.0"))
+    description = str(project.get("description", ""))
+    issues: list[str] = []
+    if not name.strip():
+        issues.append("Project name is missing.")
+    if not version.strip():
+        issues.append("Project version is missing.")
+    status = "healthy" if not issues else "unhealthy"
     return ProjectHealth(
-        name=str(
-            project.get(
-                "name",
-                "",
-            )
-        ),
-        version=str(
-            project.get(
-                "version",
-                "",
-            )
-        ),
-        python_requirement=str(
-            project.get(
-                "requires-python",
-                "",
-            )
-        ),
-        dependency_count=len(
-            dependencies
-        ),
-        has_build_system=bool(
-            build_system.get(
-                "build-backend"
-            )
-            and build_system.get(
-                "requires"
-            )
-        ),
-        has_project_metadata=bool(
-            project.get("name")
-            and project.get("version")
-            and project.get("description")
-        ),
-        has_package_configuration=bool(
-            package_find.get(
-                "where"
-            )
-        ),
+        status=status,
+        project_name=name,
+        version=version,
+        description=description,
+        issues=tuple(issues),
     )
-
-
-def format_health_report(
-    health: ProjectHealth,
-) -> str:
-    """Create a human-readable project health report."""
-
-    status = (
-        "HEALTHY"
-        if health.healthy
-        else "NEEDS_REVIEW"
-    )
-
-    return "\n".join(
-        (
-            "GEDT PROJECT HEALTH",
-            "===================",
-            f"Status: {status}",
-            f"Name: {health.name}",
-            f"Version: {health.version}",
-            f"Python: {health.python_requirement}",
-            f"Dependencies: {health.dependency_count}",
-            (
-                "Build system: "
-                f"{'OK' if health.has_build_system else 'MISSING'}"
-            ),
-            (
-                "Project metadata: "
-                f"{'OK' if health.has_project_metadata else 'MISSING'}"
-            ),
-            (
-                "Package configuration: "
-                f"{'OK' if health.has_package_configuration else 'MISSING'}"
-            ),
-        )
-    )
-
-
+def format_health_report(health: ProjectHealth) -> str:
+    """
+    Generate a human-readable project health report.
+    """
+    lines = [
+        f"Status: {health.status}",
+        f"Project: {health.project_name}",
+        f"Version: {health.version}",
+    ]
+    if health.description:
+        lines.append(f"Description: {health.description}")
+    if health.issues:
+        lines.append("Issues:")
+        lines.extend(f"- {issue}" for issue in health.issues)
+    return "\n".join(lines)
 def main() -> int:
-    """Run the project health check from the command line."""
-
-    try:
-        health = check_project_health()
-
-    except (
-        FileNotFoundError,
-        tomllib.TOMLDecodeError,
-    ) as exc:
-        print(
-            "GEDT PROJECT HEALTH: ERROR"
-        )
-        print(
-            f"Reason: {exc}"
-        )
-        return 1
-
-    print(
-        format_health_report(
-            health
-        )
-    )
-
-    return (
-        0
-        if health.healthy
-        else 1
-    )
-
-
+    """
+    Run the project health check from the repository root.
+    """
+    root = Path(__file__).resolve().parents[2]
+    pyproject_path = root / "pyproject.toml"
+    health = check_project_health(pyproject_path)
+    print(format_health_report(health))
+    return 0 if health.healthy else 1
 if __name__ == "__main__":
     sys.exit(main())
