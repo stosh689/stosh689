@@ -164,3 +164,10 @@ scripts/
 
 projects/gedt/.gitkeep
 
+projects/ai_ml/.gitkeep
+
+projects/disaster_response/.gitkeep
+
+
+
+
