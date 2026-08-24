@@ -1,5 +1,8 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = [
+    "setuptools>=68",
+    "wheel",
+]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,6 +10,13 @@ name = "gedt"
 version = "0.1.0"
 description = "Global Economic Digital Twin"
 requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+gedt = "gedt.__main__:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -14,4 +24,3 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-
