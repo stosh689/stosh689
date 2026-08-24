@@ -148,3 +148,6 @@ def create_audit_record(
 audit_module = types.ModuleType("cidar_audit")
 audit_module.create_audit_record = create_audit_record
 sys.modules["cidar_audit"] = audit_module
+
+
+from tests.test_support import FakeResponse
