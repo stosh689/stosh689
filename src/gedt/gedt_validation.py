@@ -4,6 +4,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
+# Repository root.
+#
+# File:
+#   <repository>/src/gedt/gedt_validation.py
+#
+# parents[0] = gedt
+# parents[1] = src
+# parents[2] = repository root
 ROOT = Path(__file__).resolve().parents[2]
 
 from gedt_validation import (
