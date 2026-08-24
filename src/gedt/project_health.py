@@ -14,13 +14,17 @@ class ProjectHealth:
     description: str
     issues: tuple[str, ...] = ()
     @property
+    def name(self) -> str:
+        """Backward-compatible project name attribute."""
+        return self.project_name
+    @property
     def healthy(self) -> bool:
         return self.status == "healthy"
 def _load_compatibility_metadata() -> dict[str, Any] | None:
     """
     Load compatibility metadata from pyproject2.py.
-    This intentionally loads the file directly rather than relying on
-    the repository root being present on sys.path.
+    The compatibility file is loaded directly so this continues to work
+    when the repository root is not on sys.path.
     """
     root = Path(__file__).resolve().parents[2]
     compatibility_file = root / "pyproject2.py"
@@ -45,9 +49,8 @@ PROJECT_METADATA = _load_compatibility_metadata()
 def load_project_metadata(pyproject_path: Path) -> dict[str, Any]:
     """
     Load project metadata from pyproject.toml.
-    If the TOML configuration is temporarily malformed, fall back to
-    pyproject2.py compatibility metadata rather than preventing the
-    health-check system from operating.
+    If the primary TOML file is malformed, use the compatibility metadata
+    instead of allowing the health-check system to fail.
     """
     try:
         with pyproject_path.open("rb") as file:
@@ -82,11 +85,13 @@ def check_project_health(pyproject_path: Path) -> ProjectHealth:
     )
 def format_health_report(health: ProjectHealth) -> str:
     """
-    Generate a human-readable project health report.
+    Generate the human-readable GEDT project health report.
     """
     lines = [
+        "GEDT PROJECT HEALTH",
+        "===================",
         f"Status: {health.status}",
-        f"Project: {health.project_name}",
+        f"Project: {health.name}",
         f"Version: {health.version}",
     ]
     if health.description:
