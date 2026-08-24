@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
   push:
     paths:
-  - "cidar.py"
-  - "cidar_*.py"
-  - "ethical_decision.py"
-  - "tests/**"
-  - ".github/workflows/cidar-test.yml"
+      - "cidar.py"
+      - "cidar_*.py"
+      - "ethical_decision.py"
+      - "tests/**"
+      - ".github/workflows/cidar-test.yml"
 
 jobs:
   test:
