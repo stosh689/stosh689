@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[2]
+
 from gedt_validation import (
     ValidationResult,
     weighted_score,
@@ -20,6 +24,7 @@ from gedt_validation import (
 )
 
 __all__ = [
+    "ROOT",
     "ValidationResult",
     "weighted_score",
     "confidence_adjusted_score",
