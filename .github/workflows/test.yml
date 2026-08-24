@@ -20,6 +20,9 @@ jobs:
       - name: Upgrade packaging tools
         run: |
           python -m pip install --upgrade pip setuptools wheel
+      - name: Install test dependencies
+        run: |
+          python -m pip install -r requirements-test.txt
       - name: Install GEDT
         run: |
           python -m pip install -e ./gedt
