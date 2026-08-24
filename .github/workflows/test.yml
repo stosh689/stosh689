@@ -21,34 +21,36 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip
+          cache-dependency-path: gedt/pyproject.toml
 
       - name: Upgrade packaging tools
         run: |
-          python -m pip install pytest pytest-cov numpy pandas requests scikit-learn matplotlib
+          python -m pip install --upgrade pip setuptools wheel
 
-      - name: Install test dependencies
-        run: |
-          python -m pip install numpy pandas requests scikit-learn matplotlib
       - name: Install GEDT
         run: |
           python -m pip install -e ./gedt
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install \
+            pytest \
+            pytest-cov \
+            numpy \
+            pandas \
+            requests \
+            scikit-learn \
+            matplotlib
 
       - name: Verify GEDT import
         run: |
           python -c "import gedt; print('GEDT import PASSED:', gedt.__version__)"
 
-      - name: Run CIDAR decision tests
+      - name: Run complete test suite
         run: |
-          python -m pytest -c pytest.ini -q tests/test_cidar_decision.py
+          python -m pytest -c pytest.ini -q
 
-      - name: Run GEDT package test
+      - name: Run project health check
         run: |
-          python -m pytest -c pytest.ini -q gedt/tests/test_gedt_package.py
-
-      - name: Run GEDT tests
-        run: |
-          python -m pytest -c pytest.ini -q gedt/tests
-
-      - name: Run project tests
-        run: |
-          python -m pytest -c pytest.ini -q tests
+          python -m gedt.project_health
