@@ -169,5 +169,14 @@ projects/ai_ml/.gitkeep
 projects/disaster_response/.gitkeep
 
 
+projects/economic_simulation/.gitkeep
+projects/experimental/.gitkeep
+
+shared/data/.gitkeep
+shared/validation/.gitkeep
+shared/visualization/.gitkeep
+shared/utilities/.gitkeep
+shared/testing/.gitkeep
+
 
 
