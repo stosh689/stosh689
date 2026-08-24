@@ -1,0 +1,44 @@
+name: CIDAR Safe Tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  cidar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install CIDAR test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest numpy pandas scipy scikit-learn matplotlib requests
+
+      - name: Verify pytest
+        run: |
+          python -m pytest --version
+
+      - name: Verify CIDAR
+        run: |
+          python -c "import cidar; print('CIDAR import: PASS')"
+
+      - name: Verify ethical decision module
+        run: |
+          python -c "from ethical_decision import ethical_decision; print('ethical_decision import: PASS')"
+
+      - name: Run CIDAR decision tests
+        run: |
+          python -m pytest -c cidar_pytest.ini -q tests/test_cidar_decision.py
