@@ -1,0 +1,56 @@
+import pytest
+
+from cidar_outlier_rejection import reject_outliers
+
+
+def test_removes_obvious_outlier():
+    values = [100.0, 101.0, 102.0, 450.0]
+
+    result = reject_outliers(values)
+
+    assert 450.0 not in result
+    assert result == [100.0, 101.0, 102.0]
+
+
+def test_preserves_valid_measurements():
+    values = [100.0, 101.0, 102.0]
+
+    result = reject_outliers(values)
+
+    assert result == values
+
+
+def test_small_dataset_is_preserved():
+    values = [100.0, 500.0]
+
+    result = reject_outliers(values)
+
+    assert result == values
+
+
+def test_rejects_negative_ranges():
+    with pytest.raises(ValueError):
+        reject_outliers([100.0, -5.0, 101.0])
+
+
+def test_rejects_empty_input():
+    with pytest.raises(ValueError):
+        reject_outliers([])
+
+
+def test_rejects_none():
+    with pytest.raises(ValueError):
+        reject_outliers(None)
+
+
+def test_rejects_invalid_threshold():
+    with pytest.raises(ValueError):
+        reject_outliers([100.0, 101.0, 102.0], threshold=0)
+
+
+def test_constant_measurements_are_preserved():
+    values = [100.0, 100.0, 100.0]
+
+    result = reject_outliers(values)
+
+    assert result == values
