@@ -8,4 +8,4 @@ def test_gedt_project_structure():
     assert (project_root / "src" / "gedt" / "__init__.py").exists()
     
     
-    Add GEDT package structure test
+    
