@@ -1,9 +1,9 @@
 """
 GEDT clean compatibility project metadata.
 
-This file intentionally contains Python data rather than TOML so that
-GEDT health checks can continue operating while the legacy pyproject.toml
-is cleaned up separately.
+This module provides a Python representation of the GEDT project metadata
+for compatibility with project_health.py while the legacy pyproject.toml
+remains preserved.
 
 Do not delete or overwrite the existing project files.
 """
@@ -16,13 +16,11 @@ PROJECT_METADATA = {
         ],
         "build-backend": "setuptools.build_meta",
     },
-
     "project": {
         "name": "gedt",
         "version": "1.1.0",
         "description": "Global Experimental Digital Twin Framework",
         "requires-python": ">=3.10",
-
         "dependencies": [
             "numpy",
             "pandas",
@@ -41,7 +39,6 @@ PROJECT_METADATA = {
             "tqdm",
         ],
     },
-
     "tool": {
         "pytest": {
             "ini_options": {
@@ -53,16 +50,13 @@ PROJECT_METADATA = {
                 ],
             },
         },
-
         "ruff": {
             "line-length": 100,
             "target-version": "py310",
         },
-
         "black": {
             "line-length": 100,
         },
-
         "setuptools": {
             "packages": {
                 "find": {
