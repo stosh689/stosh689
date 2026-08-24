@@ -3,8 +3,9 @@ GEDT Project Health
 
 Lightweight validation and health reporting for the GEDT project.
 
-This module reads project metadata from pyproject.toml and reports
-whether the essential project configuration is healthy.
+The module normally reads project metadata from pyproject.toml.
+If the legacy pyproject.toml is malformed, it falls back to the
+clean pyproject2.py compatibility metadata.
 
 It does not execute or modify the GEDT simulation engine.
 """
@@ -15,6 +16,11 @@ from dataclasses import dataclass
 from pathlib import Path
 import sys
 import tomllib
+
+try:
+    from pyproject2 import PROJECT_METADATA
+except ImportError:
+    PROJECT_METADATA = None
 
 
 @dataclass(frozen=True)
@@ -70,11 +76,27 @@ def find_pyproject(start: Path | None = None) -> Path:
 def load_project_metadata(
     pyproject_path: Path | None = None,
 ) -> dict:
-    """Load and parse pyproject.toml."""
+    """
+    Load GEDT project metadata.
+
+    First attempts to read the existing pyproject.toml.
+
+    If pyproject.toml contains malformed TOML, the function falls
+    back to PROJECT_METADATA from pyproject2.py.
+
+    The existing pyproject.toml is never modified.
+    """
     path = pyproject_path or find_pyproject()
 
-    with path.open("rb") as file:
-        return tomllib.load(file)
+    try:
+        with path.open("rb") as file:
+            return tomllib.load(file)
+
+    except tomllib.TOMLDecodeError:
+        if PROJECT_METADATA is not None:
+            return PROJECT_METADATA
+
+        raise
 
 
 def check_project_health(
@@ -88,9 +110,20 @@ def check_project_health(
     """
     metadata = load_project_metadata(pyproject_path)
 
-    build_system = metadata.get("build-system", {})
-    project = metadata.get("project", {})
-    setuptools = metadata.get("tool", {}).get(
+    build_system = metadata.get(
+        "build-system",
+        {},
+    )
+
+    project = metadata.get(
+        "project",
+        {},
+    )
+
+    setuptools = metadata.get(
+        "tool",
+        {},
+    ).get(
         "setuptools",
         {},
     )
@@ -109,15 +142,34 @@ def check_project_health(
     )
 
     return ProjectHealth(
-        name=str(project.get("name", "")),
-        version=str(project.get("version", "")),
-        python_requirement=str(
-            project.get("requires-python", "")
+        name=str(
+            project.get(
+                "name",
+                "",
+            )
         ),
-        dependency_count=len(dependencies),
+        version=str(
+            project.get(
+                "version",
+                "",
+            )
+        ),
+        python_requirement=str(
+            project.get(
+                "requires-python",
+                "",
+            )
+        ),
+        dependency_count=len(
+            dependencies
+        ),
         has_build_system=bool(
-            build_system.get("build-backend")
-            and build_system.get("requires")
+            build_system.get(
+                "build-backend"
+            )
+            and build_system.get(
+                "requires"
+            )
         ),
         has_project_metadata=bool(
             project.get("name")
@@ -125,7 +177,9 @@ def check_project_health(
             and project.get("description")
         ),
         has_package_configuration=bool(
-            package_find.get("where")
+            package_find.get(
+                "where"
+            )
         ),
     )
 
@@ -134,7 +188,12 @@ def format_health_report(
     health: ProjectHealth,
 ) -> str:
     """Create a human-readable project health report."""
-    status = "HEALTHY" if health.healthy else "NEEDS_REVIEW"
+
+    status = (
+        "HEALTHY"
+        if health.healthy
+        else "NEEDS_REVIEW"
+    )
 
     return "\n".join(
         (
@@ -145,28 +204,51 @@ def format_health_report(
             f"Version: {health.version}",
             f"Python: {health.python_requirement}",
             f"Dependencies: {health.dependency_count}",
-            f"Build system: "
-            f"{'OK' if health.has_build_system else 'MISSING'}",
-            f"Project metadata: "
-            f"{'OK' if health.has_project_metadata else 'MISSING'}",
-            f"Package configuration: "
-            f"{'OK' if health.has_package_configuration else 'MISSING'}",
+            (
+                "Build system: "
+                f"{'OK' if health.has_build_system else 'MISSING'}"
+            ),
+            (
+                "Project metadata: "
+                f"{'OK' if health.has_project_metadata else 'MISSING'}"
+            ),
+            (
+                "Package configuration: "
+                f"{'OK' if health.has_package_configuration else 'MISSING'}"
+            ),
         )
     )
 
 
 def main() -> int:
     """Run the project health check from the command line."""
+
     try:
         health = check_project_health()
-    except (FileNotFoundError, tomllib.TOMLDecodeError) as exc:
-        print(f"GEDT PROJECT HEALTH: ERROR")
-        print(f"Reason: {exc}")
+
+    except (
+        FileNotFoundError,
+        tomllib.TOMLDecodeError,
+    ) as exc:
+        print(
+            "GEDT PROJECT HEALTH: ERROR"
+        )
+        print(
+            f"Reason: {exc}"
+        )
         return 1
 
-    print(format_health_report(health))
+    print(
+        format_health_report(
+            health
+        )
+    )
 
-    return 0 if health.healthy else 1
+    return (
+        0
+        if health.healthy
+        else 1
+    )
 
 
 if __name__ == "__main__":
