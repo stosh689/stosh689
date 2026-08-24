@@ -274,3 +274,50 @@ audit_module.create_audit_record = (
 sys.modules["cidar_audit"] = (
     audit_module
 )
+
+# ---------------------------------------------------------------------------
+# Resource-manager test database
+# ---------------------------------------------------------------------------
+
+import pytest
+
+
+@pytest.fixture
+def tmp_db(tmp_path):
+    """Return an isolated SQLite database path for each test."""
+    return str(tmp_path / "resources.db")
+
+
+# ---------------------------------------------------------------------------
+# Translation test double
+# ---------------------------------------------------------------------------
+
+
+class _FakeTranslation:
+    def __init__(self, text):
+        self.text = text
+
+
+class _FakeTranslator:
+    def __init__(self, mapping):
+        self.mapping = dict(mapping)
+
+    def translate(self, word, dest):
+        text = self.mapping.get(dest)
+
+        if text is None:
+            text = f"[{dest}]{word}"
+
+        return _FakeTranslation(text)
+
+
+@pytest.fixture
+def fake_translator():
+    """Factory fixture for deterministic translation tests."""
+
+    def factory(mapping):
+        return _FakeTranslator(mapping)
+
+    return factory
+
+
