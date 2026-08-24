@@ -47,4 +47,4 @@ jobs:
           python -m pytest -q tests/tests/test_cidar_integration.py
       - name: Run CIDAR pipeline integrity tests
         run: |
-        run: python -m pytest -c pytest.ini -q tests/test_cidar_decision.py
+          python -m pytest -c pytest.ini -q tests/test_cidar_decision.py
