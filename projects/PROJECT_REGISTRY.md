@@ -139,7 +139,9 @@ Safety Principle
 The current passing baseline is protected.
 
 Organization must improve structure without 
-sacrificing verified projects/
+sacrificing verified 
+
+projects/
 projects/cidar/
 projects/gedt/
 projects/ai_ml/
