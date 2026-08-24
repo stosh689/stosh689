@@ -1,3 +1,282 @@
+
+GEDT PROJECT JUNK / LEGACY CONFIGURATION BACKUP
+================================================
+PURPOSE
+-------
+This file contains legacy, duplicated, malformed, or historical project
+configuration and code fragments that were previously present in the
+repository's pyproject.toml or related project documentation.
+IMPORTANT:
+- This file is intentionally NOT named pyproject.toml.
+- Python packaging tools and Dependabot should NOT interpret this file.
+- Do not rename this file to pyproject.toml.
+- Do not execute this file.
+- This is a preservation/reference file only.
+LEGACY PYPROJECT CONFIGURATION
+------------------------------
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "gedt"
+version = "1.1.0"
+description = "Global Experimental Digital Twin Framework"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "pandas",
+    "scipy",
+    "matplotlib",
+    "scikit-learn",
+    "pytest",
+    "requests",
+    "flask",
+    "sqlalchemy",
+    "plotly",
+    "networkx",
+    "sympy",
+    "statsmodels",
+    "joblib",
+    "tqdm",
+]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+[tool.black]
+line-length = 100
+[tool.setuptools.packages.find]
+where = ["src"]
+DUPLICATED BUILD SYSTEM
+-----------------------
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+DUPLICATED PROJECT
+------------------
+[project]
+name = "gedt"
+version = "1.1.0"
+description = "Global Experimental Digital Twin Framework"
+requires-python = ">=3.10"
+HISTORICAL GEDT 1.0 CONFIGURATION
+----------------------------------
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "gedt"
+version = "1.0.0"
+description = "Global Experimental Digital Twin Framework"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "pandas",
+    "scipy",
+    "matplotlib",
+    "scikit-learn",
+    "pytest",
+]
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+HISTORICAL PROJECT FRAGMENTS
+----------------------------
+notebooks/
+├── 01_introduction.ipynb
+├── 02_basic_simulation.ipynb
+├── 03_validation.ipynb
+└── 04_calibration.ipynb
+.github/workflows/tests.yml
+Push Code
+↓
+Install Python
+↓
+Install Dependencies
+↓
+Run Tests
+↓
+Generate Coverage
+↓
+Report Status
+HISTORICAL DOCKER CONFIGURATION
+-------------------------------
+Dockerfile
+FROM python:3.11
+WORKDIR /gedt
+COPY . .
+RUN pip install -r requirements.txt
+CMD ["python", "examples/basic_simulation.py"]
+HISTORICAL TEST STRUCTURE
+-------------------------
+tests/
+├── conftest.py
+├── test_simulation.py
+├── test_statistics.py
+├── test_calibration.py
+├── test_pipeline.py
+└── test_reporting.py
+HISTORICAL PERFORMANCE COMPONENTS
+---------------------------------
+src/gedt/performance/
+├── profiler.py
+├── metrics.py
+└── benchmark.py
+HISTORICAL PROFILER FRAGMENT
+----------------------------
+import time
+class Profiler:
+    def measure(self, function, *args):
+        start = time.time()
+        result = function(*args)
+        duration = time.time() - start
+        return {
+            "result": result,
+            "runtime": duration
+        }
+HISTORICAL PERFORMANCE METRICS
+------------------------------
+class PerformanceMetrics:
+    def __init__(self):
+        self.records = []
+    def add(self, name, runtime, memory):
+        self.records.append({
+            "module": name,
+            "runtime": runtime,
+            "memory": memory
+        })
+    def report(self):
+        return self.records
+HISTORICAL POPULATION MODEL
+---------------------------
+import numpy as np
+class Population:
+    def __init__(self, size):
+        self.skill = np.random.random(size)
+        self.resources = np.random.random(size)
+        self.adaptability = np.random.random(size)
+    def innovate(self, rate):
+        self.skill += rate * self.adaptability
+        self.skill = np.clip(
+            self.skill,
+            0,
+            1
+        )
+    def productivity(self):
+        return np.mean(
+            self.skill * self.resources
+        )
+HISTORICAL VECTORISED POPULATION
+--------------------------------
+import numpy as np
+class Population:
+    def __init__(self, size, seed=42):
+        rng = np.random.default_rng(seed)
+        self.skill = rng.random(size)
+        self.resources = rng.random(size)
+        self.adaptability = rng.random(size)
+    def update(self, innovation_rate):
+        self.skill += (
+            innovation_rate *
+            self.adaptability
+        )
+        np.clip(
+            self.skill,
+            0,
+            1,
+            out=self.skill
+        )
+    def productivity(self):
+        return float(
+            np.mean(
+                self.skill *
+                self.resources
+            )
+        )
+HISTORICAL SIMULATION ENGINE
+----------------------------
+from .population import Population
+class SimulationEngine:
+    def run(
+        self,
+        population_size,
+        years,
+        innovation_rate,
+        seed=42
+    ):
+        population = Population(
+            population_size,
+            seed
+        )
+        history = []
+        for year in range(years):
+            population.update(
+                innovation_rate
+            )
+            history.append(
+                population.productivity()
+            )
+        return {
+            "final_productivity": history[-1],
+            "history": history
+        }
+HISTORICAL PARALLEL COMPUTATION
+-------------------------------
+from concurrent.futures import ProcessPoolExecutor
+def execute_parallel(experiments):
+    with ProcessPoolExecutor() as pool:
+        results = list(
+            pool.map(
+                run_single,
+                experiments
+            )
+        )
+    return results
+def run_single(config):
+    from gedt.simulation.engine import SimulationEngine
+    return SimulationEngine().run(
+        **config
+    )
+HISTORICAL BENCHMARK
+--------------------
+import time
+from gedt.simulation.engine import SimulationEngine
+engine = SimulationEngine()
+start = time.perf_counter()
+result = engine.run(
+    population_size=100000,
+    years=100,
+    innovation_rate=0.05
+)
+elapsed = time.perf_counter() - start
+print({
+    "runtime_seconds": elapsed,
+    "final_output": result["final_productivity"]
+})
+HISTORICAL RELEASE INFORMATION
+------------------------------
+GEDT v1.0 Release
+[x] Code organized
+[x] Tests included
+[x] Documentation created
+[x] Examples working
+[x] License added
+[x] Citation file added
+[x] Installation tested
+[x] Docker tested
+[x] Benchmarks included
+[x] Reproducible experiments included
+END OF LEGACY/JUNK FILE
+=======================
+This file is intentionally preserved as a non-executable reference.
+The active project configuration should remain in pyproject.toml.
+
+
+
+
+
+
 *build-system]
 requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
