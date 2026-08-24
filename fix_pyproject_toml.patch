@@ -1,0 +1,10 @@
+diff --git a/pyproject.toml b/pyproject.toml
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@
+ [tool.setuptools.packages.find]
+ where = ["src"]
+
+-[project]
+-...
+-<remove the accidental duplicate project configuration and appended documentation>
