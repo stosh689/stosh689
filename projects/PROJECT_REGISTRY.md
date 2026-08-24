@@ -138,4 +138,27 @@ Safety Principle
 
 The current passing baseline is protected.
 
-Organization must improve structure without sacrificing verified functionality.
+Organization must improve structure without 
+sacrificing verified projects/
+projects/cidar/
+projects/gedt/
+projects/ai_ml/
+projects/disaster_response/
+projects/economic_simulation/
+projects/experimental/
+
+shared/
+shared/data/
+shared/validation/
+shared/visualization/
+shared/utilities/
+shared/testing/
+
+docs/
+tests/integration/
+benchmarks/
+scripts/
+
+
+
+
