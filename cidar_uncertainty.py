@@ -7,4 +7,4 @@ def confidence_adjusted_score(score, confidence):
     if not 0.0 <= confidence <= 1.0:
         raise ValueError("Confidence must be between 0 and 1.")
 
-    return score * confidence
+    return round(score * confidence, 10)
