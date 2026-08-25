@@ -1,79 +1,25 @@
-"""
-CIDAR Monte Carlo range-estimation benchmark.
-
-Provides reproducible statistical experiments for comparing
-range estimators against a theoretical Cramér-Rao-style bound.
-
-This module intentionally uses only Python's standard library.
-"""
+"""Monte Carlo range-estimation experiments."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from math import sqrt
+import math
 import random
-from statistics import mean, stdev
-
-
-@dataclass(frozen=True)
-class MonteCarloResult:
-    """Statistical result for a range estimator."""
-
-    true_distance: float
-    samples: int
-    mean_estimate: float
-    bias: float
-    variance: float
-    standard_deviation: float
-    rmse: float
-    confidence_low: float
-    confidence_high: float
-    crlb_variance: float
-    efficiency: float
-
-    @property
-    def unbiased(self) -> bool:
-        """Return whether estimated bias is effectively negligible."""
-        tolerance = max(
-            1e-9,
-            abs(self.true_distance) * 0.01,
-        )
-        return abs(self.bias) <= tolerance
-
-    @property
-    def valid(self) -> bool:
-        """Return whether the statistical result is valid."""
-        return (
-            self.samples >= 2
-            and self.true_distance >= 0.0
-            and self.variance >= 0.0
-            and self.standard_deviation >= 0.0
-            and self.rmse >= 0.0
-            and self.confidence_low <= self.confidence_high
-            and self.crlb_variance > 0.0
-            and self.efficiency >= 0.0
-        )
+from typing import Sequence
 
 
 def crlb_variance(
     noise_std: float,
-    *,
-    measurements: int = 1,
+    measurements: int,
 ) -> float:
-    """
-    Calculate the variance lower bound for estimating
-    the mean of Gaussian range measurements.
-
-    CRLB = sigma^2 / N
-    """
-    if noise_std <= 0.0:
+    if noise_std <= 0:
         raise ValueError(
-            "noise_std must be greater than zero"
+            "noise_std must be positive"
         )
 
-    if measurements < 1:
+    if measurements <= 0:
         raise ValueError(
-            "measurements must be at least one"
+            "measurements must be positive"
         )
 
     return (
@@ -82,60 +28,38 @@ def crlb_variance(
     )
 
 
-def _confidence_interval(
-    estimates: list[float],
-) -> tuple[float, float]:
-    """Calculate an approximate 95% confidence interval."""
-    if len(estimates) < 2:
-        raise ValueError(
-            "at least two estimates are required"
-        )
-
-    average = mean(estimates)
-    standard_error = stdev(estimates) / sqrt(
-        len(estimates)
-    )
-
-    margin = 1.96 * standard_error
-
-    return (
-        average - margin,
-        average + margin,
-    )
+@dataclass(frozen=True)
+class MonteCarloResult:
+    true_distance: float
+    noise_std: float
+    measurements_per_trial: int
+    trials: int
+    seed: int | None
+    estimate: float
+    bias: float
+    rmse: float
+    variance: float
+    crlb_variance: float
+    efficiency: float
+    valid: bool
+    samples: int
 
 
 def monte_carlo_range_estimation(
     true_distance: float,
-    *,
     noise_std: float = 0.25,
     measurements_per_trial: int = 20,
-    trials: int = 1000,
-    seed: int = 42,
+    trials: int = 500,
+    seed: int | None = 42,
 ) -> MonteCarloResult:
-    """
-    Run a Monte Carlo experiment using a sample-mean estimator.
-
-    Each trial generates independent Gaussian measurements
-    around the true distance and estimates range using their mean.
-    """
-    if true_distance < 0.0:
+    if true_distance < 0:
         raise ValueError(
-            "true_distance must be non-negative"
+            "true_distance cannot be negative"
         )
 
-    if noise_std <= 0.0:
+    if trials <= 0:
         raise ValueError(
-            "noise_std must be greater than zero"
-        )
-
-    if measurements_per_trial < 2:
-        raise ValueError(
-            "measurements_per_trial must be at least two"
-        )
-
-    if trials < 2:
-        raise ValueError(
-            "trials must be at least two"
+            "trials must be positive"
         )
 
     rng = random.Random(seed)
@@ -145,89 +69,120 @@ def monte_carlo_range_estimation(
     for _ in range(trials):
         measurements = [
             true_distance
-            + rng.gauss(0.0, noise_std)
-            for _ in range(measurements_per_trial)
+            + rng.gauss(
+                0.0,
+                noise_std,
+            )
+            for _ in range(
+                measurements_per_trial
+            )
         ]
 
-        estimate = mean(measurements)
-        estimates.append(estimate)
-
-    mean_estimate = mean(estimates)
-    bias = mean_estimate - true_distance
-
-    variance = sum(
-        (estimate - mean_estimate) ** 2
-        for estimate in estimates
-    ) / (len(estimates) - 1)
-
-    standard_deviation = sqrt(variance)
-
-    rmse = sqrt(
-        mean(
-            (estimate - true_distance) ** 2
-            for estimate in estimates
+        estimates.append(
+            sum(measurements)
+            / len(measurements)
         )
+
+    estimate = (
+        sum(estimates)
+        / len(estimates)
     )
 
-    confidence_low, confidence_high = (
-        _confidence_interval(estimates)
+    bias = (
+        estimate
+        - true_distance
     )
 
-    theoretical_variance = crlb_variance(
+    variance = (
+        sum(
+            (
+                value - estimate
+            ) ** 2
+            for value in estimates
+        )
+        / len(estimates)
+    )
+
+    rmse = math.sqrt(
+        sum(
+            (
+                value
+                - true_distance
+            ) ** 2
+            for value in estimates
+        )
+        / len(estimates)
+    )
+
+    bound = crlb_variance(
         noise_std,
-        measurements=measurements_per_trial,
+        measurements_per_trial,
     )
 
     efficiency = (
-        theoretical_variance / variance
-        if variance > 0.0
-        else 0.0
+        bound / variance
+        if variance > 0
+        else 1.0
+    )
+
+    efficiency = min(
+        1.0,
+        max(0.0, efficiency),
     )
 
     return MonteCarloResult(
-        true_distance=true_distance,
-        samples=trials,
-        mean_estimate=mean_estimate,
+        true_distance=float(true_distance),
+        noise_std=float(noise_std),
+        measurements_per_trial=int(
+            measurements_per_trial
+        ),
+        trials=int(trials),
+        seed=seed,
+        estimate=estimate,
         bias=bias,
-        variance=variance,
-        standard_deviation=standard_deviation,
         rmse=rmse,
-        confidence_low=confidence_low,
-        confidence_high=confidence_high,
-        crlb_variance=theoretical_variance,
+        variance=variance,
+        crlb_variance=bound,
         efficiency=efficiency,
+        valid=(
+            math.isfinite(estimate)
+            and math.isfinite(bias)
+            and math.isfinite(rmse)
+            and math.isfinite(variance)
+        ),
+        samples=trials,
     )
 
 
 def monte_carlo_sweep(
-    distances: list[float],
+    distances: Sequence[float],
     *,
     noise_std: float = 0.25,
     measurements_per_trial: int = 20,
-    trials: int = 1000,
-    seed: int = 42,
+    trials: int = 500,
+    seed: int | None = 42,
 ) -> list[MonteCarloResult]:
-    """Run Monte Carlo experiments across multiple ranges."""
-    results: list[MonteCarloResult] = []
-
-    for index, distance in enumerate(distances):
-        results.append(
-            monte_carlo_range_estimation(
-                distance,
-                noise_std=noise_std,
-                measurements_per_trial=measurements_per_trial,
-                trials=trials,
-                seed=seed + index,
-            )
+    return [
+        monte_carlo_range_estimation(
+            distance,
+            noise_std=noise_std,
+            measurements_per_trial=measurements_per_trial,
+            trials=trials,
+            seed=(
+                None
+                if seed is None
+                else seed + index
+            ),
         )
-
-    return results
+        for index, distance in enumerate(
+            distances
+        )
+    ]
 
 
 def monte_carlo_summary(
     result: MonteCarloResult,
 ) -> str:
-    """Format a statistical experiment result."""
     status = (
         "PASS"
         if result.valid
@@ -238,19 +193,18 @@ def monte_carlo_summary(
         "CIDAR MONTE CARLO RANGE ESTIMATION\n"
         "==================================\n"
         f"Status: {status}\n"
-        f"True Distance: {result.true_distance:.4f} m\n"
-        f"Trials: {result.samples}\n"
-        f"Mean Estimate: {result.mean_estimate:.6f} m\n"
-        f"Bias: {result.bias:.6f} m\n"
-        f"Variance: {result.variance:.8f} m²\n"
-        f"Std Dev: {result.standard_deviation:.6f} m\n"
-        f"RMSE: {result.rmse:.6f} m\n"
-        f"95% CI: "
-        f"[{result.confidence_low:.6f}, "
-        f"{result.confidence_high:.6f}]\n"
+        f"True Distance: "
+        f"{result.true_distance:.6f}\n"
+        f"Estimate: "
+        f"{result.estimate:.6f}\n"
+        f"Bias: {result.bias:.6f}\n"
+        f"RMSE: {result.rmse:.6f}\n"
+        f"Variance: {result.variance:.6f}\n"
         f"CRLB Variance: "
-        f"{result.crlb_variance:.8f} m²\n"
-        f"Efficiency: {result.efficiency:.4f}"
+        f"{result.crlb_variance:.6f}\n"
+        f"Efficiency: "
+        f"{result.efficiency:.6f}\n"
+        f"Trials: {result.trials}\n"
     )
 
 
@@ -258,6 +212,6 @@ __all__ = [
     "MonteCarloResult",
     "crlb_variance",
     "monte_carlo_range_estimation",
-    "monte_carlo_summary",
     "monte_carlo_sweep",
+    "monte_carlo_summary",
 ]
