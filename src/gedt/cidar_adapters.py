@@ -41,10 +41,7 @@ def _make_sample(
             record["prediction"],
             "prediction",
         ),
-        sample_id=record.get(
-            "sample_id",
-            index,
-        ),
+        sample_id=record.get("sample_id", index),
     )
 
 
@@ -126,7 +123,7 @@ class JSONDepthAdapter(DepthAdapter):
                 "JSON dataset must contain a list"
             )
 
-        samples = []
+        samples: list[DepthSample] = []
 
         for index, row in enumerate(payload):
             if not isinstance(row, Mapping):
