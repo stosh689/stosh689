@@ -1,200 +1,83 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
 import csv
 import json
+from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Iterable, Iterator, Mapping, Sequence
+from typing import Any, Iterable, Mapping
 
-
-@dataclass(frozen=True)
-class DepthRecord:
-    """
-    Normalized depth/range measurement.
-
-    The adapters convert different input formats into this common structure.
-    """
-    image_id: str
-    predicted_depth: float
-    ground_truth_depth: float | None = None
-    confidence: float | None = None
-    metadata: dict[str, Any] | None = None
+from .cidar_dataset import DepthSample
 
 
 class DepthAdapter(ABC):
-    """Base class for CIDAR depth-data adapters."""
-
     @abstractmethod
-    def load(self, path: str | Path) -> list[DepthRecord]:
-        """Load records from a file."""
+    def load(self, path: str | Path) -> list[DepthSample]:
         raise NotImplementedError
 
 
-def _first_value(
-    row: Mapping[str, Any],
-    names: Sequence[str],
-    default: Any = None,
-) -> Any:
-    """Return the first matching field from a mapping."""
-    normalized = {
-        str(key).strip().lower(): value
-        for key, value in row.items()
-    }
-
-    for name in names:
-        value = normalized.get(name.lower())
-
-        if value is not None and value != "":
-            return value
-
-    return default
-
-
-def _float_or_none(value: Any) -> float | None:
-    """Convert a value to float, returning None for missing values."""
-    if value is None or value == "":
-        return None
-
+def _number(value: Any, name: str) -> float:
     try:
         return float(value)
-    except (TypeError, ValueError):
-        return None
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{name} must be numeric") from exc
 
 
-def _normalize_record(
-    row: Mapping[str, Any],
+def _make_sample(
+    record: Mapping[str, Any],
     index: int,
-) -> DepthRecord:
-    """
-    Convert a raw mapping into a normalized DepthRecord.
+) -> DepthSample:
+    if "ground_truth" not in record:
+        raise ValueError("missing ground_truth")
 
-    Several common field names are accepted so the adapter layer remains
-    compatible with typical CIDAR/KITTI/NYU-style datasets.
-    """
+    if "prediction" not in record:
+        raise ValueError("missing prediction")
 
-    image_id = _first_value(
-        row,
-        (
-            "image_id",
-            "image",
-            "filename",
-            "file",
-            "frame_id",
-            "frame",
-            "id",
-        ),
-        default=str(index),
-    )
-
-    predicted = _first_value(
-        row,
-        (
-            "predicted_depth",
-            "predicted",
-            "prediction",
-            "pred_depth",
-            "depth_pred",
-            "estimated_depth",
-            "estimated",
-            "depth",
-            "range",
-        ),
-    )
-
-    ground_truth = _first_value(
-        row,
-        (
-            "ground_truth_depth",
+    return DepthSample(
+        ground_truth=_number(
+            record["ground_truth"],
             "ground_truth",
-            "gt_depth",
-            "ground_truth_range",
-            "gt_range",
-            "true_depth",
-            "target",
-            "actual_depth",
+        ),
+        prediction=_number(
+            record["prediction"],
+            "prediction",
+        ),
+        sample_id=record.get(
+            "sample_id",
+            index,
         ),
     )
 
-    confidence = _first_value(
-        row,
-        (
-            "confidence",
-            "score",
-            "confidence_score",
-        ),
-    )
 
-    if predicted is None:
+def validate_samples(
+    samples: Iterable[DepthSample],
+) -> list[DepthSample]:
+    result = list(samples)
+
+    if not result:
         raise ValueError(
-            f"Record {index} is missing a predicted depth/range value"
+            "CIDAR samples cannot be empty"
         )
 
-    predicted_float = _float_or_none(predicted)
+    for sample in result:
+        if sample.ground_truth < 0:
+            raise ValueError(
+                "ground_truth cannot be negative"
+            )
 
-    if predicted_float is None:
-        raise ValueError(
-            f"Record {index} has an invalid predicted depth: {predicted!r}"
-        )
+        if sample.prediction < 0:
+            raise ValueError(
+                "prediction cannot be negative"
+            )
 
-    ground_truth_float = _float_or_none(ground_truth)
-    confidence_float = _float_or_none(confidence)
-
-    metadata = {
-        str(key): value
-        for key, value in row.items()
-        if str(key).strip().lower()
-        not in {
-            "image_id",
-            "image",
-            "filename",
-            "file",
-            "frame_id",
-            "frame",
-            "id",
-            "predicted_depth",
-            "predicted",
-            "prediction",
-            "pred_depth",
-            "depth_pred",
-            "estimated_depth",
-            "estimated",
-            "depth",
-            "range",
-            "ground_truth_depth",
-            "ground_truth",
-            "gt_depth",
-            "ground_truth_range",
-            "gt_range",
-            "true_depth",
-            "target",
-            "actual_depth",
-            "confidence",
-            "score",
-            "confidence_score",
-        }
-    }
-
-    return DepthRecord(
-        image_id=str(image_id),
-        predicted_depth=predicted_float,
-        ground_truth_depth=ground_truth_float,
-        confidence=confidence_float,
-        metadata=metadata or None,
-    )
+    return result
 
 
 class CSVDepthAdapter(DepthAdapter):
-    """Adapter for CSV depth/range datasets."""
-
-    def load(self, path: str | Path) -> list[DepthRecord]:
+    def load(
+        self,
+        path: str | Path,
+    ) -> list[DepthSample]:
         path = Path(path)
-
-        if not path.exists():
-            raise FileNotFoundError(path)
-
-        if not path.is_file():
-            raise ValueError(f"Expected a file: {path}")
 
         with path.open(
             "r",
@@ -205,30 +88,23 @@ class CSVDepthAdapter(DepthAdapter):
 
             if reader.fieldnames is None:
                 raise ValueError(
-                    f"CSV file has no header: {path}"
+                    "CSV file has no header"
                 )
 
-            records: list[DepthRecord] = []
+            samples = [
+                _make_sample(row, index)
+                for index, row in enumerate(reader)
+            ]
 
-            for index, row in enumerate(reader):
-                records.append(
-                    _normalize_record(row, index)
-                )
-
-        return records
+        return validate_samples(samples)
 
 
 class JSONDepthAdapter(DepthAdapter):
-    """Adapter for JSON datasets."""
-
-    def load(self, path: str | Path) -> list[DepthRecord]:
+    def load(
+        self,
+        path: str | Path,
+    ) -> list[DepthSample]:
         path = Path(path)
-
-        if not path.exists():
-            raise FileNotFoundError(path)
-
-        if not path.is_file():
-            raise ValueError(f"Expected a file: {path}")
 
         with path.open(
             "r",
@@ -237,23 +113,20 @@ class JSONDepthAdapter(DepthAdapter):
             payload = json.load(handle)
 
         if isinstance(payload, Mapping):
-            # Support either:
-            # {"records": [...]}
-            # {"samples": [...]}
-            # {"data": [...]}
-            for key in ("records", "samples", "data"):
-                if key in payload:
-                    payload = payload[key]
-                    break
-            else:
-                payload = [payload]
+            payload = payload.get(
+                "samples",
+                payload.get(
+                    "records",
+                    [payload],
+                ),
+            )
 
         if not isinstance(payload, list):
             raise ValueError(
-                "JSON dataset must contain an object or list of records"
+                "JSON dataset must contain a list"
             )
 
-        records: list[DepthRecord] = []
+        samples = []
 
         for index, row in enumerate(payload):
             if not isinstance(row, Mapping):
@@ -261,26 +134,24 @@ class JSONDepthAdapter(DepthAdapter):
                     f"JSON record {index} must be an object"
                 )
 
-            records.append(
-                _normalize_record(row, index)
+            samples.append(
+                _make_sample(
+                    row,
+                    index,
+                )
             )
 
-        return records
+        return validate_samples(samples)
 
 
 class JSONLDepthAdapter(DepthAdapter):
-    """Adapter for JSON Lines depth datasets."""
-
-    def load(self, path: str | Path) -> list[DepthRecord]:
+    def load(
+        self,
+        path: str | Path,
+    ) -> list[DepthSample]:
         path = Path(path)
 
-        if not path.exists():
-            raise FileNotFoundError(path)
-
-        if not path.is_file():
-            raise ValueError(f"Expected a file: {path}")
-
-        records: list[DepthRecord] = []
+        samples: list[DepthSample] = []
 
         with path.open(
             "r",
@@ -296,7 +167,7 @@ class JSONLDepthAdapter(DepthAdapter):
                     row = json.loads(line)
                 except json.JSONDecodeError as exc:
                     raise ValueError(
-                        f"Invalid JSONL record at line {index + 1}"
+                        f"invalid JSONL at line {index + 1}"
                     ) from exc
 
                 if not isinstance(row, Mapping):
@@ -304,15 +175,26 @@ class JSONLDepthAdapter(DepthAdapter):
                         f"JSONL record {index} must be an object"
                     )
 
-                records.append(
-                    _normalize_record(row, index)
+                samples.append(
+                    _make_sample(
+                        row,
+                        index,
+                    )
                 )
 
-        return records
+        return validate_samples(samples)
 
 
-def adapter_for_path(path: str | Path) -> DepthAdapter:
-    """Select an adapter based on the file extension."""
+def load_with_adapter(
+    adapter: DepthAdapter,
+    path: str | Path,
+) -> list[DepthSample]:
+    return adapter.load(path)
+
+
+def adapter_for_path(
+    path: str | Path,
+) -> DepthAdapter:
     suffix = Path(path).suffix.lower()
 
     if suffix == ".csv":
@@ -325,50 +207,169 @@ def adapter_for_path(path: str | Path) -> DepthAdapter:
         return JSONLDepthAdapter()
 
     raise ValueError(
-        f"Unsupported depth dataset format: {suffix or '<none>'}"
+        f"unsupported dataset format: {suffix}"
     )
 
 
-def load_with_adapter(
-    path: str | Path,
-    adapter: DepthAdapter | None = None,
-) -> list[DepthRecord]:
-    """
-    Load a dataset using an explicitly supplied adapter or infer the adapter
-    from the file extension.
-    """
-    selected_adapter = (
-        adapter
-        if adapter is not None
-        else adapter_for_path(path)
+def camera_adapter(
+    prediction: float,
+    *,
+    sample_id: Any = None,
+) -> DepthSample:
+    return DepthSample(
+        ground_truth=0.0,
+        prediction=_number(
+            prediction,
+            "prediction",
+        ),
+        sample_id=sample_id,
     )
 
-    return selected_adapter.load(path)
+
+def lidar_adapter(
+    prediction: float,
+    *,
+    sample_id: Any = None,
+) -> DepthSample:
+    return DepthSample(
+        ground_truth=0.0,
+        prediction=_number(
+            prediction,
+            "prediction",
+        ),
+        sample_id=sample_id,
+    )
 
 
-def records_to_dicts(
-    records: Iterable[DepthRecord],
-) -> list[dict[str, Any]]:
-    """Convert normalized records back into serializable dictionaries."""
-    return [
-        {
-            "image_id": record.image_id,
-            "predicted_depth": record.predicted_depth,
-            "ground_truth_depth": record.ground_truth_depth,
-            "confidence": record.confidence,
-            "metadata": record.metadata,
-        }
-        for record in records
+def radar_adapter(
+    prediction: float,
+    *,
+    sample_id: Any = None,
+) -> DepthSample:
+    return DepthSample(
+        ground_truth=0.0,
+        prediction=_number(
+            prediction,
+            "prediction",
+        ),
+        sample_id=sample_id,
+    )
+
+
+def mapping_to_sample(
+    record: Mapping[str, Any],
+    index: int = 0,
+) -> DepthSample:
+    return _make_sample(
+        record,
+        index,
+    )
+
+
+def adapt_samples(
+    records: Iterable[
+        Mapping[str, Any] | DepthSample
+    ],
+) -> list[DepthSample]:
+    samples: list[DepthSample] = []
+
+    for index, record in enumerate(records):
+        if isinstance(
+            record,
+            DepthSample,
+        ):
+            samples.append(record)
+
+        elif isinstance(
+            record,
+            Mapping,
+        ):
+            samples.append(
+                mapping_to_sample(
+                    record,
+                    index,
+                )
+            )
+
+        else:
+            raise TypeError(
+                "records must contain mappings "
+                "or DepthSample objects"
+            )
+
+    return validate_samples(samples)
+
+
+def fuse_predictions(
+    predictions: list[float] | tuple[float, ...],
+    *,
+    weights: list[float] | tuple[float, ...] | None = None,
+) -> float:
+    if not predictions:
+        raise ValueError(
+            "predictions cannot be empty"
+        )
+
+    values = [
+        _number(
+            value,
+            "prediction",
+        )
+        for value in predictions
     ]
+
+    if weights is None:
+        return sum(values) / len(values)
+
+    if len(weights) != len(values):
+        raise ValueError(
+            "weights and predictions must "
+            "have the same length"
+        )
+
+    numeric_weights = [
+        _number(
+            weight,
+            "weight",
+        )
+        for weight in weights
+    ]
+
+    total = sum(numeric_weights)
+
+    if total <= 0:
+        raise ValueError(
+            "sum of weights must be positive"
+        )
+
+    return sum(
+        value * weight
+        for value, weight in zip(
+            values,
+            numeric_weights,
+        )
+    ) / total
+
+
+def validate_adapter_output(
+    samples: Iterable[DepthSample],
+) -> list[DepthSample]:
+    return validate_samples(samples)
 
 
 __all__ = [
-    "DepthRecord",
     "DepthAdapter",
     "CSVDepthAdapter",
     "JSONDepthAdapter",
     "JSONLDepthAdapter",
-    "adapter_for_path",
     "load_with_adapter",
-    "records_to_dicts",
+    "adapter_for_path",
+    "validate_samples",
+    "camera_adapter",
+    "lidar_adapter",
+    "radar_adapter",
+    "mapping_to_sample",
+    "adapt_samples",
+    "fuse_predictions",
+    "validate_adapter_output",
 ]
