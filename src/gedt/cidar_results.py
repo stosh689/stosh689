@@ -1,146 +1,135 @@
-"""
-CIDAR benchmark result persistence and regression tracking.
-
-Stores benchmark records as JSON and JSONL using only the
-Python standard library.
-"""
+"""Persistence and comparison of CIDAR benchmark results."""
 
 from __future__ import annotations
 
-from dataclasses import asdict
 import json
+from dataclasses import fields
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Sequence
 
 from .cidar_protocol import CIDARBenchmarkRecord
+
+
+def _from_dict(
+    payload: dict,
+) -> CIDARBenchmarkRecord:
+    data = dict(payload)
+    data["sensors"] = tuple(
+        data.get("sensors", ())
+    )
+
+    allowed = {
+        field.name
+        for field in fields(
+            CIDARBenchmarkRecord
+        )
+    }
+
+    return CIDARBenchmarkRecord(
+        **{
+            key: value
+            for key, value in data.items()
+            if key in allowed
+        }
+    )
 
 
 def save_result(
     record: CIDARBenchmarkRecord,
     path: str | Path,
-) -> Path:
-    """Save one benchmark record as formatted JSON."""
-    if not record.valid:
-        raise ValueError(
-            "cannot save an invalid benchmark record"
-        )
-
-    output = Path(path)
-    output.parent.mkdir(
+) -> None:
+    path = Path(path)
+    path.parent.mkdir(
         parents=True,
         exist_ok=True,
     )
 
-    output.write_text(
+    path.write_text(
         json.dumps(
-            asdict(record),
+            record.to_dict(),
             indent=2,
             sort_keys=True,
-        ) + "\n",
+        ),
         encoding="utf-8",
     )
-
-    return output
 
 
 def load_result(
     path: str | Path,
 ) -> CIDARBenchmarkRecord:
-    """Load one benchmark record from JSON."""
-    source = Path(path)
+    path = Path(path)
 
-    data = json.loads(
-        source.read_text(
+    payload = json.loads(
+        path.read_text(
             encoding="utf-8"
         )
     )
 
-    return CIDARBenchmarkRecord(
-        **data
-    )
+    return _from_dict(payload)
 
 
 def append_result(
     record: CIDARBenchmarkRecord,
     path: str | Path,
-) -> Path:
-    """Append one benchmark record to a JSONL file."""
-    if not record.valid:
-        raise ValueError(
-            "cannot save an invalid benchmark record"
-        )
-
-    output = Path(path)
-    output.parent.mkdir(
+) -> None:
+    path = Path(path)
+    path.parent.mkdir(
         parents=True,
         exist_ok=True,
     )
 
-    with output.open(
+    with path.open(
         "a",
         encoding="utf-8",
     ) as handle:
         handle.write(
             json.dumps(
-                asdict(record),
+                record.to_dict(),
                 sort_keys=True,
             )
             + "\n"
         )
 
-    return output
-
 
 def load_results(
     path: str | Path,
 ) -> list[CIDARBenchmarkRecord]:
-    """Load all records from a JSONL file."""
-    source = Path(path)
+    path = Path(path)
 
-    if not source.exists():
-        return []
+    results: list[CIDARBenchmarkRecord] = []
 
-    records: list[CIDARBenchmarkRecord] = []
+    if not path.exists():
+        return results
 
-    for line in source.read_text(
-        encoding="utf-8"
-    ).splitlines():
-        if not line.strip():
-            continue
+    with path.open(
+        "r",
+        encoding="utf-8",
+    ) as handle:
+        for line in handle:
+            line = line.strip()
 
-        records.append(
-            CIDARBenchmarkRecord(
-                **json.loads(line)
+            if not line:
+                continue
+
+            results.append(
+                _from_dict(
+                    json.loads(line)
+                )
             )
-        )
 
-    return records
+    return results
 
 
 def best_result(
-    records: Iterable[CIDARBenchmarkRecord],
+    records: Sequence[CIDARBenchmarkRecord],
 ) -> CIDARBenchmarkRecord:
-    """Return the record with the lowest RMSE."""
-    values = list(records)
-
-    if not values:
+    if not records:
         raise ValueError(
-            "at least one result is required"
-        )
-
-    invalid = [
-        record
-        for record in values
-        if not record.valid
-    ]
-
-    if invalid:
-        raise ValueError(
-            "all benchmark records must be valid"
+            "records cannot be empty"
         )
 
     return min(
-        values,
+        records,
         key=lambda record: record.rmse,
     )
 
@@ -149,28 +138,9 @@ def compare_rmse(
     baseline: CIDARBenchmarkRecord,
     candidate: CIDARBenchmarkRecord,
 ) -> float:
-    """
-    Return relative RMSE improvement.
-
-    Positive = candidate improved.
-    Negative = candidate regressed.
-    """
-    if not baseline.valid:
-        raise ValueError(
-            "baseline must be valid"
-        )
-
-    if not candidate.valid:
-        raise ValueError(
-            "candidate must be valid"
-        )
-
-    if baseline.rmse == 0.0:
-        return 0.0
-
     return (
-        (baseline.rmse - candidate.rmse)
-        / baseline.rmse
+        baseline.rmse
+        - candidate.rmse
     )
 
 
@@ -178,42 +148,40 @@ def regression_report(
     baseline: CIDARBenchmarkRecord,
     candidate: CIDARBenchmarkRecord,
 ) -> str:
-    """Create a benchmark regression report."""
     improvement = compare_rmse(
         baseline,
         candidate,
     )
 
-    if improvement > 0.0:
-        status = "IMPROVED"
-    elif improvement < 0.0:
-        status = "REGRESSED"
-    else:
-        status = "UNCHANGED"
+    status = (
+        "IMPROVED"
+        if improvement > 0
+        else (
+            "REGRESSED"
+            if improvement < 0
+            else "UNCHANGED"
+        )
+    )
 
     return (
         "CIDAR REGRESSION REPORT\n"
         "=======================\n"
-        f"Status: {status}\n"
         f"Baseline RMSE: "
-        f"{baseline.rmse:.6f} m\n"
+        f"{baseline.rmse:.6f}\n"
         f"Candidate RMSE: "
-        f"{candidate.rmse:.6f} m\n"
-        f"Relative Improvement: "
-        f"{improvement:.4%}\n"
-        f"Baseline Dataset: "
-        f"{baseline.dataset_name}\n"
-        f"Candidate Dataset: "
-        f"{candidate.dataset_name}"
+        f"{candidate.rmse:.6f}\n"
+        f"RMSE Improvement: "
+        f"{improvement:.6f}\n"
+        f"Status: {status}\n"
     )
 
 
 __all__ = [
+    "save_result",
+    "load_result",
     "append_result",
+    "load_results",
     "best_result",
     "compare_rmse",
-    "load_result",
-    "load_results",
     "regression_report",
-    "save_result",
 ]
