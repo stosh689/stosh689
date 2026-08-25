@@ -12,6 +12,7 @@ class ProjectHealth:
     project_name: str
     version: str
     description: str
+    python_requirement: str
     issues: tuple[str, ...] = ()
     @property
     def name(self) -> str:
@@ -23,8 +24,8 @@ class ProjectHealth:
 def _load_compatibility_metadata() -> dict[str, Any] | None:
     """
     Load compatibility metadata from pyproject2.py.
-    The compatibility file is loaded directly so this continues to work
-    when the repository root is not on sys.path.
+    This loads the file directly so the fallback works even when the
+    repository root is not on sys.path.
     """
     root = Path(__file__).resolve().parents[2]
     compatibility_file = root / "pyproject2.py"
@@ -59,6 +60,15 @@ def load_project_metadata(pyproject_path: Path) -> dict[str, Any]:
         if PROJECT_METADATA is not None:
             return PROJECT_METADATA
         raise
+def _get_python_requirement(project: dict[str, Any]) -> str:
+    """
+    Return the project's Python requirement.
+    Supports the standard PEP 621 `requires-python` field.
+    """
+    requirement = project.get("requires-python")
+    if requirement:
+        return str(requirement)
+    return ">=3.11"
 def check_project_health(pyproject_path: Path) -> ProjectHealth:
     """
     Validate the project's basic metadata and return a health result.
@@ -70,17 +80,21 @@ def check_project_health(pyproject_path: Path) -> ProjectHealth:
     name = str(project.get("name", "GEDT"))
     version = str(project.get("version", "0.0.0"))
     description = str(project.get("description", ""))
+    python_requirement = _get_python_requirement(project)
     issues: list[str] = []
     if not name.strip():
         issues.append("Project name is missing.")
     if not version.strip():
         issues.append("Project version is missing.")
+    if not python_requirement.strip():
+        issues.append("Python requirement is missing.")
     status = "healthy" if not issues else "unhealthy"
     return ProjectHealth(
         status=status,
         project_name=name,
         version=version,
         description=description,
+        python_requirement=python_requirement,
         issues=tuple(issues),
     )
 def format_health_report(health: ProjectHealth) -> str:
@@ -90,9 +104,10 @@ def format_health_report(health: ProjectHealth) -> str:
     lines = [
         "GEDT PROJECT HEALTH",
         "===================",
-        f"Status: {health.status}",
+        f"Status: {health.status.upper()}",
         f"Project: {health.name}",
         f"Version: {health.version}",
+        f"Python: {health.python_requirement}",
     ]
     if health.description:
         lines.append(f"Description: {health.description}")
