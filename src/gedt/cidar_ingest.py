@@ -1,214 +1,241 @@
-"""
-CIDAR real-world data ingestion.
-Supports simple CSV, JSON and JSONL representations of paired
-ground-truth/prediction range measurements.
-Dataset-specific preprocessing remains outside this module.
-"""
+"""CIDAR dataset ingestion and persistence."""
+
 from __future__ import annotations
+
 import csv
 import json
 from pathlib import Path
-from typing import Any
+from typing import Iterable
+
 from .cidar_dataset import DepthSample
+
+
 class CIDARDataError(ValueError):
-    """Raised when CIDAR input data is invalid."""
-def _number(
-    value: Any,
-    field: str,
-) -> float:
-    try:
-        result = float(value)
-    except (TypeError, ValueError) as exc:
-        raise CIDARDataError(
-            f"{field} must be numeric"
-        ) from exc
-    if not result == result:
-        raise CIDARDataError(
-            f"{field} must not be NaN"
-        )
-    if result == float("inf") or result == float("-inf"):
-        raise CIDARDataError(
-            f"{field} must be finite"
-        )
-    return result
-def sample_from_mapping(
-    item: dict[str, Any],
-    *,
-    index: int = 0,
+    """Raised when CIDAR dataset data is invalid."""
+
+
+def _sample_from_record(
+    record: dict,
+    index: int,
 ) -> DepthSample:
-    """Convert one mapping into a DepthSample."""
-    if "ground_truth" not in item:
+    if "ground_truth" not in record:
         raise CIDARDataError(
             "missing ground_truth"
         )
-    if "prediction" not in item:
+
+    if "prediction" not in record:
         raise CIDARDataError(
             "missing prediction"
         )
-    sample_id = item.get(
-        "sample_id",
-        index,
-    )
-    return DepthSample(
-        ground_truth=_number(
-            item["ground_truth"],
-            "ground_truth",
-        ),
-        prediction=_number(
-            item["prediction"],
-            "prediction",
-        ),
-        sample_id=sample_id,
-    )
-def load_json(
-    path: str | Path,
-) -> list[DepthSample]:
-    """Load CIDAR samples from JSON."""
-    source = Path(path)
+
     try:
-        data = json.loads(
-            source.read_text(
-                encoding="utf-8"
-            )
+        ground_truth = float(
+            record["ground_truth"]
         )
-    except json.JSONDecodeError as exc:
+        prediction = float(
+            record["prediction"]
+        )
+    except (TypeError, ValueError) as exc:
         raise CIDARDataError(
-            f"invalid JSON: {exc}"
+            "ground_truth and prediction must be numeric"
         ) from exc
-    if isinstance(data, dict):
-        data = data.get("samples")
-    if not isinstance(data, list):
-        raise CIDARDataError(
-            "JSON must contain a list of samples"
-        )
-    return [
-        sample_from_mapping(
-            item,
-            index=index,
-        )
-        for index, item in enumerate(data)
-        if isinstance(item, dict)
-    ]
-def load_jsonl(
-    path: str | Path,
-) -> list[DepthSample]:
-    """Load CIDAR samples from JSON Lines."""
-    source = Path(path)
-    samples: list[DepthSample] = []
-    for index, line in enumerate(
-        source.read_text(
-            encoding="utf-8"
-        ).splitlines()
-    ):
-        if not line.strip():
-            continue
-        try:
-            item = json.loads(line)
-        except json.JSONDecodeError as exc:
-            raise CIDARDataError(
-                f"invalid JSONL on line {index + 1}"
-            ) from exc
-        if not isinstance(item, dict):
-            raise CIDARDataError(
-                f"line {index + 1} must contain an object"
-            )
-        samples.append(
-            sample_from_mapping(
-                item,
-                index=index,
-            )
-        )
-    return samples
+
+    return DepthSample(
+        ground_truth=ground_truth,
+        prediction=prediction,
+        sample_id=record.get(
+            "sample_id",
+            index,
+        ),
+    )
+
+
 def load_csv(
     path: str | Path,
 ) -> list[DepthSample]:
-    """Load CIDAR samples from CSV."""
-    source = Path(path)
-    samples: list[DepthSample] = []
-    with source.open(
-        "r",
-        encoding="utf-8",
-        newline="",
-    ) as handle:
-        reader = csv.DictReader(handle)
-        if reader.fieldnames is None:
-            raise CIDARDataError(
-                "CSV is missing a header"
-            )
-        required = {
-            "ground_truth",
-            "prediction",
-        }
-        missing = required - set(
-            reader.fieldnames
-        )
-        if missing:
-            raise CIDARDataError(
-                "CSV missing columns: "
-                + ", ".join(sorted(missing))
-            )
-        for index, row in enumerate(reader):
-            samples.append(
-                sample_from_mapping(
-                    row,
-                    index=index,
+    path = Path(path)
+
+    try:
+        with path.open(
+            "r",
+            encoding="utf-8",
+            newline="",
+        ) as handle:
+            reader = csv.DictReader(handle)
+
+            if not reader.fieldnames:
+                raise CIDARDataError(
+                    "CSV has no header"
                 )
+
+            required = {
+                "ground_truth",
+                "prediction",
+            }
+
+            missing = required - set(
+                reader.fieldnames
             )
+
+            if missing:
+                raise CIDARDataError(
+                    "missing CSV columns: "
+                    + ", ".join(sorted(missing))
+                )
+
+            return [
+                _sample_from_record(
+                    dict(row),
+                    index,
+                )
+                for index, row in enumerate(reader)
+            ]
+
+    except OSError as exc:
+        raise CIDARDataError(
+            f"unable to read CSV: {path}"
+        ) from exc
+
+
+def load_json(
+    path: str | Path,
+) -> list[DepthSample]:
+    path = Path(path)
+
+    try:
+        with path.open(
+            "r",
+            encoding="utf-8",
+        ) as handle:
+            payload = json.load(handle)
+    except (OSError, json.JSONDecodeError) as exc:
+        raise CIDARDataError(
+            f"unable to read JSON: {path}"
+        ) from exc
+
+    if isinstance(payload, dict):
+        payload = payload.get(
+            "samples"
+        )
+
+    if not isinstance(payload, list):
+        raise CIDARDataError(
+            "JSON dataset must contain a sample list"
+        )
+
+    return [
+        _sample_from_record(
+            dict(record),
+            index,
+        )
+        for index, record in enumerate(payload)
+    ]
+
+
+def load_jsonl(
+    path: str | Path,
+) -> list[DepthSample]:
+    path = Path(path)
+    samples: list[DepthSample] = []
+
+    try:
+        with path.open(
+            "r",
+            encoding="utf-8",
+        ) as handle:
+            for line_number, line in enumerate(
+                handle,
+                start=1,
+            ):
+                line = line.strip()
+
+                if not line:
+                    continue
+
+                try:
+                    record = json.loads(line)
+                except json.JSONDecodeError as exc:
+                    raise CIDARDataError(
+                        f"invalid JSONL at line "
+                        f"{line_number}"
+                    ) from exc
+
+                if not isinstance(record, dict):
+                    raise CIDARDataError(
+                        f"JSONL line {line_number} "
+                        "must contain an object"
+                    )
+
+                samples.append(
+                    _sample_from_record(
+                        record,
+                        len(samples),
+                    )
+                )
+
+    except OSError as exc:
+        raise CIDARDataError(
+            f"unable to read JSONL: {path}"
+        ) from exc
+
     return samples
+
+
 def load_dataset(
     path: str | Path,
 ) -> list[DepthSample]:
-    """
-    Load a dataset according to its extension.
-    Supported:
-      .csv
-      .json
-      .jsonl
-    """
-    source = Path(path)
-    suffix = source.suffix.lower()
+    path = Path(path)
+    suffix = path.suffix.lower()
+
     if suffix == ".csv":
-        return load_csv(source)
+        return load_csv(path)
+
     if suffix == ".json":
-        return load_json(source)
+        return load_json(path)
+
     if suffix in {".jsonl", ".ndjson"}:
-        return load_jsonl(source)
+        return load_jsonl(path)
+
     raise CIDARDataError(
         f"unsupported dataset format: {suffix}"
     )
+
+
 def save_jsonl(
-    samples: list[DepthSample],
+    samples: Iterable[DepthSample],
     path: str | Path,
-) -> Path:
-    """Save samples as JSONL for reproducible experiments."""
-    output = Path(path)
-    output.parent.mkdir(
+) -> None:
+    path = Path(path)
+    path.parent.mkdir(
         parents=True,
         exist_ok=True,
     )
-    with output.open(
+
+    with path.open(
         "w",
         encoding="utf-8",
     ) as handle:
         for sample in samples:
+            payload = {
+                "ground_truth": sample.ground_truth,
+                "prediction": sample.prediction,
+                "sample_id": sample.sample_id,
+            }
+
             handle.write(
                 json.dumps(
-                    {
-                        "ground_truth": sample.ground_truth,
-                        "prediction": sample.prediction,
-                        "sample_id": sample.sample_id,
-                    },
+                    payload,
                     sort_keys=True,
                 )
                 + "\n"
             )
-    return output
+
+
 __all__ = [
     "CIDARDataError",
     "load_csv",
-    "load_dataset",
     "load_json",
     "load_jsonl",
-    "sample_from_mapping",
+    "load_dataset",
     "save_jsonl",
 ]
