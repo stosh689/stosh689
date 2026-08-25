@@ -1,82 +1,74 @@
 from gedt.cidar_benchmark import (
-    benchmark_summary,
-    generate_case,
-    generate_dataset,
+    BenchmarkSuite,
+    benchmark_report,
+    default_scenarios,
     run_benchmark,
-    sensor_rmse,
+    run_default_benchmark,
 )
-
-
-def test_generate_case():
-    case = generate_case(
-        10.0,
-        seed=42,
+def test_default_scenarios():
+    scenarios = default_scenarios()
+    assert len(scenarios) == 4
+    assert scenarios[0].name == "camera"
+    assert scenarios[1].name == "lidar"
+    assert scenarios[2].name == "radar"
+    assert scenarios[3].name == "camera-lidar-radar"
+def test_default_benchmark():
+    suite = run_default_benchmark()
+    assert isinstance(
+        suite,
+        BenchmarkSuite,
     )
-
-    assert case.true_distance == 10.0
-    assert case.camera.sensor == "camera"
-    assert case.lidar.sensor == "lidar"
-    assert case.radar.sensor == "radar"
-
-
-def test_generate_dataset_is_reproducible():
-    first = generate_dataset(
-        [1.0, 5.0, 10.0],
-        seed=42,
+    assert len(suite.records) == 4
+    for record in suite.records:
+        assert record.valid
+        assert record.samples == 5
+def test_fusion_beats_camera():
+    suite = run_default_benchmark()
+    camera = next(
+        record
+        for record in suite.records
+        if record.sensors == ("camera",)
     )
-
-    second = generate_dataset(
-        [1.0, 5.0, 10.0],
-        seed=42,
+    fusion = next(
+        record
+        for record in suite.records
+        if record.sensors
+        == ("camera", "lidar", "radar")
     )
-
-    assert first == second
-
-
-def test_benchmark_runs():
-    cases = generate_dataset(
-        [1.0, 5.0, 10.0, 25.0],
-        seed=42,
-    )
-
-    result = run_benchmark(cases)
-
-    assert result.valid
-    assert result.cases == 4
-    assert result.rmse >= 0.0
-    assert result.mean_absolute_error >= 0.0
-
-
-def test_lidar_is_more_accurate_than_noisy_camera():
-    cases = generate_dataset(
-        [1.0, 5.0, 10.0, 25.0, 50.0],
-        camera_noise=2.0,
-        lidar_noise=0.05,
-        seed=42,
-    )
-
-    camera_error = sensor_rmse(
-        cases,
+    assert fusion.rmse < camera.rmse
+def test_best_configuration():
+    suite = run_default_benchmark()
+    assert suite.best.sensors == (
         "camera",
-    )
-
-    lidar_error = sensor_rmse(
-        cases,
         "lidar",
+        "radar",
     )
-
-    assert lidar_error < camera_error
-
-
-def test_summary_contains_status():
-    cases = generate_dataset(
-        [1.0, 5.0, 10.0],
-        seed=42,
+def test_report():
+    suite = run_default_benchmark()
+    report = benchmark_report(suite)
+    assert "CIDAR SENSOR BENCHMARK" in report
+    assert "camera" in report
+    assert "lidar" in report
+    assert "radar" in report
+    assert "BEST CONFIGURATION" in report
+    assert "RMSE" in report
+def test_custom_benchmark():
+    truth = [5.0, 10.0, 20.0]
+    scenarios = default_scenarios()[:2]
+    suite = run_benchmark(
+        truth,
+        [
+            type(scenarios[0])(
+                name=scenarios[0].name,
+                sensors=scenarios[0].sensors,
+                predictions=(5.5, 10.5, 20.5),
+            ),
+            type(scenarios[1])(
+                name=scenarios[1].name,
+                sensors=scenarios[1].sensors,
+                predictions=(5.1, 10.1, 20.1),
+            ),
+        ],
     )
-
-    result = run_benchmark(cases)
-    summary = benchmark_summary(result)
-
-    assert "CIDAR SYNTHETIC BENCHMARK" in summary
-    assert "Status: PASS" in summary
-    assert "RMSE:" in summary
+    assert len(suite.records) == 2
+    assert suite.best.sensors == ("lidar",)
