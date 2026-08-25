@@ -1,167 +1,374 @@
-"""
-CIDAR real-world dataset adapter layer.
-
-Adapters convert external datasets into the normalized GEDT/CIDAR
-DepthSample representation.
-
-The evaluation engine remains dataset-agnostic.
-"""
-
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+import csv
+import json
 from pathlib import Path
-from typing import Iterable
-
-from .cidar_dataset import DepthSample
+from typing import Any, Iterable, Iterator, Mapping, Sequence
 
 
-class CIDARDatasetAdapter(ABC):
-    """Base interface for real-world CIDAR datasets."""
+@dataclass(frozen=True)
+class DepthRecord:
+    """
+    Normalized depth/range measurement.
 
-    name: str = "unknown"
-    version: str = "unknown"
+    The adapters convert different input formats into this common structure.
+    """
+    image_id: str
+    predicted_depth: float
+    ground_truth_depth: float | None = None
+    confidence: float | None = None
+    metadata: dict[str, Any] | None = None
+
+
+class DepthAdapter(ABC):
+    """Base class for CIDAR depth-data adapters."""
 
     @abstractmethod
-    def load(
-        self,
-        root: str | Path,
-    ) -> Iterable[DepthSample]:
-        """Load normalized samples from a dataset."""
+    def load(self, path: str | Path) -> list[DepthRecord]:
+        """Load records from a file."""
         raise NotImplementedError
 
 
-class CSVDepthAdapter(CIDARDatasetAdapter):
+def _first_value(
+    row: Mapping[str, Any],
+    names: Sequence[str],
+    default: Any = None,
+) -> Any:
+    """Return the first matching field from a mapping."""
+    normalized = {
+        str(key).strip().lower(): value
+        for key, value in row.items()
+    }
+
+    for name in names:
+        value = normalized.get(name.lower())
+
+        if value is not None and value != "":
+            return value
+
+    return default
+
+
+def _float_or_none(value: Any) -> float | None:
+    """Convert a value to float, returning None for missing values."""
+    if value is None or value == "":
+        return None
+
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _normalize_record(
+    row: Mapping[str, Any],
+    index: int,
+) -> DepthRecord:
     """
-    Generic adapter for datasets exported as CSV.
+    Convert a raw mapping into a normalized DepthRecord.
 
-    Expected columns:
-
-        ground_truth
-        prediction
-
-    Optional:
-
-        sample_id
-    """
-
-    name = "generic-csv"
-
-    def __init__(
-        self,
-        *,
-        version: str = "1.0",
-    ) -> None:
-        self.version = version
-
-    def load(
-        self,
-        root: str | Path,
-    ) -> Iterable[DepthSample]:
-        from .cidar_ingest import load_csv
-
-        return load_csv(Path(root))
-
-
-class JSONDepthAdapter(CIDARDatasetAdapter):
-    """Generic JSON depth dataset adapter."""
-
-    name = "generic-json"
-
-    def __init__(
-        self,
-        *,
-        version: str = "1.0",
-    ) -> None:
-        self.version = version
-
-    def load(
-        self,
-        root: str | Path,
-    ) -> Iterable[DepthSample]:
-        from .cidar_ingest import load_json
-
-        return load_json(Path(root))
-
-
-class JSONLDepthAdapter(CIDARDatasetAdapter):
-    """Generic JSONL depth dataset adapter."""
-
-    name = "generic-jsonl"
-
-    def __init__(
-        self,
-        *,
-        version: str = "1.0",
-    ) -> None:
-        self.version = version
-
-    def load(
-        self,
-        root: str | Path,
-    ) -> Iterable[DepthSample]:
-        from .cidar_ingest import load_jsonl
-
-        return load_jsonl(Path(root))
-
-
-def validate_samples(
-    samples: Iterable[DepthSample],
-) -> list[DepthSample]:
-    """
-    Normalize and validate an adapter's output.
-
-    All samples must contain finite, non-negative distances.
+    Several common field names are accepted so the adapter layer remains
+    compatible with typical CIDAR/KITTI/NYU-style datasets.
     """
 
-    import math
+    image_id = _first_value(
+        row,
+        (
+            "image_id",
+            "image",
+            "filename",
+            "file",
+            "frame_id",
+            "frame",
+            "id",
+        ),
+        default=str(index),
+    )
 
-    result = list(samples)
+    predicted = _first_value(
+        row,
+        (
+            "predicted_depth",
+            "predicted",
+            "prediction",
+            "pred_depth",
+            "depth_pred",
+            "estimated_depth",
+            "estimated",
+            "depth",
+            "range",
+        ),
+    )
 
-    if not result:
+    ground_truth = _first_value(
+        row,
+        (
+            "ground_truth_depth",
+            "ground_truth",
+            "gt_depth",
+            "ground_truth_range",
+            "gt_range",
+            "true_depth",
+            "target",
+            "actual_depth",
+        ),
+    )
+
+    confidence = _first_value(
+        row,
+        (
+            "confidence",
+            "score",
+            "confidence_score",
+        ),
+    )
+
+    if predicted is None:
         raise ValueError(
-            "adapter produced no samples"
+            f"Record {index} is missing a predicted depth/range value"
         )
 
-    for index, sample in enumerate(result):
-        if not math.isfinite(sample.ground_truth):
-            raise ValueError(
-                f"sample {index} has invalid ground truth"
-            )
+    predicted_float = _float_or_none(predicted)
 
-        if not math.isfinite(sample.prediction):
-            raise ValueError(
-                f"sample {index} has invalid prediction"
-            )
+    if predicted_float is None:
+        raise ValueError(
+            f"Record {index} has an invalid predicted depth: {predicted!r}"
+        )
 
-        if sample.ground_truth < 0.0:
-            raise ValueError(
-                f"sample {index} has negative ground truth"
-            )
+    ground_truth_float = _float_or_none(ground_truth)
+    confidence_float = _float_or_none(confidence)
 
-        if sample.prediction < 0.0:
-            raise ValueError(
-                f"sample {index} has negative prediction"
-            )
+    metadata = {
+        str(key): value
+        for key, value in row.items()
+        if str(key).strip().lower()
+        not in {
+            "image_id",
+            "image",
+            "filename",
+            "file",
+            "frame_id",
+            "frame",
+            "id",
+            "predicted_depth",
+            "predicted",
+            "prediction",
+            "pred_depth",
+            "depth_pred",
+            "estimated_depth",
+            "estimated",
+            "depth",
+            "range",
+            "ground_truth_depth",
+            "ground_truth",
+            "gt_depth",
+            "ground_truth_range",
+            "gt_range",
+            "true_depth",
+            "target",
+            "actual_depth",
+            "confidence",
+            "score",
+            "confidence_score",
+        }
+    }
 
-    return result
-
-
-def load_with_adapter(
-    adapter: CIDARDatasetAdapter,
-    root: str | Path,
-) -> list[DepthSample]:
-    """Load and validate a real-world dataset."""
-    return validate_samples(
-        adapter.load(root)
+    return DepthRecord(
+        image_id=str(image_id),
+        predicted_depth=predicted_float,
+        ground_truth_depth=ground_truth_float,
+        confidence=confidence_float,
+        metadata=metadata or None,
     )
 
 
+class CSVDepthAdapter(DepthAdapter):
+    """Adapter for CSV depth/range datasets."""
+
+    def load(self, path: str | Path) -> list[DepthRecord]:
+        path = Path(path)
+
+        if not path.exists():
+            raise FileNotFoundError(path)
+
+        if not path.is_file():
+            raise ValueError(f"Expected a file: {path}")
+
+        with path.open(
+            "r",
+            encoding="utf-8",
+            newline="",
+        ) as handle:
+            reader = csv.DictReader(handle)
+
+            if reader.fieldnames is None:
+                raise ValueError(
+                    f"CSV file has no header: {path}"
+                )
+
+            records: list[DepthRecord] = []
+
+            for index, row in enumerate(reader):
+                records.append(
+                    _normalize_record(row, index)
+                )
+
+        return records
+
+
+class JSONDepthAdapter(DepthAdapter):
+    """Adapter for JSON datasets."""
+
+    def load(self, path: str | Path) -> list[DepthRecord]:
+        path = Path(path)
+
+        if not path.exists():
+            raise FileNotFoundError(path)
+
+        if not path.is_file():
+            raise ValueError(f"Expected a file: {path}")
+
+        with path.open(
+            "r",
+            encoding="utf-8",
+        ) as handle:
+            payload = json.load(handle)
+
+        if isinstance(payload, Mapping):
+            # Support either:
+            # {"records": [...]}
+            # {"samples": [...]}
+            # {"data": [...]}
+            for key in ("records", "samples", "data"):
+                if key in payload:
+                    payload = payload[key]
+                    break
+            else:
+                payload = [payload]
+
+        if not isinstance(payload, list):
+            raise ValueError(
+                "JSON dataset must contain an object or list of records"
+            )
+
+        records: list[DepthRecord] = []
+
+        for index, row in enumerate(payload):
+            if not isinstance(row, Mapping):
+                raise ValueError(
+                    f"JSON record {index} must be an object"
+                )
+
+            records.append(
+                _normalize_record(row, index)
+            )
+
+        return records
+
+
+class JSONLDepthAdapter(DepthAdapter):
+    """Adapter for JSON Lines depth datasets."""
+
+    def load(self, path: str | Path) -> list[DepthRecord]:
+        path = Path(path)
+
+        if not path.exists():
+            raise FileNotFoundError(path)
+
+        if not path.is_file():
+            raise ValueError(f"Expected a file: {path}")
+
+        records: list[DepthRecord] = []
+
+        with path.open(
+            "r",
+            encoding="utf-8",
+        ) as handle:
+            for index, line in enumerate(handle):
+                line = line.strip()
+
+                if not line:
+                    continue
+
+                try:
+                    row = json.loads(line)
+                except json.JSONDecodeError as exc:
+                    raise ValueError(
+                        f"Invalid JSONL record at line {index + 1}"
+                    ) from exc
+
+                if not isinstance(row, Mapping):
+                    raise ValueError(
+                        f"JSONL record {index} must be an object"
+                    )
+
+                records.append(
+                    _normalize_record(row, index)
+                )
+
+        return records
+
+
+def adapter_for_path(path: str | Path) -> DepthAdapter:
+    """Select an adapter based on the file extension."""
+    suffix = Path(path).suffix.lower()
+
+    if suffix == ".csv":
+        return CSVDepthAdapter()
+
+    if suffix == ".json":
+        return JSONDepthAdapter()
+
+    if suffix in {".jsonl", ".ndjson"}:
+        return JSONLDepthAdapter()
+
+    raise ValueError(
+        f"Unsupported depth dataset format: {suffix or '<none>'}"
+    )
+
+
+def load_with_adapter(
+    path: str | Path,
+    adapter: DepthAdapter | None = None,
+) -> list[DepthRecord]:
+    """
+    Load a dataset using an explicitly supplied adapter or infer the adapter
+    from the file extension.
+    """
+    selected_adapter = (
+        adapter
+        if adapter is not None
+        else adapter_for_path(path)
+    )
+
+    return selected_adapter.load(path)
+
+
+def records_to_dicts(
+    records: Iterable[DepthRecord],
+) -> list[dict[str, Any]]:
+    """Convert normalized records back into serializable dictionaries."""
+    return [
+        {
+            "image_id": record.image_id,
+            "predicted_depth": record.predicted_depth,
+            "ground_truth_depth": record.ground_truth_depth,
+            "confidence": record.confidence,
+            "metadata": record.metadata,
+        }
+        for record in records
+    ]
+
+
 __all__ = [
-    "CIDARDatasetAdapter",
+    "DepthRecord",
+    "DepthAdapter",
     "CSVDepthAdapter",
     "JSONDepthAdapter",
     "JSONLDepthAdapter",
+    "adapter_for_path",
     "load_with_adapter",
-    "validate_samples",
+    "records_to_dicts",
 ]
