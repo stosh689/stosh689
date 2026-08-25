@@ -1,170 +1,380 @@
-"""Project dependency graph utilities."""
+"""GEDT project dependency graph analysis."""
 
 from __future__ import annotations
 
+import ast
 from dataclasses import dataclass, field
-from typing import Iterable, Mapping
+from pathlib import Path
+import re
+
+
+@dataclass(frozen=True)
+class ProjectNode:
+    """A node in the project graph."""
+
+    name: str
+    kind: str
+    path: str | None = None
+
+
+@dataclass(frozen=True)
+class ProjectEdge:
+    """A directed graph relationship."""
+
+    source: str
+    target: str
+    kind: str = "dependency"
 
 
 @dataclass
 class ProjectGraph:
-    """Simple directed project dependency graph."""
+    """Dependency graph for a GEDT project."""
 
-    nodes: set[str] = field(default_factory=set)
-    edges: dict[str, set[str]] = field(default_factory=dict)
+    nodes: dict[str, ProjectNode] = field(default_factory=dict)
+    edges: list[ProjectEdge] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
+    root: str | None = None
 
-    def add_node(self, name: str) -> None:
-        name = str(name)
-        self.nodes.add(name)
-        self.edges.setdefault(name, set())
-
-    def add_edge(self, source: str, target: str) -> None:
-        source = str(source)
-        target = str(target)
-
-        self.add_node(source)
-        self.add_node(target)
-        self.edges[source].add(target)
-
-    def dependencies(self, name: str) -> set[str]:
-        return set(self.edges.get(str(name), set()))
-
-    def dependents(self, name: str) -> set[str]:
-        name = str(name)
-        return {
-            source
-            for source, targets in self.edges.items()
-            if name in targets
-        }
-
-    def has_node(self, name: str) -> bool:
-        return str(name) in self.nodes
-
-    def has_edge(self, source: str, target: str) -> bool:
-        return str(target) in self.edges.get(
-            str(source),
-            set(),
-        )
-
+    @property
     def node_count(self) -> int:
         return len(self.nodes)
 
+    @property
     def edge_count(self) -> int:
-        return sum(
-            len(targets)
-            for targets in self.edges.values()
+        return len(self.edges)
+
+    @property
+    def healthy(self) -> bool:
+        return not self.errors
+
+    def dependencies(self) -> list[str]:
+        """Return external dependency names."""
+        return sorted(
+            {
+                edge.target
+                for edge in self.edges
+                if edge.kind == "dependency"
+            }
         )
 
-    def roots(self) -> list[str]:
+    def dependency_names(self) -> list[str]:
+        return self.dependencies()
+
+    def source_files(self) -> list[str]:
         return sorted(
-            node
-            for node in self.nodes
-            if not self.dependents(node)
+            node.name
+            for node in self.nodes.values()
+            if node.kind == "file"
         )
 
-    def leaves(self) -> list[str]:
-        return sorted(
-            node
-            for node in self.nodes
-            if not self.dependencies(node)
+    def has_cycle(self) -> bool:
+        """Detect cycles between internal modules."""
+
+        adjacency: dict[str, set[str]] = {}
+
+        for edge in self.edges:
+            if edge.kind == "module":
+                adjacency.setdefault(
+                    edge.source,
+                    set(),
+                ).add(edge.target)
+
+        visiting: set[str] = set()
+        visited: set[str] = set()
+
+        def visit(node: str) -> bool:
+            if node in visiting:
+                return True
+
+            if node in visited:
+                return False
+
+            visiting.add(node)
+
+            for child in adjacency.get(node, set()):
+                if visit(child):
+                    return True
+
+            visiting.remove(node)
+            visited.add(node)
+
+            return False
+
+        return any(
+            visit(node)
+            for node in adjacency
         )
+
+
+def _module_name(root: Path, path: Path) -> str:
+    relative = path.relative_to(root).with_suffix("")
+
+    parts = list(relative.parts)
+
+    if parts and parts[-1] == "__init__":
+        parts.pop()
+
+    return ".".join(parts) or root.name
+
+
+def _dependency_name(name: str) -> str:
+    return name.split(".", 1)[0]
+
+
+def _project_name(root: Path) -> str:
+    pyproject = root / "pyproject.toml"
+
+    if pyproject.exists():
+        text = pyproject.read_text(
+            encoding="utf-8",
+            errors="replace",
+        )
+
+        match = re.search(
+            r"^name\s*=\s*[\"']([^\"']+)[\"']",
+            text,
+            re.MULTILINE,
+        )
+
+        if match:
+            return match.group(1)
+
+    return root.name
+
+
+def _pyproject_dependencies(root: Path) -> set[str]:
+    """Extract simple PEP 621 dependencies."""
+
+    path = root / "pyproject.toml"
+
+    if not path.exists():
+        return set()
+
+    text = path.read_text(
+        encoding="utf-8",
+        errors="replace",
+    )
+
+    dependencies: set[str] = set()
+
+    in_dependencies = False
+
+    for line in text.splitlines():
+        stripped = line.strip()
+
+        if stripped.startswith("dependencies"):
+            in_dependencies = True
+
+        if in_dependencies:
+            match = re.search(
+                r"[\"']([A-Za-z0-9_.-]+)",
+                stripped,
+            )
+
+            if match:
+                name = match.group(1)
+
+                if name not in {
+                    "dependencies",
+                    "project",
+                }:
+                    dependencies.add(name)
+
+        if in_dependencies and stripped == "]":
+            break
+
+    return dependencies
 
 
 def build_project_graph(
-    dependencies: Mapping[str, Iterable[str]] | None = None,
+    root: str | Path,
 ) -> ProjectGraph:
-    """Build a ProjectGraph from a dependency mapping."""
+    """Build a dependency graph from a project directory."""
 
-    graph = ProjectGraph()
+    root = Path(root).resolve()
 
-    if dependencies is None:
-        return graph
+    graph = ProjectGraph(
+        root=root.name,
+    )
 
-    for project, deps in dependencies.items():
-        graph.add_node(str(project))
+    project_name = _project_name(root)
 
-        for dependency in deps:
-            graph.add_edge(
-                str(project),
-                str(dependency),
+    project_key = f"project:{project_name}"
+
+    graph.nodes[project_key] = ProjectNode(
+        name=project_name,
+        kind="project",
+        path=str(root),
+    )
+
+    module_nodes: dict[str, str] = {}
+
+    python_files = sorted(
+        root.rglob("*.py")
+    )
+
+    for path in python_files:
+        if any(
+            part in {
+                ".git",
+                ".venv",
+                "venv",
+                "__pycache__",
+                "node_modules",
+            }
+            for part in path.parts
+        ):
+            continue
+
+        module = _module_name(
+            root,
+            path,
+        )
+
+        node_key = f"file:{module}"
+
+        module_nodes[module] = node_key
+
+        graph.nodes[node_key] = ProjectNode(
+            name=module,
+            kind="file",
+            path=str(path),
+        )
+
+        graph.edges.append(
+            ProjectEdge(
+                source=project_key,
+                target=node_key,
+                kind="contains",
+            )
+        )
+
+        try:
+            source = path.read_text(
+                encoding="utf-8"
             )
 
-    return graph
+            tree = ast.parse(
+                source,
+                filename=str(path),
+            )
 
+        except (
+            SyntaxError,
+            UnicodeDecodeError,
+            OSError,
+        ) as exc:
+            graph.errors.append(
+                f"{path}: {exc}"
+            )
+            continue
 
-def graph_from_edges(
-    edges: Iterable[tuple[str, str]],
-) -> ProjectGraph:
-    graph = ProjectGraph()
+        for node in ast.walk(tree):
 
-    for source, target in edges:
-        graph.add_edge(source, target)
+            names: list[str] = []
+
+            if isinstance(
+                node,
+                ast.Import,
+            ):
+                names = [
+                    alias.name
+                    for alias in node.names
+                ]
+
+            elif isinstance(
+                node,
+                ast.ImportFrom,
+            ):
+                if node.module:
+                    names = [node.module]
+
+            for name in names:
+
+                dependency = _dependency_name(
+                    name
+                )
+
+                dependency_key = (
+                    f"dependency:{dependency}"
+                )
+
+                if dependency_key not in graph.nodes:
+                    graph.nodes[
+                        dependency_key
+                    ] = ProjectNode(
+                        name=dependency,
+                        kind="dependency",
+                    )
+
+                graph.edges.append(
+                    ProjectEdge(
+                        source=node_key,
+                        target=dependency,
+                        kind="dependency",
+                    )
+                )
+
+                if name in module_nodes:
+                    graph.edges.append(
+                        ProjectEdge(
+                            source=node_key,
+                            target=module_nodes[name],
+                            kind="module",
+                        )
+                    )
+
+    for dependency in sorted(
+        _pyproject_dependencies(root)
+    ):
+        dependency_key = (
+            f"dependency:{dependency}"
+        )
+
+        if dependency_key not in graph.nodes:
+            graph.nodes[
+                dependency_key
+            ] = ProjectNode(
+                name=dependency,
+                kind="dependency",
+            )
+
+        graph.edges.append(
+            ProjectEdge(
+                source=project_key,
+                target=dependency,
+                kind="dependency",
+            )
+        )
 
     return graph
 
 
 def summarize_project_graph(
     graph: ProjectGraph,
-) -> dict[str, object]:
-    """Return a stable summary suitable for tests and reports."""
+) -> dict:
+    """Return deterministic JSON-compatible graph summary."""
+
+    files = graph.source_files()
+    dependencies = graph.dependencies()
 
     return {
-        "nodes": graph.node_count(),
-        "edges": graph.edge_count(),
-        "node_count": graph.node_count(),
-        "edge_count": graph.edge_count(),
-        "roots": graph.roots(),
-        "leaves": graph.leaves(),
-        "projects": sorted(graph.nodes),
+        "file_count": len(files),
+        "dependency_count": len(dependencies),
+        "files": files,
+        "dependencies": dependencies,
+        "node_count": graph.node_count,
+        "edge_count": graph.edge_count,
+        "healthy": graph.healthy,
+        "errors": list(graph.errors),
+        "has_cycle": graph.has_cycle(),
     }
-
-
-def topological_order(
-    graph: ProjectGraph,
-) -> list[str]:
-    """Return a deterministic topological ordering.
-
-    Raises ValueError if a dependency cycle exists.
-    """
-
-    incoming = {
-        node: len(graph.dependents(node))
-        for node in graph.nodes
-    }
-
-    ready = sorted(
-        node
-        for node, degree in incoming.items()
-        if degree == 0
-    )
-
-    result: list[str] = []
-
-    while ready:
-        node = ready.pop(0)
-        result.append(node)
-
-        for dependent in sorted(
-            graph.dependencies(node)
-        ):
-            incoming[dependent] -= 1
-
-            if incoming[dependent] == 0:
-                ready.append(dependent)
-                ready.sort()
-
-    if len(result) != len(graph.nodes):
-        raise ValueError(
-            "project graph contains a dependency cycle"
-        )
-
-    return result
 
 
 __all__ = [
+    "ProjectNode",
+    "ProjectEdge",
     "ProjectGraph",
     "build_project_graph",
-    "graph_from_edges",
     "summarize_project_graph",
-    "topological_order",
 ]
