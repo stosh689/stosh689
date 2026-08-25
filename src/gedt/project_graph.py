@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import ast
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
-import re
 
 
 @dataclass(frozen=True)
@@ -48,7 +48,6 @@ class ProjectGraph:
         return not self.errors
 
     def dependencies(self) -> list[str]:
-        """Return external dependency names."""
         return sorted(
             {
                 edge.target
@@ -68,7 +67,7 @@ class ProjectGraph:
         )
 
     def has_cycle(self) -> bool:
-        """Detect cycles between internal modules."""
+        """Detect cycles between internal Python modules."""
 
         adjacency: dict[str, set[str]] = {}
 
@@ -108,7 +107,6 @@ class ProjectGraph:
 
 def _module_name(root: Path, path: Path) -> str:
     relative = path.relative_to(root).with_suffix("")
-
     parts = list(relative.parts)
 
     if parts and parts[-1] == "__init__":
@@ -143,7 +141,7 @@ def _project_name(root: Path) -> str:
 
 
 def _pyproject_dependencies(root: Path) -> set[str]:
-    """Extract simple PEP 621 dependencies."""
+    """Extract simple PEP 621 dependency names."""
 
     path = root / "pyproject.toml"
 
@@ -156,7 +154,6 @@ def _pyproject_dependencies(root: Path) -> set[str]:
     )
 
     dependencies: set[str] = set()
-
     in_dependencies = False
 
     for line in text.splitlines():
@@ -198,7 +195,6 @@ def build_project_graph(
     )
 
     project_name = _project_name(root)
-
     project_key = f"project:{project_name}"
 
     graph.nodes[project_key] = ProjectNode(
@@ -251,7 +247,7 @@ def build_project_graph(
 
         try:
             source = path.read_text(
-                encoding="utf-8"
+                encoding="utf-8",
             )
 
             tree = ast.parse(
@@ -270,7 +266,6 @@ def build_project_graph(
             continue
 
         for node in ast.walk(tree):
-
             names: list[str] = []
 
             if isinstance(
@@ -290,7 +285,6 @@ def build_project_graph(
                     names = [node.module]
 
             for name in names:
-
                 dependency = _dependency_name(
                     name
                 )
