@@ -1,208 +1,172 @@
-"""
-CIDAR real-world dataset adapter.
-
-Provides a dependency-free interface for evaluating predicted
-depth/range values against real-world ground-truth measurements.
-
-The adapter accepts ordinary Python sequences so that KITTI,
-NYU Depth V2, and future datasets can be connected without
-making the core CIDAR package depend on a specific dataset SDK.
-"""
+"""CIDAR dataset primitives and evaluation metrics."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from math import isfinite, sqrt
-from statistics import mean, median
+import math
 from typing import Iterable, Sequence
 
 
 @dataclass(frozen=True)
 class DepthSample:
-    """A single predicted/ground-truth depth observation."""
+    """A single ground-truth/prediction depth sample."""
 
     ground_truth: float
     prediction: float
-    sample_id: str | int | None = None
+    sample_id: object = None
 
     def __post_init__(self) -> None:
-        if not isfinite(self.ground_truth):
-            raise ValueError(
-                "ground_truth must be finite"
-            )
+        object.__setattr__(self, "ground_truth", float(self.ground_truth))
+        object.__setattr__(self, "prediction", float(self.prediction))
 
-        if not isfinite(self.prediction):
-            raise ValueError(
-                "prediction must be finite"
-            )
+    @property
+    def error(self) -> float:
+        return self.prediction - self.ground_truth
 
-        if self.ground_truth < 0.0:
-            raise ValueError(
-                "ground_truth must be non-negative"
-            )
+    @property
+    def absolute_error(self) -> float:
+        return abs(self.error)
 
-        if self.prediction < 0.0:
-            raise ValueError(
-                "prediction must be non-negative"
-            )
+    @property
+    def squared_error(self) -> float:
+        return self.error ** 2
+
+    @property
+    def relative_error(self) -> float:
+        denominator = max(abs(self.ground_truth), 1e-12)
+        return self.absolute_error / denominator
 
 
 @dataclass(frozen=True)
-class DatasetMetrics:
-    """Standard CIDAR depth/range evaluation metrics."""
-
+class DepthMetrics:
+    valid: bool
     samples: int
     mae: float
     rmse: float
     bias: float
-    median_absolute_error: float
     relative_error: float
-    max_error: float
 
     @property
-    def valid(self) -> bool:
-        return (
-            self.samples > 0
-            and self.mae >= 0.0
-            and self.rmse >= 0.0
-            and self.median_absolute_error >= 0.0
-            and self.relative_error >= 0.0
-            and self.max_error >= 0.0
-            and isfinite(self.bias)
-        )
+    def mean_absolute_error(self) -> float:
+        return self.mae
 
+    @property
+    def root_mean_square_error(self) -> float:
+        return self.rmse
 
-def validate_samples(
-    samples: Iterable[DepthSample],
-) -> tuple[DepthSample, ...]:
-    """Validate and normalize dataset samples."""
-    result = tuple(samples)
-
-    for sample in result:
-        if not isinstance(sample, DepthSample):
-            raise TypeError(
-                "all samples must be DepthSample instances"
-            )
-
-    if not result:
-        raise ValueError(
-            "dataset must contain at least one sample"
-        )
-
-    return result
+    @property
+    def mean_relative_error(self) -> float:
+        return self.relative_error
 
 
 def from_sequences(
     ground_truth: Sequence[float],
-    predictions: Sequence[float],
-    *,
-    sample_ids: Sequence[str | int] | None = None,
+    prediction: Sequence[float],
 ) -> list[DepthSample]:
-    """
-    Build DepthSample objects from paired sequences.
-
-    This is the primary bridge for NumPy arrays, CSV readers,
-    dataset loaders, or other external data sources.
-    """
-    if len(ground_truth) != len(predictions):
+    if len(ground_truth) != len(prediction):
         raise ValueError(
-            "ground_truth and predictions must have equal length"
+            "ground truth and prediction lengths must match"
         )
 
-    if sample_ids is not None:
-        if len(sample_ids) != len(ground_truth):
+    return [
+        DepthSample(
+            ground_truth=gt,
+            prediction=pred,
+            sample_id=index,
+        )
+        for index, (gt, pred) in enumerate(
+            zip(ground_truth, prediction)
+        )
+    ]
+
+
+def validate_samples(
+    samples: Iterable[DepthSample],
+) -> list[DepthSample]:
+    """Validate and return samples."""
+
+    result = list(samples)
+
+    if not result:
+        raise ValueError("CIDAR samples cannot be empty")
+
+    for sample in result:
+        if not math.isfinite(sample.ground_truth):
+            raise ValueError("ground_truth must be finite")
+
+        if not math.isfinite(sample.prediction):
+            raise ValueError("prediction must be finite")
+
+        if sample.ground_truth < 0:
             raise ValueError(
-                "sample_ids must match the number of samples"
+                "ground_truth cannot be negative"
             )
 
-    samples: list[DepthSample] = []
-
-    for index, (truth, prediction) in enumerate(
-        zip(ground_truth, predictions)
-    ):
-        sample_id = (
-            sample_ids[index]
-            if sample_ids is not None
-            else index
-        )
-
-        samples.append(
-            DepthSample(
-                ground_truth=float(truth),
-                prediction=float(prediction),
-                sample_id=sample_id,
+        if sample.prediction < 0:
+            raise ValueError(
+                "prediction cannot be negative"
             )
-        )
 
-    return samples
+    return result
 
 
 def evaluate_dataset(
     samples: Iterable[DepthSample],
-) -> DatasetMetrics:
-    """Evaluate predictions against ground truth."""
-    values = validate_samples(samples)
+) -> DepthMetrics:
+    sample_list = validate_samples(samples)
 
     errors = [
-        sample.prediction - sample.ground_truth
-        for sample in values
+        sample.error
+        for sample in sample_list
     ]
 
-    absolute_errors = [
+    mae = sum(
         abs(error)
         for error in errors
-    ]
+    ) / len(errors)
 
-    squared_errors = [
-        error ** 2
-        for error in errors
-    ]
-
-    relative_errors = [
-        abs(sample.prediction - sample.ground_truth)
-        / sample.ground_truth
-        for sample in values
-        if sample.ground_truth > 0.0
-    ]
-
-    mae = mean(absolute_errors)
-
-    rmse = sqrt(
-        mean(squared_errors)
+    rmse = math.sqrt(
+        sum(
+            error ** 2
+            for error in errors
+        ) / len(errors)
     )
 
-    bias = mean(errors)
+    bias = sum(errors) / len(errors)
 
-    median_absolute_error = median(
-        absolute_errors
+    relative_error = sum(
+        sample.relative_error
+        for sample in sample_list
+    ) / len(sample_list)
+
+    valid = all(
+        math.isfinite(value)
+        for value in (
+            mae,
+            rmse,
+            bias,
+            relative_error,
+        )
     )
 
-    relative_error = (
-        mean(relative_errors)
-        if relative_errors
-        else 0.0
-    )
-
-    return DatasetMetrics(
-        samples=len(values),
+    return DepthMetrics(
+        valid=valid,
+        samples=len(sample_list),
         mae=mae,
         rmse=rmse,
         bias=bias,
-        median_absolute_error=median_absolute_error,
         relative_error=relative_error,
-        max_error=max(absolute_errors),
     )
 
 
 def evaluate_arrays(
     ground_truth: Sequence[float],
-    predictions: Sequence[float],
-) -> DatasetMetrics:
-    """Evaluate two paired numeric sequences."""
+    prediction: Sequence[float],
+) -> DepthMetrics:
     return evaluate_dataset(
         from_sequences(
             ground_truth,
-            predictions,
+            prediction,
         )
     )
 
@@ -210,13 +174,9 @@ def evaluate_arrays(
 def kitti_style_evaluate(
     ground_truth: Sequence[float],
     prediction: Sequence[float],
-) -> DatasetMetrics:
-    """
-    Evaluate KITTI-style sparse depth/range samples.
+) -> DepthMetrics:
+    """KITTI-style range evaluation."""
 
-    Dataset-specific loading is intentionally outside this
-    function; callers provide paired valid measurements.
-    """
     return evaluate_arrays(
         ground_truth,
         prediction,
@@ -226,54 +186,38 @@ def kitti_style_evaluate(
 def nyu_style_evaluate(
     ground_truth: Sequence[float],
     prediction: Sequence[float],
-) -> DatasetMetrics:
-    """
-    Evaluate NYU-style dense depth samples.
+) -> DepthMetrics:
+    """NYU-style depth evaluation."""
 
-    Dataset-specific loading is intentionally outside this
-    function; callers provide paired valid measurements.
-    """
     return evaluate_arrays(
         ground_truth,
         prediction,
     )
 
 
-def metric_report(
-    metrics: DatasetMetrics,
-) -> str:
-    """Generate a human-readable CIDAR dataset report."""
-    status = (
-        "PASS"
-        if metrics.valid
-        else "FAIL"
-    )
+def metric_report(metrics: DepthMetrics) -> str:
+    status = "PASS" if metrics.valid else "FAIL"
 
     return (
         "CIDAR REAL-WORLD DATASET EVALUATION\n"
         "====================================\n"
         f"Status: {status}\n"
         f"Samples: {metrics.samples}\n"
-        f"MAE: {metrics.mae:.6f} m\n"
-        f"RMSE: {metrics.rmse:.6f} m\n"
-        f"Bias: {metrics.bias:.6f} m\n"
-        f"Median Absolute Error: "
-        f"{metrics.median_absolute_error:.6f} m\n"
-        f"Relative Error: "
-        f"{metrics.relative_error:.6f}\n"
-        f"Maximum Error: "
-        f"{metrics.max_error:.6f} m"
+        f"MAE: {metrics.mae:.6f}\n"
+        f"RMSE: {metrics.rmse:.6f}\n"
+        f"Bias: {metrics.bias:.6f}\n"
+        f"Relative Error: {metrics.relative_error:.6f}\n"
     )
 
 
 __all__ = [
-    "DatasetMetrics",
     "DepthSample",
-    "evaluate_arrays",
-    "evaluate_dataset",
+    "DepthMetrics",
     "from_sequences",
-    "kitti_style_evaluate",
-    "metric_report",
-    "nyu_style_evaluate",
     "validate_samples",
+    "evaluate_dataset",
+    "evaluate_arrays",
+    "kitti_style_evaluate",
+    "nyu_style_evaluate",
+    "metric_report",
 ]
