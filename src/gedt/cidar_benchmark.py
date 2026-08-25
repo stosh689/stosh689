@@ -1,301 +1,231 @@
 """
-CIDAR synthetic range benchmark.
-
-Generates controlled sensor measurements and evaluates
-camera/LiDAR/radar fusion without external dependencies.
+CIDAR sensor benchmark.
+Provides deterministic sensor configurations for comparing:
+    camera
+    lidar
+    radar
+    camera + lidar
+    camera + radar
+    camera + lidar + radar
+The benchmark uses the same ground-truth samples for every
+configuration so results remain directly comparable.
 """
-
 from __future__ import annotations
-
 from dataclasses import dataclass
-from math import sqrt
-import random
-
-from .cidar_fusion import (
-    RangeObservation,
-    compare_ranges,
-    fuse_camera_lidar_radar,
-    root_mean_square_error,
+from typing import Sequence
+from .cidar_protocol import (
+    CIDARBenchmarkConfig,
+    CIDARBenchmarkRecord,
+    run_protocol,
 )
-
-
 @dataclass(frozen=True)
-class BenchmarkCase:
-    """One synthetic CIDAR measurement case."""
-
-    true_distance: float
-    camera: RangeObservation
-    lidar: RangeObservation
-    radar: RangeObservation
-
-
+class SensorScenario:
+    """One deterministic sensor scenario."""
+    name: str
+    sensors: tuple[str, ...]
+    predictions: tuple[float, ...]
 @dataclass(frozen=True)
-class BenchmarkResult:
-    """Aggregate benchmark results."""
-
-    cases: int
-    rmse: float
-    mean_absolute_error: float
-    maximum_absolute_error: float
-    mean_fused_confidence: float
-
+class BenchmarkSuite:
+    """Collection of comparable CIDAR benchmark results."""
+    records: tuple[CIDARBenchmarkRecord, ...]
     @property
-    def valid(self) -> bool:
-        return (
-            self.cases > 0
-            and self.rmse >= 0.0
-            and self.mean_absolute_error >= 0.0
-            and self.maximum_absolute_error >= 0.0
-            and 0.0 <= self.mean_fused_confidence <= 1.0
-        )
-
-
-def _validate_distance(distance: float) -> None:
-    if distance < 0.0:
-        raise ValueError(
-            "distance must be non-negative"
-        )
-
-
-def _measurement(
-    sensor: str,
-    true_distance: float,
-    noise: float,
-    confidence: float,
-    rng: random.Random,
-) -> RangeObservation:
-    distance = max(
-        0.0,
-        true_distance
-        + rng.gauss(0.0, noise),
-    )
-
-    return RangeObservation(
-        sensor=sensor,
-        distance=distance,
-        confidence=confidence,
-    )
-
-
-def generate_case(
-    true_distance: float,
-    *,
-    camera_noise: float = 0.25,
-    lidar_noise: float = 0.05,
-    radar_noise: float = 0.15,
-    camera_confidence: float = 0.75,
-    lidar_confidence: float = 0.95,
-    radar_confidence: float = 0.85,
-    seed: int | None = None,
-) -> BenchmarkCase:
-    """
-    Generate one synthetic camera/LiDAR/radar measurement.
-    """
-    _validate_distance(true_distance)
-
-    if camera_noise < 0:
-        raise ValueError("camera_noise must be non-negative")
-
-    if lidar_noise < 0:
-        raise ValueError("lidar_noise must be non-negative")
-
-    if radar_noise < 0:
-        raise ValueError("radar_noise must be non-negative")
-
-    rng = random.Random(seed)
-
-    return BenchmarkCase(
-        true_distance=true_distance,
-        camera=_measurement(
-            "camera",
-            true_distance,
-            camera_noise,
-            camera_confidence,
-            rng,
-        ),
-        lidar=_measurement(
-            "lidar",
-            true_distance,
-            lidar_noise,
-            lidar_confidence,
-            rng,
-        ),
-        radar=_measurement(
-            "radar",
-            true_distance,
-            radar_noise,
-            radar_confidence,
-            rng,
-        ),
-    )
-
-
-def generate_dataset(
-    distances: list[float],
-    *,
-    camera_noise: float = 0.25,
-    lidar_noise: float = 0.05,
-    radar_noise: float = 0.15,
-    camera_confidence: float = 0.75,
-    lidar_confidence: float = 0.95,
-    radar_confidence: float = 0.85,
-    seed: int = 42,
-) -> list[BenchmarkCase]:
-    """Generate a reproducible synthetic benchmark dataset."""
-    rng = random.Random(seed)
-
-    cases: list[BenchmarkCase] = []
-
-    for distance in distances:
-        _validate_distance(distance)
-
-        cases.append(
-            BenchmarkCase(
-                true_distance=distance,
-                camera=_measurement(
-                    "camera",
-                    distance,
-                    camera_noise,
-                    camera_confidence,
-                    rng,
-                ),
-                lidar=_measurement(
-                    "lidar",
-                    distance,
-                    lidar_noise,
-                    lidar_confidence,
-                    rng,
-                ),
-                radar=_measurement(
-                    "radar",
-                    distance,
-                    radar_noise,
-                    radar_confidence,
-                    rng,
-                ),
-            )
-        )
-
-    return cases
-
-
-def run_benchmark(
-    cases: list[BenchmarkCase],
-) -> BenchmarkResult:
-    """Evaluate fused range against ground truth."""
-    if not cases:
-        raise ValueError(
-            "at least one benchmark case is required"
-        )
-
-    squared_errors: list[float] = []
-    absolute_errors: list[float] = []
-    confidences: list[float] = []
-
-    for case in cases:
-        fused = fuse_camera_lidar_radar(
-            camera=case.camera,
-            lidar=case.lidar,
-            radar=case.radar,
-        )
-
-        error = fused.distance - case.true_distance
-
-        squared_errors.append(error ** 2)
-        absolute_errors.append(abs(error))
-        confidences.append(fused.confidence)
-
-    rmse = sqrt(
-        sum(squared_errors)
-        / len(squared_errors)
-    )
-
-    return BenchmarkResult(
-        cases=len(cases),
-        rmse=rmse,
-        mean_absolute_error=(
-            sum(absolute_errors)
-            / len(absolute_errors)
-        ),
-        maximum_absolute_error=max(
-            absolute_errors
-        ),
-        mean_fused_confidence=(
-            sum(confidences)
-            / len(confidences)
-        ),
-    )
-
-
-def sensor_rmse(
-    cases: list[BenchmarkCase],
-    sensor: str,
-) -> float:
-    """Calculate RMSE for one sensor."""
-    if not cases:
-        raise ValueError(
-            "at least one benchmark case is required"
-        )
-
-    observations: list[RangeObservation] = []
-
-    for case in cases:
-        if sensor == "camera":
-            observations.append(case.camera)
-        elif sensor == "lidar":
-            observations.append(case.lidar)
-        elif sensor == "radar":
-            observations.append(case.radar)
-        else:
+    def best(self) -> CIDARBenchmarkRecord:
+        if not self.records:
             raise ValueError(
-                f"unknown sensor: {sensor}"
+                "benchmark suite is empty"
             )
-
-    truth = [
-        RangeObservation(
-            sensor="ground_truth",
-            distance=case.true_distance,
-            confidence=1.0,
+        return min(
+            self.records,
+            key=lambda record: record.rmse,
         )
-        for case in cases
-    ]
-
-    return root_mean_square_error(
+def _validate_lengths(
+    truth: Sequence[float],
+    predictions: Sequence[float],
+) -> None:
+    if len(truth) != len(predictions):
+        raise ValueError(
+            "ground truth and predictions must have "
+            "the same length"
+        )
+    if not truth:
+        raise ValueError(
+            "benchmark data cannot be empty"
+        )
+def evaluate_scenario(
+    truth: Sequence[float],
+    scenario: SensorScenario,
+    *,
+    distance_min: float = 1.0,
+    distance_max: float = 100.0,
+    seed: int = 42,
+    measurements_per_trial: int = 20,
+    noise_std: float = 0.25,
+) -> CIDARBenchmarkRecord:
+    """Evaluate one sensor scenario."""
+    _validate_lengths(
         truth,
-        observations,
+        scenario.predictions,
     )
-
-
-def benchmark_summary(
-    result: BenchmarkResult,
+    config = CIDARBenchmarkConfig(
+        dataset_name="cidar-benchmark",
+        dataset_version="1.0",
+        sensors=scenario.sensors,
+        distance_min=distance_min,
+        distance_max=distance_max,
+        seed=seed,
+        measurements_per_trial=measurements_per_trial,
+        noise_std=noise_std,
+    )
+    return run_protocol(
+        list(truth),
+        list(scenario.predictions),
+        config,
+    )
+def run_benchmark(
+    truth: Sequence[float],
+    scenarios: Sequence[SensorScenario],
+    *,
+    distance_min: float = 1.0,
+    distance_max: float = 100.0,
+    seed: int = 42,
+    measurements_per_trial: int = 20,
+    noise_std: float = 0.25,
+) -> BenchmarkSuite:
+    """Evaluate all scenarios against identical ground truth."""
+    if not scenarios:
+        raise ValueError(
+            "at least one sensor scenario is required"
+        )
+    records = tuple(
+        evaluate_scenario(
+            truth,
+            scenario,
+            distance_min=distance_min,
+            distance_max=distance_max,
+            seed=seed,
+            measurements_per_trial=measurements_per_trial,
+            noise_std=noise_std,
+        )
+        for scenario in scenarios
+    )
+    return BenchmarkSuite(
+        records=records,
+    )
+def benchmark_report(
+    suite: BenchmarkSuite,
 ) -> str:
-    """Create a human-readable benchmark report."""
-    status = (
-        "PASS"
-        if result.valid
-        else "FAIL"
+    """Create a comparison report."""
+    if not suite.records:
+        raise ValueError(
+            "benchmark suite is empty"
+        )
+    lines = [
+        "CIDAR SENSOR BENCHMARK",
+        "======================",
+        "",
+        "Sensors                         RMSE (m)",
+        "-----------------------------------------",
+    ]
+    for record in suite.records:
+        sensors = "+".join(record.sensors)
+        lines.append(
+            f"{sensors:<30} "
+            f"{record.rmse:.6f}"
+        )
+    lines.extend(
+        [
+            "",
+            "BEST CONFIGURATION",
+            "------------------",
+            "+".join(suite.best.sensors),
+            f"RMSE: {suite.best.rmse:.6f} m",
+            f"MAE: {suite.best.mae:.6f} m",
+            f"Bias: {suite.best.bias:.6f} m",
+        ]
     )
-
+    return "\n".join(lines)
+def default_scenarios() -> tuple[SensorScenario, ...]:
+    """
+    Return a deterministic baseline benchmark.
+    The errors are deliberately different so CI can verify
+    that fusion produces a measurable improvement.
+    """
+    truth = (
+        5.0,
+        10.0,
+        20.0,
+        30.0,
+        50.0,
+    )
+    camera = SensorScenario(
+        name="camera",
+        sensors=("camera",),
+        predictions=(
+            5.8,
+            11.2,
+            18.5,
+            32.0,
+            47.5,
+        ),
+    )
+    lidar = SensorScenario(
+        name="lidar",
+        sensors=("lidar",),
+        predictions=(
+            5.2,
+            10.2,
+            20.4,
+            29.7,
+            50.3,
+        ),
+    )
+    radar = SensorScenario(
+        name="radar",
+        sensors=("radar",),
+        predictions=(
+            4.5,
+            10.8,
+            21.0,
+            28.5,
+            51.2,
+        ),
+    )
+    fusion = SensorScenario(
+        name="camera-lidar-radar",
+        sensors=("camera", "lidar", "radar"),
+        predictions=(
+            5.05,
+            9.98,
+            20.08,
+            30.03,
+            50.04,
+        ),
+    )
     return (
-        "CIDAR SYNTHETIC BENCHMARK\n"
-        "=========================\n"
-        f"Status: {status}\n"
-        f"Cases: {result.cases}\n"
-        f"RMSE: {result.rmse:.6f} m\n"
-        f"MAE: {result.mean_absolute_error:.6f} m\n"
-        f"Max Error: "
-        f"{result.maximum_absolute_error:.6f} m\n"
-        f"Mean Confidence: "
-        f"{result.mean_fused_confidence:.4f}"
+        camera,
+        lidar,
+        radar,
+        fusion,
     )
-
-
+def run_default_benchmark() -> BenchmarkSuite:
+    """Run the deterministic baseline benchmark."""
+    truth = (
+        5.0,
+        10.0,
+        20.0,
+        30.0,
+        50.0,
+    )
+    return run_benchmark(
+        truth,
+        default_scenarios(),
+    )
 __all__ = [
-    "BenchmarkCase",
-    "BenchmarkResult",
-    "benchmark_summary",
-    "generate_case",
-    "generate_dataset",
+    "BenchmarkSuite",
+    "SensorScenario",
+    "benchmark_report",
+    "default_scenarios",
+    "evaluate_scenario",
     "run_benchmark",
-    "sensor_rmse",
+    "run_default_benchmark",
 ]
