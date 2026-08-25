@@ -1,119 +1,97 @@
-"""
-CIDAR end-to-end experiment runner.
-
-Pipeline:
-
-dataset
-   ↓
-ingestion
-   ↓
-evaluation
-   ↓
-benchmark protocol
-   ↓
-persistent result
-
-The runner intentionally keeps dataset-specific acquisition outside
-the core pipeline. This allows CSV/JSON/JSONL exports from real-world
-datasets to be evaluated consistently.
-"""
+"""High-level CIDAR experiment runner."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
 
+from .cidar_dataset import (
+    DepthMetrics,
+    evaluate_arrays,
+)
 from .cidar_ingest import load_dataset
 from .cidar_protocol import (
     CIDARBenchmarkConfig,
     CIDARBenchmarkRecord,
     run_protocol,
+    protocol_report,
 )
 from .cidar_results import save_result
 
 
 @dataclass(frozen=True)
 class CIDARRunResult:
-    """Result of one complete CIDAR experiment."""
-
-    input_path: str
-    output_path: str
     record: CIDARBenchmarkRecord
+
+    @property
+    def valid(self) -> bool:
+        return self.record.valid
 
     @property
     def passed(self) -> bool:
         return self.record.valid
+
+    @property
+    def samples(self) -> int:
+        return self.record.samples
+
+    @property
+    def metrics(self) -> DepthMetrics:
+        return DepthMetrics(
+            valid=self.record.valid,
+            samples=self.record.samples,
+            mae=self.record.mae,
+            rmse=self.record.rmse,
+            bias=self.record.bias,
+            relative_error=self.record.relative_error,
+        )
+
+
+def run_arrays(
+    ground_truth,
+    prediction,
+    config: CIDARBenchmarkConfig,
+) -> CIDARRunResult:
+    record = run_protocol(
+        ground_truth,
+        prediction,
+        config,
+    )
+
+    return CIDARRunResult(
+        record=record
+    )
 
 
 def run_dataset(
     input_path: str | Path,
     output_path: str | Path,
     config: CIDARBenchmarkConfig,
-    *,
-    confidence: float = 0.95,
 ) -> CIDARRunResult:
-    """
-    Run the complete CIDAR pipeline on a dataset.
-
-    The input dataset must contain:
-
-        ground_truth
-        prediction
-
-    and may optionally contain:
-
-        sample_id
-    """
-    input_file = Path(input_path)
-    output_file = Path(output_path)
-
-    samples = load_dataset(input_file)
-
-    if not samples:
-        raise ValueError(
-            "dataset contains no valid samples"
-        )
+    samples = load_dataset(input_path)
 
     ground_truth = [
         sample.ground_truth
         for sample in samples
     ]
 
-    predictions = [
+    prediction = [
         sample.prediction
         for sample in samples
     ]
 
-    record = run_protocol(
+    result = run_arrays(
         ground_truth,
-        predictions,
+        prediction,
         config,
-        confidence=confidence,
     )
 
     save_result(
-        record,
-        output_file,
+        result.record,
+        output_path,
     )
 
-    return CIDARRunResult(
-        input_path=str(input_file),
-        output_path=str(output_file),
-        record=record,
-    )
-
-
-def run_arrays(
-    ground_truth: list[float],
-    predictions: list[float],
-    config: CIDARBenchmarkConfig,
-) -> CIDARBenchmarkRecord:
-    """Run the protocol directly on in-memory measurements."""
-    return run_protocol(
-        ground_truth,
-        predictions,
-        config,
-    )
+    return result
 
 
 def run_and_report(
@@ -121,46 +99,24 @@ def run_and_report(
     output_path: str | Path,
     config: CIDARBenchmarkConfig,
 ) -> str:
-    """Run an experiment and return its human-readable report."""
     result = run_dataset(
         input_path,
         output_path,
         config,
     )
 
-    record = result.record
-
-    status = (
-        "PASS"
-        if result.passed
-        else "FAIL"
-    )
-
     return (
         "CIDAR EXPERIMENT\n"
         "================\n"
-        f"Status: {status}\n"
-        f"Input: {result.input_path}\n"
-        f"Output: {result.output_path}\n"
-        f"Dataset: {record.dataset_name}\n"
-        f"Version: {record.dataset_version}\n"
-        f"Sensors: {', '.join(record.sensors)}\n"
-        f"Samples: {record.samples}\n"
-        f"MAE: {record.mae:.6f} m\n"
-        f"RMSE: {record.rmse:.6f} m\n"
-        f"Bias: {record.bias:.6f} m\n"
-        f"Relative Error: "
-        f"{record.relative_error:.6f}\n"
-        f"CRLB Variance: "
-        f"{record.crlb_variance:.8f} m²\n"
-        f"Efficiency: "
-        f"{record.estimator_efficiency:.6f}"
+        + protocol_report(
+            result.record
+        )
     )
 
 
 __all__ = [
     "CIDARRunResult",
-    "run_and_report",
     "run_arrays",
     "run_dataset",
+    "run_and_report",
 ]
