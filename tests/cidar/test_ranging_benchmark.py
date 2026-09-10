@@ -55,16 +55,13 @@ def generate_dataset(
     noise_std: float = 2.0,
     seed: int = 42,
 ) -> list[RangeSample]:
-    """
-    Generate deterministic synthetic ranging measurements.
-    """
+    """Generate deterministic synthetic ranging measurements."""
+
     if count <= 0:
         raise ValueError("count must be positive")
 
     if minimum_distance <= 0:
-        raise ValueError(
-            "minimum_distance must be positive"
-        )
+        raise ValueError("minimum_distance must be positive")
 
     if maximum_distance <= minimum_distance:
         raise ValueError(
@@ -72,9 +69,7 @@ def generate_dataset(
         )
 
     if noise_std < 0:
-        raise ValueError(
-            "noise_std cannot be negative"
-        )
+        raise ValueError("noise_std cannot be negative")
 
     rng = random.Random(seed)
 
@@ -105,10 +100,9 @@ def calculate_metrics(
     samples: list[RangeSample],
 ) -> RangeMetrics:
     """Calculate ranging accuracy metrics."""
+
     if not samples:
-        raise ValueError(
-            "samples cannot be empty"
-        )
+        raise ValueError("samples cannot be empty")
 
     errors = [
         sample.measurement - sample.truth
@@ -125,9 +119,10 @@ def calculate_metrics(
         for error in errors
     ]
 
-    mae = sum(
-        absolute_errors
-    ) / len(samples)
+    mae = (
+        sum(absolute_errors)
+        / len(samples)
+    )
 
     rmse = sqrt(
         sum(squared_errors)
@@ -159,6 +154,7 @@ def run_benchmark(
     seed: int = 42,
 ) -> RangeMetrics:
     """Generate data and evaluate the ranging baseline."""
+
     samples = generate_dataset(
         count=count,
         noise_std=noise_std,
@@ -172,6 +168,7 @@ def run_benchmark(
 
 def test_dataset_is_deterministic():
     """The same seed must generate identical observations."""
+
     first = generate_dataset(
         count=100,
         seed=42,
@@ -187,6 +184,7 @@ def test_dataset_is_deterministic():
 
 def test_dataset_contains_expected_range():
     """Synthetic distances must remain inside the configured range."""
+
     samples = generate_dataset(
         count=1000,
         minimum_distance=10.0,
@@ -202,6 +200,7 @@ def test_dataset_contains_expected_range():
 
 def test_measurements_are_close_to_ground_truth():
     """Low-noise measurements should remain close to truth."""
+
     samples = generate_dataset(
         count=1000,
         noise_std=2.0,
@@ -218,13 +217,14 @@ def test_measurements_are_close_to_ground_truth():
 
 def test_metrics_are_valid():
     """All calculated metrics must be finite and non-negative."""
+
     metrics = run_benchmark(
         count=1000,
         noise_std=2.0,
         seed=42,
     )
 
-    assert metrics.count == 100
+    assert metrics.count == 1000
     assert metrics.mae >= 0.0
     assert metrics.rmse >= 0.0
     assert metrics.maximum_error >= 0.0
@@ -232,6 +232,7 @@ def test_metrics_are_valid():
 
 def test_cidar_baseline_passes():
     """The synthetic CIDAR baseline must pass."""
+
     metrics = run_benchmark(
         count=1000,
         noise_std=2.0,
@@ -243,6 +244,7 @@ def test_cidar_baseline_passes():
 
 def test_higher_noise_increases_error():
     """Increasing measurement noise should increase error."""
+
     low_noise = run_benchmark(
         count=1000,
         noise_std=1.0,
@@ -261,6 +263,7 @@ def test_higher_noise_increases_error():
 
 def test_invalid_count_is_rejected():
     """Invalid sample counts must fail clearly."""
+
     try:
         generate_dataset(count=0)
     except ValueError:
@@ -273,6 +276,7 @@ def test_invalid_count_is_rejected():
 
 def test_invalid_distance_range_is_rejected():
     """Invalid distance ranges must fail clearly."""
+
     try:
         generate_dataset(
             minimum_distance=100.0,
