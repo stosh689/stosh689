@@ -1,97 +1,191 @@
-class LinearTrend(EconomicAlgorithm):
-    """
-    Ordinary least-squares linear trend.
+from pathlib import Path
+import math
 
-    Dependency-free implementation for the GEDT
-    foundational algorithm layer.
-    """
+import pytest
 
-    name = "linear_trend"
-    version = "1.0"
+from gedt.algorithm_engine import (
+    EconomicState,
+    Scenario,
+    SimulationResult,
+    MeanBaseline,
+    LastValueBaseline,
+    LinearTrend,
+    Evaluation,
+    MonteCarloSummary,
+    SensitivityResult,
+    simulate,
+    evaluate_predictions,
+    evaluate_algorithm,
+    rank_algorithms,
+    monte_carlo,
+    sensitivity_analysis,
+    optimize_parameter,
+    compare_scenarios,
+    run_baseline_experiment,
+    engine_report,
+)
 
-    def __init__(self) -> None:
-        self._intercept = 0.0
-        self._slope = 0.0
-        self._sample_size = 0
-        self._fitted = False
 
-    def fit(
-        self,
-        data: Sequence[float],
-    ) -> "LinearTrend":
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
 
-        if len(data) < 2:
-            raise ValueError(
-                "linear trend requires at least two observations"
-            )
+def make_state() -> EconomicState:
+    return EconomicState(
+        period=0,
+        gdp=1000.0,
+        inflation=0.02,
+        unemployment=0.05,
+    )
 
-        y = [float(value) for value in data]
-        x = list(range(len(y)))
 
-        x_mean = mean(x)
-        y_mean = mean(y)
+def make_scenario() -> Scenario:
+    return Scenario(
+        name="baseline",
+        demand_shock=0.0,
+        supply_shock=0.0,
+        policy_rate_change=0.0,
+    )
 
-        numerator = sum(
-            (xi - x_mean) * (yi - y_mean)
-            for xi, yi in zip(x, y)
+
+def make_growth_data() -> list[float]:
+    return [
+        100.0,
+        102.0,
+        104.0,
+        106.0,
+        108.0,
+    ]
+
+
+# ---------------------------------------------------------------------------
+# Project structure
+# ---------------------------------------------------------------------------
+
+def test_gedt_project_structure():
+    project_root = Path(__file__).resolve().parents[1]
+
+    assert (project_root / "README.md").exists()
+    assert (project_root / "src" / "gedt" / "__init__.py").exists()
+    assert (project_root / "src" / "gedt" / "algorithm_engine.py").exists()
+
+
+# ---------------------------------------------------------------------------
+# EconomicState
+# ---------------------------------------------------------------------------
+
+def test_economic_state_valid():
+    state = make_state()
+
+    assert state.period == 0
+    assert state.gdp == 1000.0
+    assert state.inflation == 0.02
+    assert state.unemployment == 0.05
+
+
+def test_economic_state_rejects_negative_gdp():
+    with pytest.raises(ValueError):
+        EconomicState(
+            period=0,
+            gdp=-1.0,
+            inflation=0.02,
+            unemployment=0.05,
         )
 
-        denominator = sum(
-            (xi - x_mean) ** 2
-            for xi in x
+
+def test_economic_state_rejects_invalid_inflation():
+    with pytest.raises(ValueError):
+        EconomicState(
+            period=0,
+            gdp=1000.0,
+            inflation=-2.0,
+            unemployment=0.05,
         )
 
-        if denominator == 0:
-            raise ValueError(
-                "cannot calculate linear trend"
-            )
 
-        self._slope = numerator / denominator
-
-        self._intercept = (
-            y_mean
-            - self._slope * x_mean
+def test_economic_state_rejects_invalid_unemployment():
+    with pytest.raises(ValueError):
+        EconomicState(
+            period=0,
+            gdp=1000.0,
+            inflation=0.02,
+            unemployment=-1.0,
         )
 
-        self._sample_size = len(y)
-        self._fitted = True
 
-        return self
+# ---------------------------------------------------------------------------
+# Scenario
+# ---------------------------------------------------------------------------
 
-    def predict(
-        self,
-        horizon: int = 1,
-    ) -> list[float]:
+def test_scenario_valid():
+    scenario = make_scenario()
 
-        if not self._fitted:
-            raise RuntimeError(
-                "algorithm must be fitted before prediction"
-            )
+    assert scenario.name == "baseline"
+    assert scenario.demand_shock == 0.0
+    assert scenario.supply_shock == 0.0
+    assert scenario.policy_rate_change == 0.0
 
-        if horizon < 1:
-            raise ValueError(
-                "horizon must be at least 1"
-            )
 
-        return [
-            self._intercept
-            + self._slope * (
-                self._sample_size + i
-            )
-            for i in range(horizon)
-        ]
+def test_scenario_can_contain_shocks():
+    scenario = Scenario(
+        name="stress",
+        demand_shock=-0.10,
+        supply_shock=0.05,
+        policy_rate_change=0.02,
+    )
 
-    @property
-    def slope(self) -> float:
-        """Return fitted trend slope."""
-        return self._slope
+    assert scenario.demand_shock == -0.10
+    assert scenario.supply_shock == 0.05
+    assert scenario.policy_rate_change == 0.02
 
-    @property
-    def intercept(self) -> float:
-        """Return fitted intercept."""
-        return self._intercept
 
-    @property
-    def sample_size(self) -> int:
-        """Return number of observations used for fitting."""
-        return self._sample_size
+# ---------------------------------------------------------------------------
+# Simulation
+# ---------------------------------------------------------------------------
+
+def test_simulation_returns_simulation_result():
+    result = simulate(
+        initial=make_state(),
+        periods=5,
+        scenario=make_scenario(),
+    )
+
+    assert isinstance(result, SimulationResult)
+
+
+def test_simulation_contains_initial_plus_periods():
+    result = simulate(
+        initial=make_state(),
+        periods=5,
+        scenario=make_scenario(),
+    )
+
+    assert len(result.states) == 6
+
+
+def test_simulation_is_deterministic():
+    first = simulate(
+        initial=make_state(),
+        periods=10,
+        scenario=make_scenario(),
+    )
+
+    second = simulate(
+        initial=make_state(),
+        periods=10,
+        scenario=make_scenario(),
+    )
+
+    assert first.states == second.states
+
+
+def test_simulation_rejects_zero_periods():
+    with pytest.raises(ValueError):
+        simulate(
+            initial=make_state(),
+            periods=0,
+            scenario=make_scenario(),
+        )
+
+
+def test_simulation_rejects_negative_period
