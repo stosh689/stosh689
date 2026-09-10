@@ -1,25 +1,4 @@
-"""
-GEDT v11.0
-Global Economic Digital Twin
-
-Command-line execution entry point.
-
-This module provides one coherent execution path:
-
-    configuration
-        ↓
-    economic state
-        ↓
-    baseline simulation
-        ↓
-    scenario analysis
-        ↓
-    algorithm evaluation
-        ↓
-    Monte Carlo analysis
-        ↓
-    reproducible report
-"""
+"""GEDT v11 command-line execution path."""
 
 from __future__ import annotations
 
@@ -27,6 +6,7 @@ import argparse
 import json
 from dataclasses import asdict
 from pathlib import Path
+from typing import Any
 
 from .algorithm_engine import (
     EconomicState,
@@ -36,26 +16,158 @@ from .algorithm_engine import (
     monte_carlo,
     run_baseline_experiment,
 )
+from .config import GEDTConfig
 
 
 VERSION = "11.0.0"
 
 
+def create_baseline_state(
+    config: GEDTConfig,
+) -> EconomicState:
+    """Create the initial economic state."""
+
+    return EconomicState(
+        period=0,
+        gdp=config.initial_gdp,
+        inflation=config.initial_inflation,
+        unemployment=config.initial_unemployment,
+    )
+
+
+def create_scenarios(
+    config: GEDTConfig,
+) -> list[Scenario]:
+    """Create the standard GEDT scenario set."""
+
+    return [
+        Scenario(
+            name="baseline",
+            demand_shock=0.0,
+            supply_shock=0.0,
+            policy_rate_change=0.0,
+        ),
+        Scenario(
+            name="demand_stress",
+            demand_shock=-0.10,
+            supply_shock=0.0,
+            policy_rate_change=0.0,
+        ),
+        Scenario(
+            name="supply_stress",
+            demand_shock=0.0,
+            supply_shock=-0.10,
+            policy_rate_change=0.0,
+        ),
+        Scenario(
+            name="tight_policy",
+            demand_shock=0.0,
+            supply_shock=0.0,
+            policy_rate_change=0.02,
+        ),
+    ]
+
+
+def run_gedt(
+    periods: int = 12,
+    trials: int = 1000,
+    seed: int = 42,
+    config: GEDTConfig | None = None,
+) -> dict[str, Any]:
+    """Run a complete reproducible GEDT experiment."""
+
+    if config is None:
+        config = GEDTConfig(
+            periods=periods,
+            trials=trials,
+            seed=seed,
+        )
+
+    config.validate()
+
+    initial_state = create_baseline_state(config)
+    scenarios = create_scenarios(config)
+
+    baseline = run_baseline_experiment(
+        initial_state,
+        periods=config.periods,
+    )
+
+    scenario_results = compare_scenarios(
+        initial_state,
+        scenarios,
+        periods=config.periods,
+    )
+
+    monte_carlo_result = monte_carlo(
+        initial_state,
+        scenarios[0],
+        periods=config.periods,
+        trials=config.trials,
+        seed=config.seed,
+    )
+
+    report = engine_report(
+        initial_state=initial_state,
+        periods=config.periods,
+        trials=config.trials,
+        seed=config.seed,
+    )
+
+    return {
+        "gedt_version": VERSION,
+        "config": config.to_dict(),
+        "periods": config.periods,
+        "trials": config.trials,
+        "seed": config.seed,
+        "initial_state": asdict(initial_state),
+        "baseline": baseline,
+        "scenario_results": scenario_results,
+        "monte_carlo": monte_carlo_result,
+        "engine_report": report,
+    }
+
+
+def save_results(
+    results: dict[str, Any],
+    path: str | Path,
+) -> Path:
+    """Save experiment results as JSON."""
+
+    output_path = Path(path)
+
+    output_path.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    output_path.write_text(
+        json.dumps(
+            results,
+            indent=2,
+            sort_keys=True,
+            default=str,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    return output_path
+
+
 def build_parser() -> argparse.ArgumentParser:
-    """Build the GEDT command-line interface."""
+    """Build the GEDT command-line parser."""
 
     parser = argparse.ArgumentParser(
-        prog="gedt",
         description=(
-            "GEDT v11.0 - Global Economic Digital Twin "
-            "research and simulation engine."
-        ),
+            "GEDT v11 Global Economic Digital Twin"
+        )
     )
 
     parser.add_argument(
         "--version",
         action="version",
-        version=f"GEDT {VERSION}",
+        version=VERSION,
     )
 
     parser.add_argument(
@@ -80,232 +192,105 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
+        "--config",
+        type=str,
+        help="Load experiment configuration from JSON.",
+    )
+
+    parser.add_argument(
+        "--save-config",
+        type=str,
+        help="Save the active configuration to JSON.",
+    )
+
+    parser.add_argument(
         "--output",
         type=str,
-        default=None,
-        help="Optional JSON output file.",
+        help="Save experiment results to JSON.",
     )
 
     return parser
 
 
-def create_baseline_state() -> EconomicState:
-    """Create the deterministic GEDT baseline state."""
+def print_summary(
+    results: dict[str, Any],
+) -> None:
+    """Print a concise experiment summary."""
 
-    return EconomicState(
-        period=0,
-        gdp=1000.0,
-        inflation=0.02,
-        unemployment=0.05,
+    print()
+    print("GEDT v11.0")
+    print("=" * 40)
+    print(
+        f"Periods: {results['periods']}"
     )
-
-
-def create_scenarios() -> list[Scenario]:
-    """Create the standard GEDT demonstration scenarios."""
-
-    return [
-        Scenario(
-            name="baseline",
-            demand_shock=0.0,
-            supply_shock=0.0,
-            policy_rate_change=0.0,
-        ),
-        Scenario(
-            name="demand_stress",
-            demand_shock=-0.10,
-            supply_shock=0.0,
-            policy_rate_change=0.0,
-        ),
-        Scenario(
-            name="supply_stress",
-            demand_shock=0.0,
-            supply_shock=0.10,
-            policy_rate_change=0.0,
-        ),
-        Scenario(
-            name="tight_policy",
-            demand_shock=0.0,
-            supply_shock=0.0,
-            policy_rate_change=0.02,
-        ),
-    ]
-
-
-def run_gedt(
-    periods: int = 12,
-    trials: int = 1000,
-    seed: int = 42,
-) -> dict:
-    """
-    Execute the complete GEDT baseline workflow.
-
-    Returns a machine-readable dictionary containing
-    the baseline experiment, scenario analysis,
-    Monte Carlo analysis, and engine report.
-    """
-
-    if periods < 1:
-        raise ValueError("periods must be at least 1")
-
-    if trials < 1:
-        raise ValueError("trials must be at least 1")
-
-    initial = create_baseline_state()
-    scenarios = create_scenarios()
-
-    baseline = run_baseline_experiment()
-
-    scenario_results = compare_scenarios(
-        initial=initial,
-        scenarios=scenarios,
-        periods=periods,
+    print(
+        f"Trials:  {results['trials']}"
     )
-
-    monte_carlo_result = monte_carlo(
-        initial=initial,
-        scenario=scenarios[0],
-        periods=periods,
-        trials=trials,
-        seed=seed,
+    print(
+        f"Seed:    {results['seed']}"
     )
-
-    return {
-        "gedt_version": VERSION,
-        "seed": seed,
-        "periods": periods,
-        "trials": trials,
-        "initial_state": asdict(initial),
-        "baseline": baseline,
-        "scenario_results": [
-            {
-                "scenario": result.scenario.name,
-                "initial_gdp": result.initial_gdp,
-                "final_gdp": result.final_gdp,
-                "gdp_growth": result.gdp_growth,
-                "average_inflation": result.average_inflation,
-                "average_unemployment": result.average_unemployment,
-            }
-            for result in scenario_results
-        ],
-        "monte_carlo": asdict(monte_carlo_result),
-        "engine_report": engine_report(),
-    }
-
-
-def print_summary(results: dict) -> None:
-    """Print a concise human-readable GEDT summary."""
-
     print()
-    print("=" * 72)
-    print("GEDT v11.0 — GLOBAL ECONOMIC DIGITAL TWIN")
-    print("=" * 72)
 
-    print()
-    print("Execution")
-    print("-" * 72)
-    print(f"Version:          {results['gedt_version']}")
-    print(f"Periods:          {results['periods']}")
-    print(f"Monte Carlo:      {results['trials']} trials")
-    print(f"Random seed:      {results['seed']}")
+    baseline = results["baseline"]
 
-    print()
-    print("Initial Economic State")
-    print("-" * 72)
-
-    initial = results["initial_state"]
-
-    print(f"GDP:              {initial['gdp']:.4f}")
-    print(f"Inflation:        {initial['inflation']:.4%}")
-    print(f"Unemployment:     {initial['unemployment']:.4%}")
-
-    print()
-    print("Scenario Results")
-    print("-" * 72)
-
-    for result in results["scenario_results"]:
-        print()
-        print(f"Scenario:         {result['scenario']}")
-        print(f"Final GDP:        {result['final_gdp']:.4f}")
-        print(f"GDP Growth:       {result['gdp_growth']:.4%}")
+    if isinstance(baseline, dict):
+        print("Baseline:")
         print(
-            f"Average Inflation: "
-            f"{result['average_inflation']:.4%}"
-        )
-        print(
-            f"Average Unemployment: "
-            f"{result['average_unemployment']:.4%}"
+            json.dumps(
+                baseline,
+                indent=2,
+                default=str,
+            )
         )
 
     print()
-    print("Monte Carlo")
-    print("-" * 72)
-
-    mc = results["monte_carlo"]
-
-    for key, value in mc.items():
-        if isinstance(value, float):
-            print(f"{key}: {value:.6f}")
-        else:
-            print(f"{key}: {value}")
-
-    print()
-    print("=" * 72)
-    print("GEDT execution completed.")
-    print("=" * 72)
-    print()
+    print("Experiment completed.")
+    print("=" * 40)
 
 
-def save_results(results: dict, output: str) -> None:
-    """Save GEDT results as formatted JSON."""
-
-    output_path = Path(output)
-
-    output_path.parent.mkdir(
-        parents=True,
-        exist_ok=True,
-    )
-
-    output_path.write_text(
-        json.dumps(
-            results,
-            indent=2,
-            default=str,
-        ),
-        encoding="utf-8",
-    )
-
-    print(f"Results written to: {output_path}")
-
-
-def main() -> int:
-    """Main CLI entry point."""
+def main(
+    argv: list[str] | None = None,
+) -> int:
+    """Run GEDT from the command line."""
 
     parser = build_parser()
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
-    try:
-        results = run_gedt(
+    if args.config:
+        config = GEDTConfig.load(args.config)
+    else:
+        config = GEDTConfig(
             periods=args.periods,
             trials=args.trials,
             seed=args.seed,
         )
 
-        print_summary(results)
+    config.validate()
 
-        if args.output:
-            save_results(
-                results,
-                args.output,
-            )
+    if args.save_config:
+        saved_config = config.save(
+            args.save_config
+        )
+        print(
+            f"Configuration saved: {saved_config}"
+        )
 
-        return 0
+    results = run_gedt(
+        config=config,
+    )
 
-    except Exception as exc:
-        print()
-        print("GEDT execution failed.")
-        print(f"Error: {exc}")
-        print()
-        return 1
+    print_summary(results)
+
+    if args.output:
+        output_path = save_results(
+            results,
+            args.output,
+        )
+        print(
+            f"Results saved: {output_path}"
+        )
+
+    return 0
 
 
 if __name__ == "__main__":
