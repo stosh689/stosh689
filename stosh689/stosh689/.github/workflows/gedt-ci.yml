@@ -1,0 +1,123 @@
+name: GEDT v11.0 CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: GEDT Test Suite
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+
+    defaults:
+      run:
+        working-directory: gedt
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: gedt/pyproject.toml
+
+      - name: Upgrade packaging tools
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+
+      - name: Install GEDT
+        run: |
+          python -m pip install -e ".[test]"
+
+      - name: Verify GEDT version
+        run: |
+          python -m gedt --version
+
+      - name: Run test suite
+        run: |
+          python -m pytest -ra
+
+      - name: Run baseline benchmark
+        run: |
+          python -m gedt.benchmark \
+            --periods 12 \
+            --trials 100 \
+            --seed 42 \
+            --output results/ci_baseline.json
+
+      - name: Validate baseline output
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("results/ci_baseline.json")
+
+          if not path.exists():
+              raise SystemExit(
+                  "Baseline benchmark output was not created."
+              )
+
+          data = json.loads(
+              path.read_text(encoding="utf-8")
+          )
+
+          required = {
+              "benchmark",
+              "parameters",
+              "initial_state",
+              "scenario",
+              "simulation",
+              "monte_carlo",
+          }
+
+          missing = required - set(data)
+
+          if missing:
+              raise SystemExit(
+                  f"Missing benchmark sections: {sorted(missing)}"
+              )
+
+          print("Baseline benchmark validation: PASS")
+          PY
+
+      - name: Run release gate
+        run: |
+          python release_check.py
+
+      - name: Generate release evidence
+        if: matrix.python-version == '3.12'
+        run: |
+          python release_report.py \
+            --json-output results/ci_release_evidence.json \
+            --markdown-output results/CI_RELEASE_REPORT.md
+
+      - name: Upload GEDT CI artifacts
+        if: always() && matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: gedt-v11-ci-results
+          path: |
+            gedt/results/*.json
+            gedt/results/*.md
+          if-no-files-found: warn
