@@ -22,7 +22,7 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
-          cache-dependency-path: gedt/pyproject.toml
+          cache-dependency-path: pyproject.toml
 
       - name: Upgrade packaging tools
         run: |
@@ -30,7 +30,7 @@ jobs:
 
       - name: Install GEDT
         run: |
-          python -m pip install -e ./gedt
+          python -m pip install -e .
 
       - name: Install test dependencies
         run: |
