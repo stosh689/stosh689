@@ -1,0 +1,114 @@
+{
+  "project": "GEDT",
+  "full_name": "Global Economic Digital Twin",
+  "version": "11.0.0",
+  "release_candidate": "RC1",
+  "release_type": "research_development",
+  "repository_path": "gedt/",
+  "license": "MIT",
+  "author": "Stosh James Peterson",
+
+  "objective": "Provide a reproducible, testable framework for economic simulation, scenario analysis, uncertainty analysis, evaluation, and research.",
+
+  "release_requirements": {
+    "core_engine": true,
+    "data_pipeline": true,
+    "automated_testing": true,
+    "reproducibility": true,
+    "documentation": true,
+    "scientific_evaluation": true,
+    "performance_benchmark": true,
+    "release_gate": true,
+    "continuous_integration": true
+  },
+
+  "baseline_experiment": {
+    "periods": 12,
+    "trials": 1000,
+    "seed": 42,
+    "initial_gdp": 1000.0,
+    "initial_inflation": 0.02,
+    "initial_unemployment": 0.05
+  },
+
+  "benchmarks": [
+    "baseline",
+    "scenario",
+    "uncertainty",
+    "master_evaluation",
+    "scientific_evaluation",
+    "performance"
+  ],
+
+  "scenario_set": [
+    "baseline",
+    "demand_expansion",
+    "demand_contraction",
+    "supply_disruption",
+    "supply_improvement",
+    "tight_policy",
+    "accommodative_policy"
+  ],
+
+  "quality_targets": {
+    "minimum_test_pass_rate_percent": 90.0,
+    "release_test_pass_rate_percent": 100.0,
+    "minimum_release_gate_checks": 10,
+    "required_release_gate_passes": 10,
+    "known_critical_runtime_failures": 0,
+    "reproducible_baseline_experiments": 1,
+    "documented_benchmarks": 1
+  },
+
+  "required_files": [
+    "README.md",
+    "pyproject.toml",
+    "release_check.py",
+    "release_report.py",
+    "RELEASE_CHECKLIST.md",
+    "RELEASE_NOTES_v11.0-RC1.md",
+    "src/gedt/__init__.py",
+    "src/gedt/__main__.py",
+    "src/gedt/algorithm_engine.py",
+    "src/gedt/config.py",
+    "src/gedt/benchmark.py",
+    "src/gedt/scenario_benchmark.py",
+    "src/gedt/uncertainty_benchmark.py",
+    "src/gedt/master_evaluation.py",
+    "src/gedt/scientific_evaluation.py",
+    "src/gedt/performance_benchmark.py"
+  ],
+
+  "test_directory": "tests/",
+
+  "ci_workflow": ".github/workflows/gedt-ci.yml",
+
+  "scientific_position": {
+    "predicts_real_economy": false,
+    "supports_scenario_analysis": true,
+    "supports_uncertainty_analysis": true,
+    "supports_reproducible_experiments": true,
+    "requires_empirical_validation": true,
+    "requires_real_world_data_validation": true
+  },
+
+  "ethical_requirements": {
+    "transparency": true,
+    "accountability": true,
+    "responsible_use": true,
+    "human_benefit": true,
+    "environmental_responsibility": true,
+    "model_limitations_documented": true
+  },
+
+  "release_status": {
+    "status": "PENDING_VERIFICATION",
+    "release_gate_required": true,
+    "ci_required": true,
+    "manual_approval_required": true
+  },
+
+  "release_principle": "GEDT should produce reproducible analytical evidence, not unsupported certainty about future economic outcomes.",
+
+  "project_motto": "Create. Grow. Succeed. — Together."
+}
