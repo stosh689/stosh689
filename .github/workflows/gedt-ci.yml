@@ -1,0 +1,298 @@
+name: GEDT v11.0 CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: GEDT Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version:
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+
+    defaults:
+      run:
+        working-directory: gedt
+
+    steps:
+      # ---------------------------------------------------------
+      # 1. CHECKOUT
+      # ---------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ---------------------------------------------------------
+      # 2. PYTHON
+      # ---------------------------------------------------------
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: gedt/pyproject.toml
+
+      # ---------------------------------------------------------
+      # 3. ENVIRONMENT
+      # ---------------------------------------------------------
+      - name: Show environment
+        run: |
+          python --version
+          python -m pip --version
+          pwd
+          echo "Repository contents:"
+          find . -maxdepth 3 -type f | sort
+
+      # ---------------------------------------------------------
+      # 4. PACKAGING TOOLS
+      # ---------------------------------------------------------
+      - name: Upgrade packaging tools
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+
+      # ---------------------------------------------------------
+      # 5. INSTALL GEDT
+      # ---------------------------------------------------------
+      - name: Install GEDT
+        run: |
+          python -m pip install -e ".[test]"
+
+      # ---------------------------------------------------------
+      # 6. VERIFY PACKAGE
+      # ---------------------------------------------------------
+      - name: Verify GEDT installation
+        run: |
+          python -c "import gedt; print('GEDT import: PASS')"
+          python -m gedt --version
+
+      # ---------------------------------------------------------
+      # 7. VERIFY PACKAGE STRUCTURE
+      # ---------------------------------------------------------
+      - name: Verify project structure
+        run: |
+          test -f pyproject.toml
+          test -f README.md
+          test -d src/gedt
+          test -d tests
+          test -f src/gedt/__init__.py
+          test -f src/gedt/__main__.py
+          test -f src/gedt/algorithm_engine.py
+          test -f release_check.py
+          test -f release_report.py
+
+          echo "Project structure: PASS"
+
+      # ---------------------------------------------------------
+      # 8. PYTEST
+      # ---------------------------------------------------------
+      - name: Run automated tests
+        run: |
+          python -m pytest -ra
+
+      # ---------------------------------------------------------
+      # 9. BASELINE BENCHMARK
+      # ---------------------------------------------------------
+      - name: Run baseline benchmark
+        run: |
+          mkdir -p results
+
+          python -m gedt.benchmark \
+            --periods 12 \
+            --trials 100 \
+            --seed 42 \
+            --output results/ci_baseline.json
+
+      # ---------------------------------------------------------
+      # 10. VALIDATE BASELINE
+      # ---------------------------------------------------------
+      - name: Validate baseline benchmark
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path("results/ci_baseline.json")
+
+          if not path.exists():
+              raise SystemExit(
+                  "ERROR: Baseline benchmark output was not created."
+              )
+
+          data = json.loads(
+              path.read_text(encoding="utf-8")
+          )
+
+          required = {
+              "benchmark",
+              "parameters",
+              "initial_state",
+              "scenario",
+              "simulation",
+              "monte_carlo",
+          }
+
+          missing = required - set(data)
+
+          if missing:
+              raise SystemExit(
+                  f"ERROR: Missing benchmark sections: {sorted(missing)}"
+              )
+
+          print("Baseline benchmark validation: PASS")
+          print(f"Trials: {data['parameters']['trials']}")
+          print(f"Seed: {data['parameters']['seed']}")
+          PY
+
+      # ---------------------------------------------------------
+      # 11. SCENARIO BENCHMARK
+      # ---------------------------------------------------------
+      - name: Run scenario benchmark
+        run: |
+          mkdir -p results
+
+          python -m gedt.scenario_benchmark \
+            --periods 12 \
+            --trials 100 \
+            --seed 42 \
+            --output results/ci_scenarios.json
+
+      # ---------------------------------------------------------
+      # 12. UNCERTAINTY BENCHMARK
+      # ---------------------------------------------------------
+      - name: Run uncertainty benchmark
+        run: |
+          mkdir -p results
+
+          python -m gedt.uncertainty_benchmark \
+            --periods 12 \
+            --trials 100 \
+            --seed 42 \
+            --output results/ci_uncertainty.json
+
+      # ---------------------------------------------------------
+      # 13. MASTER EVALUATION
+      # ---------------------------------------------------------
+      - name: Run master evaluation
+        run: |
+          mkdir -p results
+
+          python -m gedt.master_evaluation \
+            --periods 12 \
+            --trials 100 \
+            --seed 42 \
+            --output results/ci_master_evaluation.json
+
+      # ---------------------------------------------------------
+      # 14. SCIENTIFIC EVALUATION
+      # ---------------------------------------------------------
+      - name: Run scientific evaluation
+        run: |
+          mkdir -p results
+
+          python -m gedt.scientific_evaluation \
+            --periods 12 \
+            --trials 100 \
+            --seed 42 \
+            --output results/ci_scientific_evaluation.json
+
+      # ---------------------------------------------------------
+      # 15. PERFORMANCE BENCHMARK
+      # ---------------------------------------------------------
+      - name: Run performance benchmark
+        run: |
+          mkdir -p results
+
+          python -m gedt.performance_benchmark \
+            --periods 12 \
+            --trials 100 \
+            --seed 42 \
+            --repeats 1 \
+            --output results/ci_performance.json
+
+      # ---------------------------------------------------------
+      # 16. RELEASE GATE
+      # ---------------------------------------------------------
+      - name: Run GEDT release gate
+        run: |
+          python release_check.py
+
+      # ---------------------------------------------------------
+      # 17. RELEASE EVIDENCE
+      # ---------------------------------------------------------
+      - name: Generate release evidence
+        if: matrix.python-version == '3.12'
+        run: |
+          mkdir -p results
+
+          python release_report.py \
+            --json-output results/ci_release_evidence.json \
+            --markdown-output results/CI_RELEASE_REPORT.md
+
+      # ---------------------------------------------------------
+      # 18. FINAL VALIDATION
+      # ---------------------------------------------------------
+      - name: Validate generated artifacts
+        if: always()
+        run: |
+          echo "Generated GEDT artifacts:"
+
+          if [ -d results ]; then
+            find results -maxdepth 1 -type f -print | sort
+          else
+            echo "No results directory found."
+          fi
+
+      # ---------------------------------------------------------
+      # 19. UPLOAD RESULTS
+      # ---------------------------------------------------------
+      - name: Upload GEDT CI artifacts
+        if: always() && matrix.python-version == '3.12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: gedt-v11-ci-results
+          path: |
+            gedt/results/*.json
+            gedt/results/*.md
+          if-no-files-found: warn
+
+  # =============================================================
+  # RELEASE SUMMARY
+  # =============================================================
+
+  release-summary:
+    name: GEDT v11.0 Release Summary
+    runs-on: ubuntu-latest
+    needs: test
+    if: always()
+
+    steps:
+      - name: Report CI status
+        run: |
+          echo "========================================"
+          echo "GEDT v11.0 CI"
+          echo "========================================"
+          echo "Test job result: ${{ needs.test.result }}"
+          echo "========================================"
+
+          if [ "${{ needs.test.result }}" != "success" ]; then
+            echo "GEDT CI: FAILED"
+            exit 1
+          fi
+
+          echo "GEDT CI: PASSED"
+          echo "Release candidate validation completed."
