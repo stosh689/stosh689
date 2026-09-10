@@ -1,5 +1,3 @@
-"""Global Experimental Digital Twin Framework."""
+"""GEDT v11.0 - Global Economic Digital Twin."""
 
-__version__ = "1.1.0"
-
-__all__ = ["__version__"]
+__version__ = "11.0.0"
